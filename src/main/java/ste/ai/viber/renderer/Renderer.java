@@ -1,11 +1,11 @@
 package ste.ai.viber.renderer;
 
 import ste.ai.viber.model.Chat;
+import ste.ai.viber.model.ChatMessage;
 import ste.ai.viber.model.Conversation;
-import ste.ai.viber.model.Message;
 
 /**
- * Renders the content of a Conversation, Chat, or Message.
+ * Renders the content of a Conversation, Chat, or ChatMessage.
  */
 public interface Renderer {
 
@@ -31,5 +31,5 @@ public interface Renderer {
      * @param message the message to render
      * @throws IllegalArgumentException if message is null
      */
-    void render(Message message);
+    void render(ChatMessage message);
 }

@@ -6,40 +6,61 @@ import dev.langchain4j.service.Result;
 import dev.langchain4j.service.UserMessage;
 import dev.langchain4j.service.tool.ToolExecution;
 import dev.langchain4j.agent.tool.ToolExecutionRequest;
+import ste.ai.viber.actor.Actor;
 import ste.ai.viber.model.Chat;
 import ste.ai.viber.model.Conversation;
-import ste.ai.viber.model.Message;
-import ste.ai.viber.model.MessageType;
-import ste.ai.viber.model.Role;
+import ste.ai.viber.model.PromptMessage;
+import ste.ai.viber.model.ReplyMessage;
 import ste.ai.viber.model.SystemMessage;
+import ste.ai.viber.model.ToolExecutionRequestMessage;
+import ste.ai.viber.model.ToolExecutionResponseMessage;
+import ste.ai.viber.tools.Tool;
 
 import java.util.List;
+import java.util.function.Consumer;
+import static ste.ai.viber.Utils.ifNotNull;
+import static ste.ai.viber.Utils.requireNonNull;
 
-public class LangChain4jActor {
+public class LangChain4jActor implements Actor {
 
-    public interface ConversationUpdateListener {
-        void conversationUpdated(Conversation conversation);
+    public interface ConversationConsumer extends Consumer {
+        default void updated(final Conversation conversation) {
+            accept(conversation);
+        }
     }
 
-    private interface ActorService {
+    public interface ActorService {
         Result<String> chat(@UserMessage String userMessage);
     }
 
     private final ActorService service;
     private final Conversation conversation;
-    private final ConversationUpdateListener listener;
-    private final List<Object> tools;
+    private final ConversationConsumer updated;
+    private final List<Tool> tools;
 
     public LangChain4jActor(ChatModel chatModel,
-                            List<Object> tools,
+                            List<Tool> tools,
                             String systemPrompt,
-                            ConversationUpdateListener listener) {
+                            ConversationConsumer updated) {
+        requireNonNull(chatModel, "chatModel");
+        requireNonNull(tools, "tools");
+        requireNonNull(systemPrompt, "systemPrompt");
+        if (systemPrompt.isBlank()) {
+            throw new IllegalArgumentException("systemPrompt must not be blank");
+        }
+        if (tools.isEmpty()) {
+            throw new IllegalArgumentException("tools must not be empty");
+        }
+        for (int i = 0; i < tools.size(); i++) {
+            if (tools.get(i) == null) {
+                throw new IllegalArgumentException("tools[%d] must not be null".formatted(i));
+            }
+        }
+
         this.conversation = new Conversation();
-        this.listener = listener;
+        this.updated = updated;
         this.tools = tools;
 
-        Chat chat = new Chat();
-        conversation.addChat(chat);
         conversation.systemMessage(new SystemMessage(systemPrompt));
 
         this.service = AiServices.builder(ActorService.class)
@@ -53,12 +74,16 @@ public class LangChain4jActor {
         return conversation;
     }
 
-    public void chat(String userMessage) {
-        Chat chat = conversation.chats().get(0);
-        chat.addMessage(new Message(Role.VIBER, MessageType.PROMPT, userMessage));
-        fireConversationUpdated();
+    public void chat(Chat chat) {
+        requireNonNull(chat, "chat");
 
-        Result<String> result = service.chat(userMessage);
+        if (!conversation.chats().contains(chat)) {
+            conversation.addChat(chat);
+        }
+        update();
+
+        PromptMessage prompt = chat.prompt();
+        Result<String> result = service.chat(prompt.content());
 
         for (ToolExecution execution : result.toolExecutions()) {
             ToolExecutionRequest request = execution.request();
@@ -72,24 +97,22 @@ public class LangChain4jActor {
                 displayText = displayText + ": " + arguments;
             }
 
-            chat.addMessage(new Message(Role.ACTOR, MessageType.TOOL_EXECUTION_REQUEST, displayText));
-            fireConversationUpdated();
+            chat.addMessage(new ToolExecutionRequestMessage(displayText));
+            update();
 
             String toolResult = execution.result();
-            chat.addMessage(new Message(Role.VIBER, MessageType.TOOL_EXECUTION_RESPONSE, toolResult));
-            fireConversationUpdated();
+            chat.addMessage(new ToolExecutionResponseMessage(toolResult));
+            update();
         }
 
         String finalReply = result.content();
         if (finalReply != null) {
-            chat.addMessage(new Message(Role.ACTOR, MessageType.REPLY, finalReply));
-            fireConversationUpdated();
+            chat.addMessage(new ReplyMessage(finalReply));
+            update();
         }
     }
 
-    private void fireConversationUpdated() {
-        if (listener != null) {
-            listener.conversationUpdated(conversation);
-        }
+    private void update() {
+        ifNotNull(updated, () -> updated.updated(conversation));
     }
 }

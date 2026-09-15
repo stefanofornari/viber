@@ -1,10 +1,13 @@
 package ste.ai.viber.renderer;
 
 import ste.ai.viber.model.Chat;
+import ste.ai.viber.model.ChatMessage;
 import ste.ai.viber.model.Conversation;
-import ste.ai.viber.model.Message;
-import ste.ai.viber.model.MessageType;
-import ste.ai.viber.model.SystemMessage;
+import ste.ai.viber.model.PromptMessage;
+import ste.ai.viber.model.ReplyMessage;
+import ste.ai.viber.model.ThoughtMessage;
+import ste.ai.viber.model.ToolExecutionRequestMessage;
+import ste.ai.viber.model.ToolExecutionResponseMessage;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -27,7 +30,7 @@ public class StringRenderer implements Renderer {
         int index = 1;
         for (Chat chat : conversation.chats()) {
             renderChatHeader(index++);
-            for (Message message : chat.messages()) {
+            for (ChatMessage message : chat.messages()) {
                 renderMessageContent(message);
             }
             System.out.print(System.lineSeparator());
@@ -38,14 +41,14 @@ public class StringRenderer implements Renderer {
     public void render(Chat chat) {
         requireNonNull(chat, "chat");
         renderChatHeader(1);
-        for (Message message : chat.messages()) {
+        for (ChatMessage message : chat.messages()) {
             renderMessageContent(message);
         }
         System.out.print(System.lineSeparator());
     }
 
     @Override
-    public void render(Message message) {
+    public void render(ChatMessage message) {
         requireNonNull(message, "message");
         renderMessageContent(message);
     }
@@ -54,28 +57,38 @@ public class StringRenderer implements Renderer {
         System.out.print("--- Chat " + index + " ---" + System.lineSeparator());
     }
 
-    private void renderSystemMessage(SystemMessage systemMessage) {
+    private void renderSystemMessage(ste.ai.viber.model.SystemMessage systemMessage) {
         System.out.print("--- System ---" + System.lineSeparator());
         System.out.print("  " + systemMessage.content() + System.lineSeparator());
     }
 
-    private void renderMessageContent(Message message) {
+    private void renderMessageContent(ChatMessage message) {
         System.out.print("  " +
             message.role().name() +
             "/" +
-            message.type().name() +
-            prefixFor(message.type()) +
+            typeNameFor(message) +
+            prefixFor(message) +
             message.content() +
             System.lineSeparator());
     }
 
-    private static String prefixFor(MessageType type) {
-        return switch (type) {
-            case PROMPT -> "> ";
-            case REPLY -> ": ";
-            case THOUGHT -> "~ ";
-            case TOOL_EXECUTION_REQUEST -> "[TOOL] ";
-            case TOOL_EXECUTION_RESPONSE -> "[OUT] ";
+    private static String typeNameFor(ChatMessage message) {
+        return switch (message) {
+            case PromptMessage ignored -> "PROMPT";
+            case ReplyMessage ignored -> "REPLY";
+            case ThoughtMessage ignored -> "THOUGHT";
+            case ToolExecutionRequestMessage ignored -> "TOOL_EXECUTION_REQUEST";
+            case ToolExecutionResponseMessage ignored -> "TOOL_EXECUTION_RESPONSE";
+        };
+    }
+
+    private static String prefixFor(ChatMessage message) {
+        return switch (message) {
+            case PromptMessage ignored -> "> ";
+            case ReplyMessage ignored -> ": ";
+            case ThoughtMessage ignored -> "~ ";
+            case ToolExecutionRequestMessage ignored -> "[TOOL] ";
+            case ToolExecutionResponseMessage ignored -> "[OUT] ";
         };
     }
 

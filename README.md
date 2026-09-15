@@ -1,35 +1,47 @@
-# Project Name
+# Viber
 
-## Description
-This project automates data processing tasks using Python. It includes features like data cleaning, transformation, and visualization.
+Viber is a conversational data model for interacting with an LLM. It defines how a vibe chat is conducted and the data model behind it, delegating real interaction with the user and with the LLM to external modules.
 
-## Features
-- Feature 1: Data Cleaning
-- Feature 2: Data Transformation
-- Feature 3: Data Visualization
+## Modules
 
-## Installation
-1. Clone the repository:
-   ```bash
-   git clone <repository-url>
-   ```
+- **VibeChatFX** — JavaFX UI
+- **VibeChatNB** — NetBeans Module built on top of VibeChatFX
+- **VibeChatCLI** — Terminal/CLI user interface
+- **STDIOActor** — writes messages from the counterpart to `stdout` and reads messages to return from `stdin`
+- **LangChain4jActor** — interacts with a LangChain4j model
 
-2. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
+## Building
 
-## Usage
-Run the following command to start:
-   ```bash
-   python main.py
-   ```
+Requires Java 21 and Maven.
 
-## Contributing
-Contributions are welcome! Please follow these steps:
-1. Fork the repository.
-2. Create a feature branch.
-3. Submit a pull request.
+```bash
+mvn package
+```
 
-## License
-This project is licensed under the MIT License.
+This produces an uber JAR at `target/viber-0.0-SNAPSHOT.jar`.
+
+## Running the CLI
+
+```bash
+# Echo mode (no LLM)
+java -jar target/viber-0.0-SNAPSHOT.jar --echo
+
+# Real LLM
+java -jar target/viber-0.0-SNAPSHOT.jar \
+  --key sk-... \
+  --endpoint https://api.openai.com/v1 \
+  --model gpt-4o-mini \
+  --system-prompt "You are a helpful assistant."
+```
+
+## Status
+
+- [x] US-000006: CLI Interface
+
+## Development
+
+- Java 21
+- Maven
+- JUnit 5 + AssertJ + TestFX
+- LangChain4j
+- picocli

@@ -27,7 +27,7 @@ class ConversationTest {
     @Test
     void fluent_addChat_and_systemMessage() {
         Conversation conversation = new Conversation();
-        Chat chat = new Chat();
+        Chat chat = new Chat(new PromptMessage("test"));
 
         conversation.addChat(chat).systemMessage(new SystemMessage("test"));
 

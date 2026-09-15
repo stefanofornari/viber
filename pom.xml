@@ -148,6 +148,12 @@
         </dependency>
 
         <dependency>
+            <groupId>info.picocli</groupId>
+            <artifactId>picocli</artifactId>
+            <version>4.7.5</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-jdk14</artifactId>
             <version>2.0.7</version>
@@ -288,6 +294,60 @@
                                 <option>${profiler.jvmargs.arg4}</option>
                                 <option>${profiler.jvmargs.arg5}</option>
                             </options>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>${exec.mainClass}</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.5.1</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <artifactSet>
+                                <excludes>
+                                    <exclude>org.openjfx:javafx-controls</exclude>
+                                    <exclude>org.openjfx:javafx-fxml</exclude>
+                                    <exclude>org.openjfx:javafx-web</exclude>
+                                    <exclude>org.openjfx:javafx-graphics</exclude>
+                                    <exclude>org.openjfx:javafx-base</exclude>
+                                    <exclude>org.openjfx:javafx-media</exclude>
+                                    <exclude>org.testfx:testfx-core</exclude>
+                                    <exclude>org.testfx:testfx-junit5</exclude>
+                                    <exclude>org.testfx:openjfx-monocle</exclude>
+                                    <exclude>org.junit.jupiter:junit-jupiter-api</exclude>
+                                    <exclude>org.junit.jupiter:junit-jupiter-engine</exclude>
+                                    <exclude>org.junit.jupiter:junit-jupiter-params</exclude>
+                                    <exclude>com.github.stefanbirkner:system-lambda</exclude>
+                                    <exclude>org.apiguardian:apiguardian-api</exclude>
+                                    <exclude>org.assertj:assertj-core</exclude>
+                                    <exclude>io.github.mkpaz:devtoolsfx-gui</exclude>
+                                    <exclude>io.github.mkpaz:devtoolsfx-connector</exclude>
+                                    <exclude>io.github.typhon0:AnimateFX</exclude>
+                                </excludes>
+                            </artifactSet>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>META-INF/services/dev.langchain4j.model.chat.ChatModel</resource>
+                                </transformer>
+                            </transformers>
                         </configuration>
                     </execution>
                 </executions>

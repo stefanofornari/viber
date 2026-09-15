@@ -15,16 +15,16 @@ This index lists the user stories derived from `uzz/specs/scope.md`.
 
 | ID | Title | Status |
 |----|-------|--------|
-| [US-000003](ui/US-000003/US-000003.md) | Text-based Conversation Rendering | TODO |
+| [US-000003](ui/US-000003/US-000003.md) | Text-based Conversation Rendering | DONE |
 | [US-000004](ui/US-000004/US-000004.md) | JavaFX Conversation Control | TODO |
-| [US-000006](ui/US-000006/US-000006.md) | CLI Interface | TODO |
+| [US-000006](ui/US-000006/US-000006.md) | CLI Interface | DONE |
 | [US-000009](ui/US-000009/US-000009.md) | NetBeans Module | TODO |
 
 ### actor
 
 | ID | Title | Status |
 |----|-------|--------|
-| [US-000007](actor/US-000007/US-000007.md) | Hello World Viber | TODO |
+| [US-000007](actor/US-000007/US-000007.md) | Hello World Viber | DONE |
 | [US-000008](actor/US-000008/US-000008.md) | LangChain4j Actor | TODO |
 
 ### development

@@ -2,11 +2,14 @@ package ste.ai.viber.renderer;
 
 import org.junit.jupiter.api.Test;
 import ste.ai.viber.model.Chat;
+import ste.ai.viber.model.ChatMessage;
 import ste.ai.viber.model.Conversation;
-import ste.ai.viber.model.Message;
-import ste.ai.viber.model.MessageType;
+import ste.ai.viber.model.PromptMessage;
+import ste.ai.viber.model.ReplyMessage;
 import ste.ai.viber.model.Role;
-import ste.ai.viber.model.SystemMessage;
+import ste.ai.viber.model.ThoughtMessage;
+import ste.ai.viber.model.ToolExecutionRequestMessage;
+import ste.ai.viber.model.ToolExecutionResponseMessage;
 
 import static com.github.stefanbirkner.systemlambda.SystemLambda.tapSystemOut;
 import static org.assertj.core.api.BDDAssertions.then;
@@ -16,9 +19,8 @@ class StringRendererTest {
 
     @Test
     void renders_conversation_with_one_chat_containing_two_messages() throws Exception {
-        Chat chat = new Chat();
-        chat.addMessage(new Message(Role.VIBER, MessageType.PROMPT, "Hello"));
-        chat.addMessage(new Message(Role.ACTOR, MessageType.REPLY, "Hi there"));
+        Chat chat = new Chat(new PromptMessage("Hello"));
+        chat.addMessage(new ReplyMessage("Hi there"));
 
         Conversation conversation = new Conversation().addChat(chat);
         String output = tapSystemOut(() -> new StringRenderer().render(conversation));
@@ -32,11 +34,8 @@ class StringRendererTest {
 
     @Test
     void renders_multiple_chats_separated() throws Exception {
-        Chat chat1 = new Chat();
-        chat1.addMessage(new Message(Role.VIBER, MessageType.PROMPT, "Feature A?"));
-
-        Chat chat2 = new Chat();
-        chat2.addMessage(new Message(Role.VIBER, MessageType.PROMPT, "Feature B?"));
+        Chat chat1 = new Chat(new PromptMessage("Feature A?"));
+        Chat chat2 = new Chat(new PromptMessage("Feature B?"));
 
         Conversation conversation = new Conversation()
             .addChat(chat1)
@@ -55,10 +54,9 @@ class StringRendererTest {
 
     @Test
     void renders_different_message_types_distinctly() throws Exception {
-        Chat chat = new Chat();
-        chat.addMessage(new Message(Role.VIBER, MessageType.PROMPT, "prompt text"));
-        chat.addMessage(new Message(Role.ACTOR, MessageType.REPLY, "reply text"));
-        chat.addMessage(new Message(Role.ACTOR, MessageType.THOUGHT, "thought text"));
+        Chat chat = new Chat(new PromptMessage("prompt text"));
+        chat.addMessage(new ReplyMessage("reply text"));
+        chat.addMessage(new ThoughtMessage("thought text"));
 
         Conversation conversation = new Conversation().addChat(chat);
         String output = tapSystemOut(() -> new StringRenderer().render(conversation));
@@ -73,11 +71,10 @@ class StringRendererTest {
 
     @Test
     void renders_system_message_before_chats() throws Exception {
-        Chat chat = new Chat();
-        chat.addMessage(new Message(Role.VIBER, MessageType.PROMPT, "Hello"));
+        Chat chat = new Chat(new PromptMessage("Hello"));
 
         Conversation conversation = new Conversation()
-            .systemMessage(new SystemMessage("You are a helpful assistant"))
+            .systemMessage(new ste.ai.viber.model.SystemMessage("You are a helpful assistant"))
             .addChat(chat);
 
         String output = tapSystemOut(() -> new StringRenderer().render(conversation));
@@ -92,8 +89,7 @@ class StringRendererTest {
 
     @Test
     void renders_conversation_without_system_message() throws Exception {
-        Chat chat = new Chat();
-        chat.addMessage(new Message(Role.VIBER, MessageType.PROMPT, "Hello"));
+        Chat chat = new Chat(new PromptMessage("Hello"));
 
         Conversation conversation = new Conversation().addChat(chat);
         String output = tapSystemOut(() -> new StringRenderer().render(conversation));
@@ -114,24 +110,24 @@ class StringRendererTest {
 
     @Test
     void renders_tool_messages_with_distinct_prefix() throws Exception {
-        Chat chat = new Chat();
-        chat.addMessage(new Message(Role.VIBER, MessageType.TOOL_EXECUTION_REQUEST, "search(query=foo)"));
-        chat.addMessage(new Message(Role.ACTOR, MessageType.TOOL_EXECUTION_RESPONSE, "result: 3 items"));
+        Chat chat = new Chat(new PromptMessage("Hello"));
+        chat.addMessage(new ToolExecutionRequestMessage("search(query=foo)"));
+        chat.addMessage(new ToolExecutionResponseMessage("result: 3 items"));
 
         Conversation conversation = new Conversation().addChat(chat);
         String output = tapSystemOut(() -> new StringRenderer().render(conversation));
 
         then(output)
             .isEqualTo("--- Chat 1 ---\n" +
-                "  VIBER/TOOL_EXECUTION_REQUEST[TOOL] search(query=foo)\n" +
-                "  ACTOR/TOOL_EXECUTION_RESPONSE[OUT] result: 3 items\n" +
+                "  VIBER/PROMPT> Hello\n" +
+                "  ACTOR/TOOL_EXECUTION_REQUEST[TOOL] search(query=foo)\n" +
+                "  VIBER/TOOL_EXECUTION_RESPONSE[OUT] result: 3 items\n" +
                 "\n");
     }
 
     @Test
     void renders_single_chat_incrementally() throws Exception {
-        Chat chat = new Chat();
-        chat.addMessage(new Message(Role.VIBER, MessageType.PROMPT, "Hello"));
+        Chat chat = new Chat(new PromptMessage("Hello"));
 
         String output = tapSystemOut(() -> new StringRenderer().render(chat));
 
@@ -143,7 +139,7 @@ class StringRendererTest {
 
     @Test
     void renders_single_message_incrementally() throws Exception {
-        Message message = new Message(Role.ACTOR, MessageType.REPLY, "Hi there");
+        ChatMessage message = new ReplyMessage("Hi there");
         String output = tapSystemOut(() -> new StringRenderer().render(message));
 
         then(output).isEqualTo("  ACTOR/REPLY: Hi there\n");
@@ -168,7 +164,7 @@ class StringRendererTest {
     @Test
     void renderMessage_throws_on_null_message() throws Exception {
         StringRenderer renderer = new StringRenderer();
-        thenThrownBy(() -> tapSystemOut(() -> renderer.render((Message) null)))
+        thenThrownBy(() -> tapSystemOut(() -> renderer.render((ChatMessage) null)))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("message must not be null");
     }

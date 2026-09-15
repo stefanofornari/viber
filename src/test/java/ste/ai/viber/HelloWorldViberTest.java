@@ -26,7 +26,8 @@ class HelloWorldViberTest {
             });
 
         String actual = output[0];
-        String expected = "--- System ---\n" +
+        String expected = "What's your name?\n" +
+            "--- System ---\n" +
             "  use mock 'hello world.2.txt'\n" +
             "To greet the user, use the InputTool with the prompt 'What is your name?'. execute tool input with arguments: What's your name?\n" +
             "--- Chat 1 ---\n" +

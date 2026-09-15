@@ -1,0 +1,61 @@
+package ste.ai.viber.cli.command;
+
+import picocli.CommandLine;
+
+import java.util.List;
+
+public class CliOptions {
+
+    @CommandLine.Option(
+        names = {"--key"},
+        description = "API key for the LLM provider",
+        required = true
+    )
+    String key;
+
+    @CommandLine.Option(
+        names = {"--endpoint"},
+        description = "Base URL of the LLM provider (default: OpenAI)",
+        defaultValue = "https://api.openai.com/v1"
+    )
+    String endpoint;
+
+    @CommandLine.Option(
+        names = {"--model"},
+        description = "Model name to use (default: gpt-4o-mini)",
+        defaultValue = "gpt-4o-mini"
+    )
+    String model;
+
+    @CommandLine.Option(
+        names = {"--system-prompt"},
+        description = "System prompt for the actor"
+    )
+    String systemPrompt = "You are a helpful assistant.";
+
+    @CommandLine.Option(
+        names = {"--echo"},
+        description = "Echo mode: actor repeats user input without calling an LLM"
+    )
+    boolean echo;
+
+    public String key() {
+        return key;
+    }
+
+    public String endpoint() {
+        return endpoint;
+    }
+
+    public String model() {
+        return model;
+    }
+
+    public String systemPrompt() {
+        return systemPrompt;
+    }
+
+    public boolean isEcho() {
+        return echo;
+    }
+}

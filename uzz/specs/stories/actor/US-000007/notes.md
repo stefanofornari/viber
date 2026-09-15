@@ -4,7 +4,7 @@
 
 - Introduced a `Viber` interface with a single `start()` method to represent a goal-oriented conversation session.
 - Added `HelloWorldViber` as the first concrete implementation, now backed by a `LangChain4jActor`.
-- Created `LangChain4jActor` to wrap LangChain4j's `AiServices`. It owns the ACTOR role, receives a `ChatModel`, tools, a system prompt, and a `ConversationUpdateListener` callback. It exposes `chat(String)` and does not return a value; conversation updates are pushed through the callback.
+- Created `LangChain4jActor` to wrap LangChain4j's `AiServices`. It owns the ACTOR role, receives a `ChatModel`, tools, a system prompt, and a `ConversationUpdateListener` callback. It exposes `chat(Chat)` and does not return a value; conversation updates are pushed through the callback.
 - Created generic `InputTool` in `ste.ai.viber.tool` with an `input(String prompt)` method. It reads one line from stdin and returns it, with a fallback of `"(no name provided)"` on EOF/error.
 - Made `StringRenderer` public so production code outside the renderer package can reuse the existing text-rendering behavior.
 - Kept `HelloWorldViber` free of UI concerns: it constructs a `Conversation` model and delegates rendering to `StringRenderer`.
@@ -15,6 +15,7 @@
 
 - `DummyChatModel` was extended to support tool arguments via a new prompt format: `execute tool <name> with arguments:\n<args>`. This keeps test scenarios readable without changing the production tool API.
 - `LangChain4jActor` uses a top-level `ActorService` interface with `Result<String> chat(@UserMessage String userMessage)` so LangChain4j's native tool-execution loop and result metadata are available.
+- `PromptMessage` validates that content is non-null and non-blank at construction time. `Chat` validates that its prompt is non-null. Together, these ensure every `Chat` is always well-formed before reaching the actor.
 - `SystemMessage` is now modeled in the Viber domain and stored in `Conversation`. `LangChain4jActor` sets it from the provided system prompt.
 - `StringRenderer` renders the system message before chats, using the format `--- System ---` followed by the content.
 - `Main` no longer references `DummyChatModel`; it currently throws `UnsupportedOperationException` because a real `ChatModel` provider has not been wired yet.

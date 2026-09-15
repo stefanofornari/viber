@@ -1,11 +1,11 @@
 package ste.ai.viber;
 
+import picocli.CommandLine;
+import ste.ai.viber.cli.MainCommand;
+
 public class Main {
     public static void main(String[] args) {
-        throw new UnsupportedOperationException(
-            "Main requires a ChatModel implementation. " +
-            "In tests, use DummyChatModel. In production, wire a real ChatModel " +
-            "through a factory or dependency injection."
-        );
+        int exitCode = new CommandLine(new MainCommand()).execute(args);
+        System.exit(exitCode);
     }
 }
