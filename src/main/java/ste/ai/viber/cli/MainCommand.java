@@ -33,8 +33,6 @@ public class MainCommand implements Callable<Integer> {
 
     @Override
     public Integer call() {
-        LOG.info("Command-line args: key=" + options.key() + ", endpoint=" + options.endpoint() + ", model=" + options.model() + ", systemPrompt=" + options.systemPrompt() + ", echo=" + options.isEcho() + ", showLog=" + options.isShowLog());
-
         try {
             validateEndpoint();
         } catch (IllegalArgumentException e) {

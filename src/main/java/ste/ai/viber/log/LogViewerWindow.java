@@ -34,7 +34,9 @@ public class LogViewerWindow extends Application {
         try {
             final FXMLLoader loader = new FXMLLoader(getClass().getResource(VIEWER_WINDOW));
             loader.setController(this);
-            stage.setScene(new Scene(loader.load()));
+            stage.setScene(new Scene(loader.load(), 1200, 800));
+            stage.setMinWidth(800);
+            stage.setMinHeight(500);
             show();
         } catch (IOException x) {
             LOG.severe(() -> "error loading " + VIEWER_WINDOW);
@@ -93,14 +95,20 @@ public class LogViewerWindow extends Application {
     }
 
     public void onLogClick(final String source, final String recordId) {
+        String targetId = recordId;
+        int dotIndex = recordId.indexOf('.');
+        if (dotIndex >= 0 && recordId.startsWith("record-")) {
+            targetId = recordId.substring(0, dotIndex);
+        }
+
         System.out.println("source: %s, id: %s".formatted(source, recordId));
         if ("request".equals(source)) {
             responseLogViewer.webView.getEngine().executeScript(
-                "highlight(document.getElementById(\"%s\"));".formatted(recordId)
+                "highlight(document.getElementById(\"%s\"));".formatted(targetId)
             );
         } else {
             requestLogViewer.webView.getEngine().executeScript(
-                "highlight(document.getElementById(\"%s\"));".formatted(recordId)
+                "highlight(document.getElementById(\"%s\"));".formatted(targetId)
             );
         }
     }
