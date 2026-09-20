@@ -53,7 +53,7 @@ public class MainCommand implements Callable<Integer> {
                 new Thread(() -> Application.launch(LogViewerWindow.class)).start();
             }
             Conversation conversation = actor.conversation();
-            VibeChatCLI cli = new VibeChatCLI(actor);
+            ViberCLI cli = new ViberCLI(actor);
             cli.start();
             if (logWindow != null) {
                 logWindow.cleanup();

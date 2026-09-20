@@ -11,15 +11,15 @@
 
 ## Overall Description
 
-Viber is a conversational data model for interacting with an LLM. It defines how a vibe chat is conducted and the data model behind it, delegating real interaction with the user and with the LLM to external modules.
+Viber is a conversational data model for interacting with an LLM. It defines how a Viber conversation is conducted and the data model behind it, delegating real interaction with the user and with the LLM to external modules.
 
 The model is built around a `Viber`-`Actor` conversation pattern. A conversation is a sequence of `chat`s, where each `chat` is a sequence of related `message`s. A typical example is the interaction between a user and an LLM: the user starts the conversation by submitting a prompt, playing the `Viber` role; the LLM answers, playing the `Actor` role. These are conventional names — the same actor can potentially play as `Viber` in some conversations and as `Actor` in others.
 
 Viber provides the following submodules for different types of user interaction:
 
-- **VibeChatFX** — JavaFX UI
-- **VibeChatNB** — NetBeans Module built on top of VibeChatFX
-- **VibeChatCLI** — Terminal/CLI user interface
+- **ViberFX** — JavaFX UI
+- **ViberNB** — NetBeans Module built on top of ViberFX
+- **ViberCLI** — Terminal/CLI user interface
 
 Viber provides the following submodules to interact with the chat counterpart (e.g., an LLM):
 
@@ -52,10 +52,10 @@ A message is any exchange between the two actors chatting. It can be of differen
 - Model persistence
 - UI to represent a conversation as text and in a JavaFX control
 - JavaFX component for embedding Viber in host JavaFX applications
-- `VibeChatCLI` terminal interface
+- `ViberCLI` terminal interface
 - `STDIOActor` for standard input/output interaction
 - `LangChain4jActor` for LangChain4j integration
-- `VibeChatNB` NetBeans module (post-MVP, after the pure JavaFX MVP is complete)
+- `ViberNB` NetBeans module (post-MVP, after the pure JavaFX MVP is complete)
 
 ## Out-of-Scope / Future Enhancements
 

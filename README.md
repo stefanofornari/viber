@@ -1,12 +1,12 @@
 # Viber
 
-Viber is a conversational data model for interacting with an LLM. It defines how a vibe chat is conducted and the data model behind it, delegating real interaction with the user and with the LLM to external modules.
+Viber is a conversational data model for interacting with an LLM. It defines how a Viber conversation is conducted and the data model behind it, delegating real interaction with the user and with the LLM to external modules.
 
 ## Modules
 
-- **VibeChatFX** — JavaFX UI
-- **VibeChatNB** — NetBeans Module built on top of VibeChatFX
-- **VibeChatCLI** — Terminal/CLI user interface
+- **ViberFX** — JavaFX UI
+- **ViberNB** — NetBeans Module built on top of ViberFX
+- **ViberCLI** — Terminal/CLI user interface
 - **STDIOActor** — writes messages from the counterpart to `stdout` and reads messages to return from `stdin`
 - **LangChain4jActor** — interacts with a LangChain4j model
 

@@ -2,7 +2,7 @@
 
 ## Technical Decisions
 
-- `VibeChatCLI` does not own the streaming lifecycle; it merely forwards each `ChatMessage` to `renderConversation()` via the `onMessage` callback.
+- `ViberCLI` does not own the streaming lifecycle; it merely forwards each `ChatMessage` to `renderConversation()` via the `onMessage` callback.
 - The `BufferedReader` loop in `start()` was updated to pass the callback into `actor.chat(...)`. The loop continues to read next prompt after each `chat()` completes.
 - `renderConversation()` is idempotent and reads from `actor.conversation()`, so repeated re-renders during streaming are safe.
 - `StdInStdOutActor` still emits exactly one `ReplyMessage`, but now through the callback. The CLI test verifies both sync and async actor implementations work through the same callback.
