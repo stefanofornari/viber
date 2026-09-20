@@ -1,4 +1,4 @@
-package ste.ai.toolify.log;
+package ste.ai.viber.log;
 
 import java.util.Scanner;
 import java.util.regex.Matcher;

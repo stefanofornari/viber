@@ -1,4 +1,4 @@
-package ste.ai.toolify.log;
+package ste.ai.viber.log;
 
 import javafx.application.Platform;
 import javafx.scene.Scene;
@@ -10,7 +10,6 @@ import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
 
 import static org.assertj.core.api.BDDAssertions.then;
-import ste.ai.toolify.MainController;
 
 @ExtendWith(ApplicationExtension.class)
 class LogViewerTest {
@@ -19,8 +18,8 @@ class LogViewerTest {
 
     @Start
     private void start(Stage stage) {
-        logViewer = new LogViewer();
-        logViewer.controller(null, new MainController());
+        logViewer = new LogViewer("src/main/resources/ste/ai/viber/log");
+        logViewer.setUserData("request");
         stage.setScene(new Scene(logViewer, 800, 600));
         stage.show();
     }
@@ -67,8 +66,8 @@ class LogViewerTest {
     void javascript_functions_are_loaded(FxRobot robot) {
         robot.interact(() -> {
             Platform.runLater(() -> {
-                String logFn = logViewer.webView().getEngine().executeScript("typeof log").toString();
-                String clearFn = logViewer.webView().getEngine().executeScript("typeof clear").toString();
+                String logFn = logViewer.webView.getEngine().executeScript("typeof log").toString();
+                String clearFn = logViewer.webView.getEngine().executeScript("typeof clear").toString();
                 then(logFn).isEqualTo("function");
                 then(clearFn).isEqualTo("function");
             });

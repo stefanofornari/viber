@@ -3,7 +3,7 @@ package ste.ai.viber.model;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import static ste.ai.viber.Utils.requireNonNull;
+import static ste.ai.viber.util.Utils.requireNonNull;
 
 public class Chat {
     private final PromptMessage prompt;

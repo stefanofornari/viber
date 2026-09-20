@@ -16,6 +16,7 @@ class MainCommandTest {
         then(options.model()).isEqualTo("gpt-4o-mini");
         then(options.systemPrompt()).isEqualTo("You are a helpful assistant.");
         then(options.isEcho()).isFalse();
+        then(options.isShowLog()).isFalse();
     }
 
     @Test
@@ -25,7 +26,8 @@ class MainCommandTest {
             "--endpoint", "http://localhost:8080/v1",
             "--model", "custom-model",
             "--system-prompt", "Be concise.",
-            "--echo"
+            "--echo",
+            "--show-log"
         });
 
         then(options.key()).isEqualTo("secret");
@@ -33,6 +35,15 @@ class MainCommandTest {
         then(options.model()).isEqualTo("custom-model");
         then(options.systemPrompt()).isEqualTo("Be concise.");
         then(options.isEcho()).isTrue();
+        then(options.isShowLog()).isTrue();
+    }
+
+    @Test
+    void exit_code_is_1_for_invalid_endpoint() {
+        MainCommand command = new MainCommand();
+        CommandLine commandLine = new CommandLine(command);
+        int exitCode = commandLine.execute("--key", "x", "--endpoint", "htppps://invalid");
+        then(exitCode).isEqualTo(1);
     }
 
     private CliOptions parse(String... args) {

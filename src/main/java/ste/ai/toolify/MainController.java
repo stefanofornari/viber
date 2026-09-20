@@ -99,6 +99,7 @@ public class MainController implements JeddictBrainListener {
         // Add the handlers to the respective loggers
         Logger.getLogger("dev.langchain4j.http.client.log").addHandler(requestHandler);
         Logger.getLogger("dev.langchain4j.http.client.log").addHandler(responseHandler);
+        Logger.getLogger("dev.langchain4j.http.client.log").setLevel(java.util.logging.Level.ALL);
 
         // Initiali llm response viewer
         final WebEngine engine = llmResponseViewer().getEngine();

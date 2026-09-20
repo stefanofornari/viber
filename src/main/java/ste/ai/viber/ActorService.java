@@ -1,8 +1,9 @@
 package ste.ai.viber;
 
+import dev.langchain4j.model.chat.response.ChatResponse;
+import dev.langchain4j.service.TokenStream;
 import dev.langchain4j.service.UserMessage;
-import dev.langchain4j.service.Result;
 
 public interface ActorService {
-    Result<String> chat(@UserMessage String userMessage);
+    TokenStream chat(@UserMessage String userMessage);
 }

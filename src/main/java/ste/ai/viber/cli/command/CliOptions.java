@@ -34,10 +34,24 @@ public class CliOptions {
     String systemPrompt = "You are a helpful assistant.";
 
     @CommandLine.Option(
+        names = {"--show-log"},
+        description = "Show a JavaFX window with HTTP request/response logs during the chat session"
+    )
+    boolean showLog;
+
+    public boolean isShowLog() {
+        return showLog;
+    }
+
+    @CommandLine.Option(
         names = {"--echo"},
         description = "Echo mode: actor repeats user input without calling an LLM"
     )
     boolean echo;
+
+    public boolean isEcho() {
+        return echo;
+    }
 
     public String key() {
         return key;
@@ -53,9 +67,5 @@ public class CliOptions {
 
     public String systemPrompt() {
         return systemPrompt;
-    }
-
-    public boolean isEcho() {
-        return echo;
     }
 }

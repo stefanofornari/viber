@@ -1,65 +1,74 @@
-package ste.ai.toolify.log;
+package ste.ai.viber.log;
 
-import java.io.IOException;
+import java.io.File;
 import java.util.logging.Logger;
 import javafx.application.Platform;
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import netscape.javascript.JSObject;
-import ste.ai.toolify.MainController;
+import static ste.ai.viber.util.Utils.ifNull;
 
 
-public class LogViewer extends VBox {
+public class LogViewer extends Pane {
 
     private static final Logger LOG = Logger.getLogger(LogViewer.class.getName());
 
-    @FXML
-    private WebView webView;
+    public final WebView webView = new WebView();
 
-    @FXML
-    protected VBox container;
+    public LogViewerWindow main;
 
-    protected MainController controller;
+    private final String logViewerBaseDir;
+
+    private static final String DEFAULT_LOGVIEWER_BASE_DIR = "etc/resources/logviewer";
 
     public LogViewer() {
-        final FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("logviewer.fxml"));
-        fxmlLoader.setRoot(this); // Set this instance as the root
-        fxmlLoader.setController(this); // Set this instance as the controller
-        try {
-            fxmlLoader.load();
-        } catch (IOException exception) {
-            throw new RuntimeException(exception);
-        }
+        this(DEFAULT_LOGVIEWER_BASE_DIR);
     }
 
-    @FXML
-    public void initialize() throws IOException {
+    public LogViewer(final String logViewerBaseDir) {
+        this.logViewerBaseDir = logViewerBaseDir;
+        this.getChildren().add(webView);
+
         final WebEngine engine = webView.getEngine();
 
         engine.setOnAlert((event) -> {
             LOG.finest(() -> "WebView alert: " + event.getData());
-            System.out.println("ALERT: " + event.getData());
         });
         engine.setOnError((event) -> {
             LOG.finest(() -> "WebView error: " + event.getMessage());
-            System.out.println("ERROR: " + event.getMessage());
         });
         engine.getLoadWorker().stateProperty().addListener(
-            (observable, oldState, state) -> {
-                if ("SUCCEEDED".equals(state.toString())) {
+            (obj, was, is) -> {
+                LOG.finest(() -> "WebView %s/%s/%s".formatted(String.valueOf(obj), was, is));
+                if ("SUCCEEDED".equals(String.valueOf(is))) {
                     LOG.finest("WebView page loaded successfully");
                     Platform.runLater(() -> {
                         JSObject window = (JSObject) engine.executeScript("window");
-                        window.setMember("mainController", controller);
+                        window.setMember("mainController", main);
                     });
                 }
             }
         );
+    }
 
-        webView.getEngine().load(getClass().getResource("logviewer.html").toExternalForm() + "?role=" + String.valueOf(webView.getUserData()));
+    /**
+     * JavaFX calls this method automatically AFTER the constructor finishes,
+     * passing the value defined in userData="..." from your FXML.
+     */
+    @Override
+    public void setUserData(final Object value) {
+        super.setUserData(value); // Keep standard JavaFX behavior intact
+
+        final WebEngine engine = webView.getEngine();
+        final File f = new File(logViewerBaseDir, "logviewer.html");
+        final String url = f.toURI().toString() + "?role=" + String.valueOf(value);
+
+        ifNull(
+            url,
+            () -> LOG.severe(() -> "resource not found: %s".formatted(url)),
+            () -> engine.load(url)
+        );
     }
 
     public void clear() {
@@ -81,18 +90,5 @@ public class LogViewer extends VBox {
                 x.printStackTrace();
             }
         });
-    }
-
-    public WebView webView() {
-        return webView;
-    }
-
-    public void controller(final String role, final MainController controller) {
-        webView.getEngine().load(getClass().getResource("logviewer.html").toExternalForm() + "?role=" + role);
-        this.controller = controller;
-    }
-
-    public void controller(final MainController controller) {
-        controller("", controller);
     }
 }

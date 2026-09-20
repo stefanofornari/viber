@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package ste.ai.viber;
+package ste.ai.viber.util;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -29,10 +29,18 @@ public class Utils {
         }
     }
 
-    public static final void ifNull(final Object o, final Runnable r) {
+    public static final void ifNull(final Object o, final Runnable t) {
         if (o == null) {
-            r.run();
+            t.run();
         }
+    }
+
+    public static final void ifNull(final Object o, final Runnable t, final Runnable f) {
+        if (o == null) {
+            t.run(); // true
+        }
+
+        f.run(); // false
     }
 
     public static final void requireNonNull(final Object o, final String name) {

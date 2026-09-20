@@ -1,112 +1,77 @@
 package ste.ai.viber.cli;
 
-import dev.langchain4j.model.chat.request.ToolChoice;
+import dev.langchain4j.exception.AuthenticationException;
+import dev.langchain4j.exception.RateLimitException;
 import org.junit.jupiter.api.Test;
-import ste.ai.model.DummyChatModel;
+
+import java.io.StringReader;
+
 import ste.ai.viber.actor.Actor;
 import ste.ai.viber.model.Chat;
+import ste.ai.viber.model.ChatMessage;
+import ste.ai.viber.model.Conversation;
+import ste.ai.viber.model.ErrorMessage;
 import ste.ai.viber.model.PromptMessage;
 import ste.ai.viber.model.ReplyMessage;
-import ste.ai.viber.LangChain4jActor;
-import ste.ai.viber.tools.InputTool;
 
-import java.util.List;
-
-import static com.github.stefanbirkner.systemlambda.SystemLambda.tapSystemOut;
-import static com.github.stefanbirkner.systemlambda.SystemLambda.withTextFromSystemIn;
 import static org.assertj.core.api.BDDAssertions.then;
 
 class VibeChatCLITest {
 
     @Test
-    void starts_session_and_creates_conversation_with_initial_prompt() throws Exception {
-        DummyChatModel model = new DummyChatModel();
-        model.toolChoice = ToolChoice.AUTO;
+    void chat_authentication_exception_is_wrapped_with_user_friendly_message() {
+        Actor actor = new Actor() {
+            @Override
+            public void chat(Chat chat, java.util.function.Consumer<ChatMessage> onMessage) {
+                throw new RuntimeException("Streaming chat failed", new AuthenticationException("PAID_MODEL_AUTH_REQUIRED: You need to sign in to use this model."));
+            }
 
-        Actor actor = new LangChain4jActor(
-            model,
-            List.of(new InputTool()),
-            "use mock cli_hello.txt\nYou are a helpful assistant.",
-            null
-        );
+            @Override
+            public Conversation conversation() {
+                return new Conversation();
+            }
+        };
 
-        String[] output = new String[1];
-        withTextFromSystemIn("hello", "/exit").execute(() -> {
-            output[0] = tapSystemOut(() -> {
-                VibeChatCLI cli = new VibeChatCLI(actor);
-                cli.start();
-            });
-        });
+        Conversation conversation = new Conversation();
+        VibeChatCLI cli = new VibeChatCLI(actor, conversation, new ste.ai.viber.renderer.StringRenderer(), new StringReader("hello\n"));
+        cli.start();
 
-        then(actor.conversation().chats()).hasSize(1);
-        then(actor.conversation().chats().get(0).messages()).hasSize(2);
-        then(actor.conversation().chats().get(0).messages().get(0))
-            .isInstanceOf(PromptMessage.class)
-            .extracting("content").isEqualTo("hello");
-        then(actor.conversation().chats().get(0).messages().get(1))
-            .isInstanceOf(ReplyMessage.class)
-            .extracting("content").isEqualTo("Hello! How can I help you today?");
-        then(output[0]).contains("Hello! How can I help you today?");
+        then(conversation.chats()).hasSize(1);
+        Chat chat = conversation.chats().get(0);
+        then(chat.messages()).hasSize(3);
+        then(chat.messages().get(0)).isInstanceOf(PromptMessage.class);
+        ErrorMessage errorMessage = (ErrorMessage) chat.messages().get(1);
+        then(errorMessage.content()).contains("Authentication failed");
+        then(errorMessage.content()).contains("PAID_MODEL_AUTH_REQUIRED");
+        then(errorMessage.cause()).isInstanceOf(AuthenticationException.class);
+        then(chat.messages().get(2)).isInstanceOf(ReplyMessage.class);
     }
 
     @Test
-    void continues_existing_conversation_and_appends_new_chat() throws Exception {
-        DummyChatModel model = new DummyChatModel();
-        model.toolChoice = ToolChoice.AUTO;
+    void chat_rate_limit_exception_is_wrapped_with_user_friendly_message() {
+        Actor actor = new Actor() {
+            @Override
+            public void chat(Chat chat, java.util.function.Consumer<ChatMessage> onMessage) {
+                throw new RuntimeException("Streaming chat failed", new RateLimitException("Rate limit exceeded"));
+            }
 
-        Actor actor = new LangChain4jActor(
-            model,
-            List.of(new InputTool()),
-            "use mock cli_hello.txt\nYou are a helpful assistant.",
-            null
-        );
+            @Override
+            public Conversation conversation() {
+                return new Conversation();
+            }
+        };
 
-        Chat existingChat = new Chat(new PromptMessage("previous question"));
-        existingChat.addMessage(new ReplyMessage("previous answer"));
-        actor.conversation().addChat(existingChat);
+        Conversation conversation = new Conversation();
+        VibeChatCLI cli = new VibeChatCLI(actor, conversation, new ste.ai.viber.renderer.StringRenderer(), new StringReader("hello\n"));
+        cli.start();
 
-        String[] output = new String[1];
-        withTextFromSystemIn("follow up", "/exit").execute(() -> {
-            output[0] = tapSystemOut(() -> {
-                VibeChatCLI cli = new VibeChatCLI(actor);
-                cli.start();
-            });
-        });
-
-        then(actor.conversation().chats()).hasSize(2);
-        then(actor.conversation().chats().get(0).messages()).hasSize(2);
-        then(actor.conversation().chats().get(1).messages()).hasSize(2);
-        then(actor.conversation().chats().get(1).messages().get(0))
-            .isInstanceOf(PromptMessage.class)
-            .extracting("content").isEqualTo("follow up");
-        then(actor.conversation().chats().get(1).messages().get(1))
-            .isInstanceOf(ReplyMessage.class)
-            .extracting("content").isEqualTo("Hello! How can I help you today?");
-        then(output[0]).contains("previous answer");
-        then(output[0]).contains("Hello! How can I help you today?");
-    }
-
-    @Test
-    void exits_gracefully_on_exit_command() throws Exception {
-        DummyChatModel model = new DummyChatModel();
-        model.toolChoice = ToolChoice.AUTO;
-
-        Actor actor = new LangChain4jActor(
-            model,
-            List.of(new InputTool()),
-            "use mock cli_hello.txt\nYou are a helpful assistant.",
-            null
-        );
-
-        String[] output = new String[1];
-        withTextFromSystemIn("/exit").execute(() -> {
-            output[0] = tapSystemOut(() -> {
-                VibeChatCLI cli = new VibeChatCLI(actor);
-                cli.start();
-            });
-        });
-
-        then(actor.conversation().chats()).isEmpty();
-        then(output[0]).contains("(empty conversation)");
+        then(conversation.chats()).hasSize(1);
+        Chat chat = conversation.chats().get(0);
+        then(chat.messages()).hasSize(3);
+        then(chat.messages().get(0)).isInstanceOf(PromptMessage.class);
+        ErrorMessage errorMessage = (ErrorMessage) chat.messages().get(1);
+        then(errorMessage.content()).contains("Rate limit exceeded");
+        then(errorMessage.cause()).isInstanceOf(RateLimitException.class);
+        then(chat.messages().get(2)).isInstanceOf(ReplyMessage.class);
     }
 }

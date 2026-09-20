@@ -288,13 +288,17 @@ public class DummyChatModel implements ChatModel, StreamingChatModel {
 
         if (answer != null) {
             for(String m: answer.trim().split("\n")) {
+                String trimmed = m.trim();
+                if (trimmed.isEmpty()) {
+                    continue;
+                }
                 if (streamingHandle.isCancelled()) {
                     final String msg = "the chat has been canceled!";
                     LOG.info(msg);
                     throw new RuntimeException(msg);
-            }
+                }
                 handler.onPartialResponse(
-                    new PartialResponse(m.trim()),
+                    new PartialResponse(trimmed),
                     new PartialResponseContext(streamingHandle)
                 );
             }

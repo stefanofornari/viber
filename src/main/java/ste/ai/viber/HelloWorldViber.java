@@ -1,6 +1,6 @@
 package ste.ai.viber;
 
-import dev.langchain4j.model.chat.ChatModel;
+import dev.langchain4j.model.chat.StreamingChatModel;
 import java.util.List;
 import ste.ai.viber.model.Chat;
 import ste.ai.viber.model.Conversation;
@@ -9,9 +9,9 @@ import ste.ai.viber.renderer.StringRenderer;
 import ste.ai.viber.tools.InputTool;
 
 public class HelloWorldViber implements Viber {
-    private final ChatModel chatModel;
+    private final StreamingChatModel chatModel;
 
-    public HelloWorldViber(ChatModel chatModel) {
+    public HelloWorldViber(StreamingChatModel chatModel) {
         this.chatModel = chatModel;
     }
 
@@ -26,7 +26,7 @@ public class HelloWorldViber implements Viber {
         );
 
         Chat chat = new Chat(new PromptMessage("greet me by my name"));
-        actor.chat(chat);
+        actor.chat(chat, msg -> {});
 
         Conversation conversation = actor.conversation();
         StringRenderer renderer = new StringRenderer();
