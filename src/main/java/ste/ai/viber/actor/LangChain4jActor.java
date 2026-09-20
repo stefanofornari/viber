@@ -1,20 +1,17 @@
-package ste.ai.viber;
+package ste.ai.viber.actor;
 
 import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.service.AiServices;
 import dev.langchain4j.service.TokenStream;
 import dev.langchain4j.service.UserMessage;
 import dev.langchain4j.agent.tool.ToolExecutionRequest;
-import dev.langchain4j.model.chat.response.ChatResponse;
-import dev.langchain4j.model.chat.response.PartialResponse;
-import dev.langchain4j.model.chat.response.PartialResponseContext;
-import ste.ai.viber.actor.Actor;
 import ste.ai.viber.model.Chat;
 import ste.ai.viber.model.ChatMessage;
 import ste.ai.viber.model.Conversation;
 import ste.ai.viber.model.PromptMessage;
 import ste.ai.viber.model.ReplyMessage;
 import ste.ai.viber.model.SystemMessage;
+import ste.ai.viber.model.ThoughtMessage;
 import ste.ai.viber.model.ToolExecutionRequestMessage;
 import ste.ai.viber.model.ToolExecutionResponseMessage;
 import ste.ai.viber.tools.Tool;
@@ -26,6 +23,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import static ste.ai.viber.util.Utils.ifNotNull;
 import static ste.ai.viber.util.Utils.requireNonNull;
+import static ste.ai.viber.util.Utils.safe;
 
 public class LangChain4jActor implements Actor {
 
@@ -95,6 +93,7 @@ public class LangChain4jActor implements Actor {
         AtomicReference<Throwable> error = new AtomicReference<>();
         AtomicBoolean partialReceived = new AtomicBoolean(false);
         StringBuilder replyBuffer = new StringBuilder();
+        StringBuilder thinkingBuffer = new StringBuilder();
 
         TokenStream tokenStream = service.chat(prompt.content());
         tokenStream
@@ -112,6 +111,21 @@ public class LangChain4jActor implements Actor {
                         update();
                     }
                     replyBuffer.delete(0, newlineIndex + 1);
+                }
+            })
+            .onPartialThinking(thinking -> {
+                thinkingBuffer.append(thinking.text());
+
+                int newlineIndex;
+                while ((newlineIndex = thinkingBuffer.indexOf("\n")) >= 0) {
+                    String line = thinkingBuffer.substring(0, newlineIndex).trim();
+                    if (!line.isEmpty()) {
+                        ThoughtMessage thought = new ThoughtMessage(line);
+                        chat.addMessage(thought);
+                        onMessage.accept(thought);
+                        update();
+                    }
+                    thinkingBuffer.delete(0, newlineIndex + 1);
                 }
             })
             .onIntermediateResponse(response -> {
@@ -142,6 +156,14 @@ public class LangChain4jActor implements Actor {
                 update();
             })
             .onCompleteResponse(response -> {
+                String remainingThinking = thinkingBuffer.toString().trim();
+                if (!remainingThinking.isEmpty()) {
+                    ThoughtMessage thought = new ThoughtMessage(remainingThinking);
+                    chat.addMessage(thought);
+                    onMessage.accept(thought);
+                    update();
+                }
+
                 if (!partialReceived.get()) {
                     String finalReply = response.aiMessage().text();
                     if (finalReply != null && !finalReply.isBlank()) {
@@ -159,6 +181,9 @@ public class LangChain4jActor implements Actor {
                         update();
                     }
                 }
+
+                safe(response.metadata().tokenUsage(), (usage) -> chat.tokenUsage(usage));
+
                 latch.countDown();
             })
             .onError(err -> {

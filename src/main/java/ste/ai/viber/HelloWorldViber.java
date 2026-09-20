@@ -1,5 +1,6 @@
 package ste.ai.viber;
 
+import ste.ai.viber.actor.LangChain4jActor;
 import dev.langchain4j.model.chat.StreamingChatModel;
 import java.util.List;
 import ste.ai.viber.model.Chat;

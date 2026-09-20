@@ -306,7 +306,7 @@ public class DummyChatModelTest {
 
     @Test
     public void simulate_streaming() throws IOException {
-        final DummyChatModel chat = new DummyChatModel();
+        final DummyStreamingChatModel chat = new DummyStreamingChatModel();
         final DummyStreamingChatResponseHandler handler = new DummyStreamingChatResponseHandler();
 
         chat.chat("use mock 'hello world.txt'", handler);
@@ -331,7 +331,7 @@ public class DummyChatModelTest {
 
     @Test
     public void interrupt_streaming_chat() throws Exception {
-        final DummyChatModel chat = new DummyChatModel();
+        final DummyStreamingChatModel chat = new DummyStreamingChatModel();
          final DummyStreamingChatResponseHandler handler = new DummyStreamingChatResponseHandler();
 
         chat.streamingHandle.cancel();

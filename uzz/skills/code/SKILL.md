@@ -46,5 +46,6 @@ Draft a concise execution plan covering:
 - Output a summary of modified files and test results for developer review.
 
 ## Additional Instructions
+- **Never** try to inspect jars or decompile/javap classes without acknowledge; it is big smell of missing information that might be available elsewhere; instead, **stop* and **ask** where such information is available.
 - Track comments, technical decisions, design choices, trade-offs, etc., that shall be persisted in a `notes.md` file alongside the user story file.
 - Do not add to `notes.md` redundant information (e.g., information that is already in `coding-standard.md`, `development-framework.md`, or any other generic description).

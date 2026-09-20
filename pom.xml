@@ -14,7 +14,7 @@
         <maven.compiler.release>21</maven.compiler.release>
         <exec.mainClass>ste.ai.viber.Main</exec.mainClass>
         <ikonli.version>12.4.0</ikonli.version>
-        <langchain4j.version>1.18.1</langchain4j.version>
+        <langchain4j.version>1.20.0</langchain4j.version>
         <javafx.version>23.0.2</javafx.version>
         <testfx.version>4.0.18</testfx.version>
     </properties>

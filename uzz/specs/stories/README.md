@@ -28,6 +28,8 @@ This index lists the user stories derived from `uzz/specs/scope.md`.
 | [US-000007](actor/US-000007/US-000007.md) | Hello World Viber | DONE |
 | [US-000008](actor/US-000008/US-000008.md) | LangChain4j Actor | TODO |
 | [US-000010](actor/US-000010/US-000010.md) | Streaming Actor Contract and LangChain4j Streaming | DONE |
+| [US-000011](actor/US-000011/US-000011.md) | Reasoning Message Capture and Rendering | DONE |
+| [US-000013](actor/US-000013/US-000013.md) | Token Usage Capture | TODO |
 
 ### development
 

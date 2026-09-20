@@ -4,7 +4,7 @@ import ste.ai.viber.log.LogViewerWindow;
 import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
 import picocli.CommandLine;
-import ste.ai.viber.LangChain4jActor;
+import ste.ai.viber.actor.LangChain4jActor;
 import ste.ai.viber.actor.Actor;
 import ste.ai.viber.actor.StdInStdOutActor;
 import ste.ai.viber.cli.command.CliOptions;
@@ -90,6 +90,7 @@ public class MainCommand implements Callable<Integer> {
             .baseUrl(options.endpoint())
             .apiKey(options.key())
             .modelName(options.model())
+            .returnThinking(true)
             .logRequests(true)
             .logResponses(true)
             .build();

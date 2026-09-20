@@ -1,7 +1,6 @@
-package ste.ai.viber;
+package ste.ai.viber.actor;
 
 import dev.langchain4j.model.ModelProvider;
-import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.model.chat.listener.ChatModelListener;
 import dev.langchain4j.model.chat.request.ChatRequest;
@@ -9,26 +8,28 @@ import dev.langchain4j.model.chat.request.ChatRequestParameters;
 import dev.langchain4j.model.chat.response.ChatResponse;
 import dev.langchain4j.model.chat.response.PartialResponse;
 import dev.langchain4j.model.chat.response.PartialResponseContext;
+import dev.langchain4j.model.chat.response.PartialThinking;
+import dev.langchain4j.model.chat.response.PartialThinkingContext;
 import dev.langchain4j.model.chat.response.StreamingChatResponseHandler;
 import dev.langchain4j.model.chat.response.StreamingHandle;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.model.chat.Capability;
+import dev.langchain4j.model.output.TokenUsage;
 import org.junit.jupiter.api.Test;
-import ste.ai.model.DummyChatModel;
+import ste.ai.model.DummyStreamingChatModel;
 import ste.ai.viber.model.Chat;
 import ste.ai.viber.model.ChatMessage;
-import ste.ai.viber.model.Conversation;
 import ste.ai.viber.model.PromptMessage;
 import ste.ai.viber.model.ReplyMessage;
 import ste.ai.viber.model.ToolExecutionRequestMessage;
 import ste.ai.viber.model.ToolExecutionResponseMessage;
+import ste.ai.viber.model.ThoughtMessage;
 import ste.ai.viber.tools.InputTool;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Consumer;
 
 import static com.github.stefanbirkner.systemlambda.SystemLambda.withTextFromSystemIn;
 import static org.assertj.core.api.BDDAssertions.then;
@@ -38,7 +39,7 @@ class LangChain4jActorTest {
 
     @Test
     void chat_throws_on_null_chat() {
-        DummyChatModel model = new DummyChatModel();
+        DummyStreamingChatModel model = new DummyStreamingChatModel();
         LangChain4jActor actor = new LangChain4jActor(
             model,
             List.of(new InputTool()),
@@ -53,7 +54,7 @@ class LangChain4jActorTest {
 
     @Test
     void chat_throws_on_null_onMessage() {
-        DummyChatModel model = new DummyChatModel();
+        DummyStreamingChatModel model = new DummyStreamingChatModel();
         LangChain4jActor actor = new LangChain4jActor(
             model,
             List.of(new InputTool()),
@@ -70,7 +71,7 @@ class LangChain4jActorTest {
 
     @Test
     void chat_does_not_add_chat_twice_to_conversation() {
-        DummyChatModel model = new DummyChatModel();
+        DummyStreamingChatModel model = new DummyStreamingChatModel();
         LangChain4jActor actor = new LangChain4jActor(
             model,
             List.of(new InputTool()),
@@ -89,7 +90,7 @@ class LangChain4jActorTest {
     @Test
     void chat_uses_prompt_content_to_call_model() throws Exception {
         String name = "Alice";
-        DummyChatModel model = new DummyChatModel();
+        DummyStreamingChatModel model = new DummyStreamingChatModel();
         model.toolChoice = dev.langchain4j.model.chat.request.ToolChoice.AUTO;
         LangChain4jActor actor = new LangChain4jActor(
             model,
@@ -114,7 +115,7 @@ class LangChain4jActorTest {
 
     @Test
     void chat_appends_messages_to_existing_chat() {
-        DummyChatModel model = new DummyChatModel();
+        DummyStreamingChatModel model = new DummyStreamingChatModel();
         LangChain4jActor actor = new LangChain4jActor(
             model,
             List.of(new InputTool()),
@@ -133,7 +134,7 @@ class LangChain4jActorTest {
 
     @Test
     void chat_emits_multiple_reply_messages_for_streamed_chunks() {
-        DummyChatModel model = new DummyChatModel();
+        DummyStreamingChatModel model = new DummyStreamingChatModel();
         LangChain4jActor actor = new LangChain4jActor(
             model,
             List.of(new InputTool()),
@@ -153,7 +154,7 @@ class LangChain4jActorTest {
 
     @Test
     void chat_emits_tool_messages_through_callback() throws Exception {
-        DummyChatModel model = new DummyChatModel();
+        DummyStreamingChatModel model = new DummyStreamingChatModel();
         model.toolChoice = dev.langchain4j.model.chat.request.ToolChoice.AUTO;
         LangChain4jActor actor = new LangChain4jActor(
             model,
@@ -258,6 +259,7 @@ class LangChain4jActorTest {
             List.of("first\n", "second"),
             "first\nsecond"
         );
+
         LangChain4jActor actor = new LangChain4jActor(
             model,
             List.of(new InputTool()),
@@ -274,14 +276,99 @@ class LangChain4jActorTest {
         then(((ReplyMessage) emitted.get(1)).content().trim()).isEqualTo("second");
     }
 
-    private static class ControlledStreamingChatModel implements ChatModel, StreamingChatModel {
+    @Test
+    void chat_emits_thought_message_for_partial_thinking() {
+        ControlledStreamingChatModel model = new ControlledStreamingChatModel(
+            List.of("answer"),
+            "answer",
+            List.of("thinking step")
+        );
+
+        LangChain4jActor actor = new LangChain4jActor(
+            model,
+            List.of(new InputTool()),
+            "system",
+            null
+        );
+
+        Chat chat = new Chat(new PromptMessage("hi"));
+        List<ChatMessage> emitted = new ArrayList<>();
+        actor.chat(chat, emitted::add);
+
+        then(emitted).anySatisfy(msg -> {
+            then(msg).isInstanceOf(ThoughtMessage.class);
+            then(((ThoughtMessage) msg).content().trim()).isEqualTo("thinking step");
+        });
+        then(emitted).anySatisfy(msg -> {
+            then(msg).isInstanceOf(ReplyMessage.class);
+            then(((ReplyMessage) msg).content().trim()).isEqualTo("answer");
+        });
+    }
+
+    @Test
+    void chat_buffers_thinking_until_newline() {
+        ControlledStreamingChatModel model = new ControlledStreamingChatModel(
+            List.of("answer"),
+            "answer",
+            List.of("partial ", "thought\n")
+        );
+
+        LangChain4jActor actor = new LangChain4jActor(
+            model,
+            List.of(new InputTool()),
+            "system",
+            null
+        );
+
+        Chat chat = new Chat(new PromptMessage("hi"));
+        List<ChatMessage> emitted = new ArrayList<>();
+        actor.chat(chat, emitted::add);
+
+        then(emitted).anySatisfy(msg -> {
+            then(msg).isInstanceOf(ThoughtMessage.class);
+            then(((ThoughtMessage) msg).content().trim()).isEqualTo("partial thought");
+        });
+    }
+
+    @Test
+    void chat_flushes_remaining_thinking_on_complete_without_trailing_newline() {
+        ControlledStreamingChatModel model = new ControlledStreamingChatModel(
+            List.of("answer"),
+            "answer",
+            List.of("no newline thinking")
+        );
+
+        LangChain4jActor actor = new LangChain4jActor(
+            model,
+            List.of(new InputTool()),
+            "system",
+            null
+        );
+
+        Chat chat = new Chat(new PromptMessage("hi"));
+        List<ChatMessage> emitted = new ArrayList<>();
+        actor.chat(chat, emitted::add);
+
+        then(emitted).anySatisfy(msg -> {
+            then(msg).isInstanceOf(ThoughtMessage.class);
+            then(((ThoughtMessage) msg).content().trim()).isEqualTo("no newline thinking");
+        });
+    }
+
+    private static class ControlledStreamingChatModel implements StreamingChatModel {
         private final List<String> partials;
         private final String finalText;
+        private final List<String> thinkingParts;
         private final List<ChatModelListener> listeners = new ArrayList<>();
 
         ControlledStreamingChatModel(List<String> partials, String finalText) {
+            this(partials, finalText, List.of());
+        }
+
+        ControlledStreamingChatModel(List<String> partials, String finalText, List<String> thinkingParts) {
             this.partials = partials;
             this.finalText = finalText;
+            this.thinkingParts = thinkingParts;
         }
 
         @Override
@@ -301,6 +388,12 @@ class LangChain4jActorTest {
                     new PartialResponseContext(new NoOpStreamingHandle())
                 );
             }
+            for (String thinkingPart : thinkingParts) {
+                handler.onPartialThinking(
+                    new PartialThinking(thinkingPart),
+                    new PartialThinkingContext(new NoOpStreamingHandle())
+                );
+            }
             handler.onCompleteResponse(
                 ChatResponse.builder()
                     .aiMessage(AiMessage.from(finalText))
@@ -309,30 +402,63 @@ class LangChain4jActorTest {
         }
 
         @Override
-        public ChatResponse chat(ChatRequest chatRequest) {
-            return ChatResponse.builder()
-                .aiMessage(AiMessage.from(finalText))
-                .build();
-        }
-
-        @Override
         public Set<Capability> supportedCapabilities() {
-            return ChatModel.super.supportedCapabilities();
+            return StreamingChatModel.super.supportedCapabilities();
         }
 
         @Override
         public ChatRequestParameters defaultRequestParameters() {
-            return ChatModel.super.defaultRequestParameters();
+            return StreamingChatModel.super.defaultRequestParameters();
         }
 
         @Override
         public ModelProvider provider() {
-            return ChatModel.super.provider();
+            return StreamingChatModel.super.provider();
         }
     }
 
     private static class NoOpStreamingHandle implements StreamingHandle {
         @Override public void cancel() {}
         @Override public boolean isCancelled() { return false; }
+    }
+
+    @Test
+    void chat_stores_token_usage_on_chat_when_model_returns_it() {
+        DummyStreamingChatModel model = new DummyStreamingChatModel();
+        model.tokenUsage = new TokenUsage(10, 20, 30);
+
+        LangChain4jActor actor = new LangChain4jActor(
+            model,
+            List.of(new InputTool()),
+            "system",
+            null
+        );
+
+        Chat chat = new Chat(new PromptMessage("hi"));
+        List<ChatMessage> emitted = new ArrayList<>();
+        actor.chat(chat, emitted::add);
+
+        then(chat.tokenUsage()).isNotNull();
+        then(chat.tokenUsage().inputTokenCount()).isEqualTo(10);
+        then(chat.tokenUsage().outputTokenCount()).isEqualTo(20);
+        then(chat.tokenUsage().totalTokenCount()).isEqualTo(30);
+    }
+
+    @Test
+    void chat_leaves_token_usage_null_when_model_does_not_return_it() {
+        DummyStreamingChatModel model = new DummyStreamingChatModel();
+
+        LangChain4jActor actor = new LangChain4jActor(
+            model,
+            List.of(new InputTool()),
+            "system",
+            null
+        );
+
+        Chat chat = new Chat(new PromptMessage("hi"));
+        List<ChatMessage> emitted = new ArrayList<>();
+        actor.chat(chat, emitted::add);
+
+        then(chat.tokenUsage()).isNull();
     }
 }

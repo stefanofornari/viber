@@ -17,6 +17,7 @@
 
 package ste.ai.viber.util;
 
+import java.util.function.Consumer;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -38,10 +39,16 @@ public class Utils {
     public static final void ifNull(final Object o, final Runnable t, final Runnable f) {
         if (o == null) {
             t.run(); // true
+        } else {
+            f.run(); // false
         }
-
-        f.run(); // false
     }
+
+    public static final <T> void safe(final T o, Consumer<T> c) {
+    if (o != null) {
+        c.accept(o);
+    }
+}
 
     public static final void requireNonNull(final Object o, final String name) {
         if (o == null) {
