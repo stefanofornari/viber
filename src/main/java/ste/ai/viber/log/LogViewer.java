@@ -30,6 +30,9 @@ public class LogViewer extends Pane {
         this.logViewerBaseDir = logViewerBaseDir;
         this.getChildren().add(webView);
 
+        webView.prefWidthProperty().bind(this.widthProperty());
+        webView.prefHeightProperty().bind(this.heightProperty());
+
         final WebEngine engine = webView.getEngine();
 
         engine.setOnAlert((event) -> {

@@ -94,15 +94,25 @@ public class LangChain4jActor implements Actor {
         CountDownLatch latch = new CountDownLatch(1);
         AtomicReference<Throwable> error = new AtomicReference<>();
         AtomicBoolean partialReceived = new AtomicBoolean(false);
+        StringBuilder replyBuffer = new StringBuilder();
 
         TokenStream tokenStream = service.chat(prompt.content());
         tokenStream
             .onPartialResponse(text -> {
                 partialReceived.set(true);
-                ReplyMessage reply = new ReplyMessage(text);
-                chat.addMessage(reply);
-                onMessage.accept(reply);
-                update();
+                replyBuffer.append(text);
+
+                int newlineIndex;
+                while ((newlineIndex = replyBuffer.indexOf("\n")) >= 0) {
+                    String line = replyBuffer.substring(0, newlineIndex).trim();
+                    if (!line.isEmpty()) {
+                        ReplyMessage reply = new ReplyMessage(line);
+                        chat.addMessage(reply);
+                        onMessage.accept(reply);
+                        update();
+                    }
+                    replyBuffer.delete(0, newlineIndex + 1);
+                }
             })
             .onIntermediateResponse(response -> {
                 if (response.aiMessage().hasToolExecutionRequests()) {
@@ -136,6 +146,14 @@ public class LangChain4jActor implements Actor {
                     String finalReply = response.aiMessage().text();
                     if (finalReply != null && !finalReply.isBlank()) {
                         ReplyMessage reply = new ReplyMessage(finalReply);
+                        chat.addMessage(reply);
+                        onMessage.accept(reply);
+                        update();
+                    }
+                } else {
+                    String remaining = replyBuffer.toString().trim();
+                    if (!remaining.isEmpty()) {
+                        ReplyMessage reply = new ReplyMessage(remaining);
                         chat.addMessage(reply);
                         onMessage.accept(reply);
                         update();
