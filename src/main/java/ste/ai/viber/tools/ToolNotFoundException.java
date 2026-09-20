@@ -1,6 +1,6 @@
 /*
- * Copyright 2026 the original author or authors from the LLMTooliy project
- * (https://stefanofornari.github.io/llm-toolify).
+ * Copyright 2026 the original author or authors from the Viber project
+ * (https://stefanofornari.github.io/viber).
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ste.ai.toolify;
 
-import dev.langchain4j.service.UserMessage;
+package ste.ai.viber.tools;
+
+import dev.langchain4j.exception.ToolExecutionException;
 
 /**
  *
  */
-public interface ToolifyAgent {
-    //
-    // System message provided in chat model definition
-    //
-    public String chat(@UserMessage final String user);
+public class ToolNotFoundException extends ToolExecutionException {
+    public final String toolName;
+
+    public ToolNotFoundException(final String name) {
+        super("tool %s not found".formatted(name));
+        this.toolName = name;
+    }
 }

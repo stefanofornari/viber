@@ -55,7 +55,10 @@ public class LogViewerWindow extends Application {
         responseHandler = new LogViewerHandler("dev.langchain4j.http.client.log", responseLogViewer);
 
         requestHandler.setFilter(record -> record.getMessage().startsWith("HTTP request:"));
-        responseHandler.setFilter(record -> record.getMessage().startsWith("HTTP response:"));
+        responseHandler.setFilter(record -> {
+            final String msg = record.getMessage();
+            return msg.startsWith("HTTP response:") || msg.startsWith("ServerSentEvent");
+        });
 
         httpLogger.addHandler(requestHandler);
         httpLogger.addHandler(responseHandler);

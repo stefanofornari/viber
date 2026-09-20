@@ -1,8 +1,8 @@
 <#if licenseFirst??>
 ${licenseFirst}
 </#if>
-${licensePrefix}Copyright ${date?date?string("yyyy")} the original author or authors from the LLMTooliy project 
-${licensePrefix}(https://stefanofornari.github.io/llm-toolify).
+${licensePrefix}Copyright ${date?date?string("yyyy")} the original author or authors from the Viber project
+${licensePrefix}(https://stefanofornari.github.io/viber).
 ${licensePrefix?replace(" +$", "", "r")}
 ${licensePrefix}Licensed under the Apache License, Version 2.0 (the "License");
 ${licensePrefix}you may not use this file except in compliance with the License.

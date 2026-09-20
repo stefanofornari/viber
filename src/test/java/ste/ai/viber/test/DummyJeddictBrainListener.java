@@ -14,7 +14,7 @@
  * the License.
  */
 
-package ste.ai.test;
+package ste.ai.viber.test;
 
 import dev.langchain4j.agent.tool.ToolExecutionRequest;
 import dev.langchain4j.data.message.SystemMessage;
@@ -24,12 +24,13 @@ import dev.langchain4j.model.chat.response.ChatResponse;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
-import ste.ai.toolify.JeddictBrainListener;
+import ste.ai.viber.model.ConversationListener;
+
 
 /**
  *
  */
-public class DummyJeddictBrainListener implements JeddictBrainListener {
+public class DummyJeddictBrainListener implements ConversationListener {
 
     public final List<Pair<String, Object>> collector = new ArrayList();
 

@@ -1,7 +1,8 @@
 target/
 nbproject/private/
 build/
-dist/
+.kilo
+
 *.iml
 *.log
 *.class

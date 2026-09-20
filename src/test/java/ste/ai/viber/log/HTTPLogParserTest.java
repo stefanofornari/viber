@@ -3,10 +3,10 @@ package ste.ai.viber.log;
 import static org.assertj.core.api.BDDAssertions.then;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
-import static ste.ai.toolify.log.HTTPLogParser.KEY_BODY;
-import static ste.ai.toolify.log.HTTPLogParser.KEY_HEADERS;
-import static ste.ai.toolify.log.HTTPLogParser.KEY_STATUS;
-import static ste.ai.toolify.log.HTTPLogParser.KEY_TYPE;
+import static ste.ai.viber.log.HTTPLogParser.KEY_BODY;
+import static ste.ai.viber.log.HTTPLogParser.KEY_HEADERS;
+import static ste.ai.viber.log.HTTPLogParser.KEY_STATUS;
+import static ste.ai.viber.log.HTTPLogParser.KEY_TYPE;
 
 /**
  * Tests for HTTPLogParser
@@ -85,4 +85,20 @@ public class HTTPLogParserTest {
         then(parser.json(log).has(KEY_BODY)).isFalse();
     }
 
+    @Test
+    void json_parses_server_sent_event() {
+        HTTPLogParser parser = new HTTPLogParser();
+        String log = """
+            ServerSentEvent { event = null, data = "{"id":"chatcmpl-6aaf6f500c6892fbcc44c31b","object":"chat.completion.chunk","created":1789882192,"model":"kimi-k2.7-code","choices":[{"index":0,"delta":{"reasoning_content":" a"},"finish_reason":null}],"system_fingerprint":"fpv0_8f8e1388"}" }
+            """;
+
+        JSONObject json = parser.json(log);
+        then(json.getString(KEY_TYPE)).isEqualTo("sse");
+
+        JSONObject bodyJson = json.getJSONObject(KEY_BODY);
+        then(bodyJson.getString("id")).isEqualTo("chatcmpl-6aaf6f500c6892fbcc44c31b");
+        then(bodyJson.getString("object")).isEqualTo("chat.completion.chunk");
+        then(bodyJson.getInt("created")).isEqualTo(1789882192);
+        then(bodyJson.getString("model")).isEqualTo("kimi-k2.7-code");
+    }
 }

@@ -37,6 +37,24 @@ public class HTTPLogParser {
             line = scanner.nextLine();
         } else if (line.startsWith("HTTP response")) {
             ret.put(KEY_TYPE, "response"); line = scanner.nextLine();
+        } else if (line.startsWith("ServerSentEvent")) {
+            ret.put(KEY_TYPE, "sse");
+
+            int dataStart = line.indexOf("data = \"");
+            if (dataStart >= 0) {
+                dataStart += 8;
+                int dataEnd = line.lastIndexOf('"');
+                if (dataEnd > dataStart) {
+                    String dataJson = line.substring(dataStart, dataEnd);
+                    try {
+                        ret.put(KEY_BODY, new JSONObject(dataJson));
+                    } catch (org.json.JSONException e) {
+                        ret.put(KEY_BODY, dataJson);
+                    }
+                }
+            }
+
+            return ret;
         }
 
         final Matcher statusMatcher = PATTERN_STATUS.matcher(line);

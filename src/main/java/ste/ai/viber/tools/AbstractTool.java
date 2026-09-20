@@ -27,8 +27,8 @@ import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import ste.ai.toolify.JeddictBrainListener;
 import static ste.lloop.Loop.on;
+import ste.ai.viber.model.ConversationListener;
 
 public abstract class AbstractTool {
 
@@ -44,7 +44,7 @@ public abstract class AbstractTool {
     // TODO: add comment
     private Optional<UnaryOperator<String>> humanInTheMiddle = Optional.empty();
 
-    private final List<JeddictBrainListener> listeners = new CopyOnWriteArrayList<>();
+    private final List<ConversationListener> listeners = new CopyOnWriteArrayList<>();
 
     public AbstractTool(final String basedir) throws IOException {
         if (basedir == null) {
@@ -55,14 +55,14 @@ public abstract class AbstractTool {
         this.log = Logger.getLogger(this.getClass().getName()); // this will be the concrete class name
     }
 
-    public void addListener(final JeddictBrainListener listener) {
+    public void addListener(final ConversationListener listener) {
         if (listener == null) {
             throw new IllegalArgumentException("listener can not be null");
         }
         listeners.add(listener);
     }
 
-    public void removeListener(final JeddictBrainListener listener) {
+    public void removeListener(final ConversationListener listener) {
         if (listener == null) {
             throw new IllegalArgumentException("listener can not be null");
         }
