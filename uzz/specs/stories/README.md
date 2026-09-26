@@ -22,8 +22,8 @@ This index lists the user stories derived from `uzz/specs/scope.md`.
 | [US-000012](ui/US-000012/US-000012.md) | Streaming CLI Rendering | DONE |
 | [US-000014](ui/US-000014/US-000014.md) | JavaFX Conversation Output Rendering | DONE |
 | [US-000015](ui/US-000015/US-000015.md) | CLI-triggered JavaFX Conversation Rendering with AtlantaFX Styles | DONE |
-| [US-000018](ui/US-000018/US-000018.md) | ViberFX Standalone Application Entry Point | TODO |
-| [US-000019](ui/US-000019/US-000019.md) | GUI Prompt Input Area | TODO |
+| [US-000018](ui/US-000018/US-000018.md) | ViberFX Standalone Application Entry Point | DONE |
+| [US-000019](ui/US-000019/US-000019.md) | GUI Prompt Input Area | DONE |
 | [US-000020](ui/US-000020/US-000020.md) | New Chat GUI Action | TODO |
 | [US-000021](ui/US-000021/US-000021.md) | Actor Selection Menu | TODO |
 
