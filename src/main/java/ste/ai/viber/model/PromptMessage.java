@@ -1,6 +1,6 @@
 package ste.ai.viber.model;
 
-import static ste.ai.viber.util.Utils.requireNonBlank;
+import static ste.ai.viber.util.Safe.requireNonBlank;
 
 public record PromptMessage(String content) implements ChatMessage {
     public PromptMessage {

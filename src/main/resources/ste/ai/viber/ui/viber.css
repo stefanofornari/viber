@@ -1,7 +1,142 @@
 .root {
-    -viber-accent-1: #C01E6A;
-    -viber-accent-2: #F2692A;
-    -viber-accent-3: #2B91B1;
-    -viber-accent-4: #FBD13D;
+    -viber-color-accent-1: #C01E6A;
+    -viber-color-accent-2: #F2692A;
+    -viber-color-accent-3: #2B91B1;
+    -viber-color-accent-4: #FBD13D;
 
+    -viber-color-accent-muted-1: derive(-viber-color-accent-1, -7%);
+    -viber-color-accent-muted-2: #F2692A;
+    -viber-color-accent-muted-3: #2B91B1;
+    -viber-color-accent-muted-4: #FBD13D;
+
+    -viber-color-bg: #f9f6f1;
+    -viber-color-bg-muted: derive(-viber-color-bg, -7%);
+}
+
+
+/*******************************************************************************
+ Conversation
+*******************************************************************************/
+.conversation {
+    -fx-background-color: -viber-color-bg;
+    -fx-padding: 10px;
+}
+
+.chats-container {
+    -fx-spacing: 10px;
+}
+
+.empty-state {
+    -fx-font-size: 16px;
+    -fx-text-fill: #888888;
+    -fx-padding: 20px;
+}
+
+
+/*******************************************************************************
+ Chat
+*******************************************************************************/
+.chat {
+    -fx-animated: true;
+    -fx-background-color: -viber-color-bg;
+    -fx-background-radius: 4px;
+}
+
+.chat > .title {
+    -fx-background-color: derive(-viber-color-bg, -3%);
+    -fx-background-insets: 0;
+    -fx-background-radius: 4px 4px 0 0;
+    -fx-padding: 8px;
+}
+
+.chat > .title > .text {
+    -fx-fill: #333333;
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+}
+
+.chat > .title > .arrow-button {
+    -fx-background-color: transparent;
+}
+
+.chat > .title > .arrow-button > .arrow {
+    -fx-background-color: -viber-color-bg-muted;
+}
+
+.chat > .content {
+    -fx-background-color: -viber-color-bg;
+    -fx-border-color: transparent;
+    -fx-padding: 10px;
+}
+
+.messages-container {
+}
+
+
+/*******************************************************************************
+ Message
+*******************************************************************************/
+.message {
+    -fx-animated: true;
+    -fx-border-width: 0 0 0 3px;
+    -fx-border-color: transparent transparent transparent -viber-color-accent-1;
+    -fx-background-color: -viber-color-bg;
+    -fx-background-radius: 4px;
+}
+
+.message > .title {
+    -fx-background-color: derive(-viber-color-bg, -3%);
+    -fx-background-insets: 0;
+    -fx-background-radius: 4px 4px 0 0;
+    -fx-padding: 8px 12px;
+}
+
+.message > .title > .text {
+    -fx-fill: #333333;
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+}
+
+.message > .title > .arrow-button {
+    -fx-background-color: transparent;
+}
+
+.message > .title > .arrow-button > .arrow {
+    -fx-background-color: -viber-color-bg-muted;
+}
+
+.message > .content {
+    -fx-background-color: -viber-color-bg;
+    -fx-border-color: transparent;
+    -fx-padding: 10px;
+}
+
+.message:focused > .title {
+    -fx-color: -viber-color-bg-muted;
+}
+
+.message-prompt {
+    -fx-border-color: transparent transparent transparent -viber-color-accent-1;
+}
+
+.message-reply {
+    -fx-border-color: transparent transparent transparent -viber-color-accent-2;
+}
+
+.message-thought {
+    -fx-border-color: transparent transparent transparent -viber-color-accent-3;
+}
+
+.message-tool-request {
+    -fx-border-color: transparent transparent transparent -viber-color-accent-4;
+}
+
+.message-tool-response {
+    -fx-border-color: transparent transparent transparent -viber-color-bg-muted;
+}
+
+.message-error {
+    -fx-border-color: transparent transparent transparent #cc0000;
 }

@@ -45,3 +45,16 @@ This document defines the coding conventions for the Quick Question project.
 - Avoid static methods unless for specific needs (e.g. a singleton)
 - If some logic makes sense to be implemented as a standalone function, prefer
   using an interface with default methods rather than static methods.
+
+## Checking for null and safely running code on variables
+
+- Instead of explicit null checks (`if (obj == null)`), use the utility functions in `ste.ai.viber.util.Safe`:
+  - `ifNotNull(obj, () -> { ... })` — Executes the Runnable if `obj` is **not null**.
+  - `ifNull(obj, () -> { ... })` — Executes the Runnable if `obj` is **null**.
+  - `ifNull(obj, () -> { ... }, () -> { ... })` — Executes the first Runnable if `obj` is **null**, otherwise executes the second Runnable.
+  - `safe(obj, (val) -> { ... })` — Executes the Consumer with `obj` as `val` only if `obj` is **not null**.
+
+- For argument validation, prefer the following methods from `ste.ai.viber.util.Safe`:
+  - `requireNonNull(obj, paramName)` — Throws `IllegalArgumentException` with `paramName` if `obj` is **null**.
+  - `requireNonEmpty(str, paramName)` — Throws `IllegalArgumentException` with `paramName` if `str` is **null or empty** (length 0).
+  - `requireNonBlank(str, paramName)` — Throws `IllegalArgumentException` with `paramName` if `str` is **null, empty, or whitespace-only**.

@@ -16,7 +16,7 @@ import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.model.chat.Capability;
 import dev.langchain4j.model.output.TokenUsage;
 import org.junit.jupiter.api.Test;
-import ste.ai.model.DummyStreamingChatModel;
+import ste.ai.llm.DummyStreamingChatModel;
 import ste.ai.viber.model.Chat;
 import ste.ai.viber.model.ChatMessage;
 import ste.ai.viber.model.PromptMessage;
@@ -43,8 +43,7 @@ class LangChain4jActorTest {
         LangChain4jActor actor = new LangChain4jActor(
             model,
             List.of(new InputTool()),
-            "system",
-            null
+            "system"
         );
 
         thenThrownBy(() -> actor.chat((Chat) null, msg -> {}))
@@ -58,8 +57,7 @@ class LangChain4jActorTest {
         LangChain4jActor actor = new LangChain4jActor(
             model,
             List.of(new InputTool()),
-            "system",
-            null
+            "system"
         );
 
         Chat chat = new Chat(new PromptMessage("hello"));
@@ -75,8 +73,7 @@ class LangChain4jActorTest {
         LangChain4jActor actor = new LangChain4jActor(
             model,
             List.of(new InputTool()),
-            "system",
-            null
+            "system"
         );
 
         Chat chat = new Chat(new PromptMessage("hello"));
@@ -96,8 +93,7 @@ class LangChain4jActorTest {
             model,
             List.of(new InputTool()),
             "use mock 'hello world.2.txt'\n" +
-            "To greet the user, use the InputTool with the prompt 'What is your name?'. execute tool input with arguments: What's your name?",
-            null
+            "To greet the user, use the InputTool with the prompt 'What is your name?'. execute tool input with arguments: What's your name?"
         );
 
         Chat chat = new Chat(new PromptMessage("greet me"));
@@ -119,8 +115,7 @@ class LangChain4jActorTest {
         LangChain4jActor actor = new LangChain4jActor(
             model,
             List.of(new InputTool()),
-            "system",
-            null
+            "system"
         );
 
         Chat chat = new Chat(new PromptMessage("hello"));
@@ -138,8 +133,7 @@ class LangChain4jActorTest {
         LangChain4jActor actor = new LangChain4jActor(
             model,
             List.of(new InputTool()),
-            "use mock 'hello world.txt'\nYou are a helpful assistant.",
-            null
+            "use mock 'hello world.txt'\nYou are a helpful assistant."
         );
 
         Chat chat = new Chat(new PromptMessage("say hello"));
@@ -160,8 +154,7 @@ class LangChain4jActorTest {
             model,
             List.of(new InputTool()),
             "use mock 'hello world.2.txt'\n" +
-            "To greet the user, use the InputTool with the prompt 'What is your name?'. execute tool input with arguments: What's your name?",
-            null
+            "To greet the user, use the InputTool with the prompt 'What is your name?'. execute tool input with arguments: What's your name?"
         );
 
         Chat chat = new Chat(new PromptMessage("greet me"));
@@ -192,8 +185,7 @@ class LangChain4jActorTest {
         LangChain4jActor actor = new LangChain4jActor(
             model,
             List.of(new InputTool()),
-            "system",
-            null
+            "system"
         );
 
         Chat chat = new Chat(new PromptMessage("hi"));
@@ -217,8 +209,7 @@ class LangChain4jActorTest {
         LangChain4jActor actor = new LangChain4jActor(
             model,
             List.of(new InputTool()),
-            "system",
-            null
+            "system"
         );
 
         Chat chat = new Chat(new PromptMessage("hi"));
@@ -240,8 +231,7 @@ class LangChain4jActorTest {
         LangChain4jActor actor = new LangChain4jActor(
             model,
             List.of(new InputTool()),
-            "system",
-            null
+            "system"
         );
 
         Chat chat = new Chat(new PromptMessage("hi"));
@@ -263,8 +253,7 @@ class LangChain4jActorTest {
         LangChain4jActor actor = new LangChain4jActor(
             model,
             List.of(new InputTool()),
-            "system",
-            null
+            "system"
         );
 
         Chat chat = new Chat(new PromptMessage("hi"));
@@ -287,8 +276,7 @@ class LangChain4jActorTest {
         LangChain4jActor actor = new LangChain4jActor(
             model,
             List.of(new InputTool()),
-            "system",
-            null
+            "system"
         );
 
         Chat chat = new Chat(new PromptMessage("hi"));
@@ -316,8 +304,7 @@ class LangChain4jActorTest {
         LangChain4jActor actor = new LangChain4jActor(
             model,
             List.of(new InputTool()),
-            "system",
-            null
+            "system"
         );
 
         Chat chat = new Chat(new PromptMessage("hi"));
@@ -341,8 +328,7 @@ class LangChain4jActorTest {
         LangChain4jActor actor = new LangChain4jActor(
             model,
             List.of(new InputTool()),
-            "system",
-            null
+            "system"
         );
 
         Chat chat = new Chat(new PromptMessage("hi"));
@@ -430,8 +416,7 @@ class LangChain4jActorTest {
         LangChain4jActor actor = new LangChain4jActor(
             model,
             List.of(new InputTool()),
-            "system",
-            null
+            "system"
         );
 
         Chat chat = new Chat(new PromptMessage("hi"));
@@ -451,8 +436,7 @@ class LangChain4jActorTest {
         LangChain4jActor actor = new LangChain4jActor(
             model,
             List.of(new InputTool()),
-            "system",
-            null
+            "system"
         );
 
         Chat chat = new Chat(new PromptMessage("hi"));

@@ -17,7 +17,7 @@ The model is built around a `Viber`-`Actor` conversation pattern. A conversation
 
 Viber provides the following submodules for different types of user interaction:
 
-- **ViberFX** — JavaFX UI
+- **ViberFX** — JavaFX UI, including a standalone desktop GUI application and an embeddable component for host applications
 - **ViberNB** — NetBeans Module built on top of ViberFX
 - **ViberCLI** — Terminal/CLI user interface
 
@@ -52,6 +52,11 @@ A message is any exchange between the two actors chatting. It can be of differen
 - Model persistence
 - UI to represent a conversation as text and in a JavaFX control
 - JavaFX component for embedding Viber in host JavaFX applications
+- Standalone ViberFX desktop GUI application for LLM interaction (defaults to FXActor, menu-selectable LangChain4jActor)
+  - Standalone application entry point with visible main window
+  - GUI input area for sending prompts
+  - New Chat action in GUI
+  - Actor selection menu
 - `ViberCLI` terminal interface
 - `STDIOActor` for standard input/output interaction
 - `LangChain4jActor` for LangChain4j integration
@@ -69,3 +74,4 @@ A message is any exchange between the two actors chatting. It can be of differen
 - **Project Reference Docs**:
   - Coding Standard: `uzz/specs/coding-standard.md`
   - Development Framework: `uzz/specs/development-framework.md`
+

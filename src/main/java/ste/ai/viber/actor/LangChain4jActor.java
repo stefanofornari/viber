@@ -21,31 +21,24 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
-import static ste.ai.viber.util.Utils.ifNotNull;
-import static ste.ai.viber.util.Utils.requireNonNull;
-import static ste.ai.viber.util.Utils.safe;
+import static ste.ai.viber.util.Safe.ifNotNull;
+import static ste.ai.viber.util.Safe.requireNonNull;
+import static ste.ai.viber.util.Safe.safe;
 
 public class LangChain4jActor implements Actor {
-
-    public interface ConversationConsumer extends Consumer {
-        default void updated(final Conversation conversation) {
-            accept(conversation);
-        }
-    }
-
     public interface ActorService {
         TokenStream chat(@UserMessage String userMessage);
     }
 
     private final ActorService service;
     private final Conversation conversation;
-    private final ConversationConsumer updated;
     private final List<Tool> tools;
 
-    public LangChain4jActor(StreamingChatModel streamingChatModel,
-                            List<Tool> tools,
-                            String systemPrompt,
-                            ConversationConsumer updated) {
+    public LangChain4jActor(
+        StreamingChatModel streamingChatModel,
+        List<Tool> tools,
+        String systemPrompt
+    ) {
         requireNonNull(streamingChatModel, "streamingChatModel");
         requireNonNull(tools, "tools");
         requireNonNull(systemPrompt, "systemPrompt");
@@ -62,7 +55,6 @@ public class LangChain4jActor implements Actor {
         }
 
         this.conversation = new Conversation();
-        this.updated = updated;
         this.tools = tools;
 
         conversation.systemMessage(new SystemMessage(systemPrompt));
@@ -74,10 +66,12 @@ public class LangChain4jActor implements Actor {
             .build();
     }
 
+    @Override
     public Conversation conversation() {
         return conversation;
     }
 
+    @Override
     public void chat(Chat chat, Consumer<ChatMessage> onMessage) {
         requireNonNull(chat, "chat");
         requireNonNull(onMessage, "onMessage");
@@ -85,7 +79,6 @@ public class LangChain4jActor implements Actor {
         if (!conversation.chats().contains(chat)) {
             conversation.addChat(chat);
         }
-        update();
 
         PromptMessage prompt = chat.prompt();
 
@@ -108,7 +101,6 @@ public class LangChain4jActor implements Actor {
                         ReplyMessage reply = new ReplyMessage(line);
                         chat.addMessage(reply);
                         onMessage.accept(reply);
-                        update();
                     }
                     replyBuffer.delete(0, newlineIndex + 1);
                 }
@@ -123,7 +115,6 @@ public class LangChain4jActor implements Actor {
                         ThoughtMessage thought = new ThoughtMessage(line);
                         chat.addMessage(thought);
                         onMessage.accept(thought);
-                        update();
                     }
                     thinkingBuffer.delete(0, newlineIndex + 1);
                 }
@@ -144,7 +135,6 @@ public class LangChain4jActor implements Actor {
                         ToolExecutionRequestMessage toolMsg = new ToolExecutionRequestMessage(displayText);
                         chat.addMessage(toolMsg);
                         onMessage.accept(toolMsg);
-                        update();
                     }
                 }
             })
@@ -153,7 +143,6 @@ public class LangChain4jActor implements Actor {
                 ToolExecutionResponseMessage toolResponse = new ToolExecutionResponseMessage(toolResult);
                 chat.addMessage(toolResponse);
                 onMessage.accept(toolResponse);
-                update();
             })
             .onCompleteResponse(response -> {
                 String remainingThinking = thinkingBuffer.toString().trim();
@@ -161,24 +150,22 @@ public class LangChain4jActor implements Actor {
                     ThoughtMessage thought = new ThoughtMessage(remainingThinking);
                     chat.addMessage(thought);
                     onMessage.accept(thought);
-                    update();
                 }
 
                 if (!partialReceived.get()) {
-                    String finalReply = response.aiMessage().text();
-                    if (finalReply != null && !finalReply.isBlank()) {
-                        ReplyMessage reply = new ReplyMessage(finalReply);
-                        chat.addMessage(reply);
-                        onMessage.accept(reply);
-                        update();
-                    }
+                    safe(response.aiMessage().text(), finalReply -> {
+                        if (!finalReply.isBlank()) {
+                            ReplyMessage reply = new ReplyMessage(finalReply);
+                            chat.addMessage(reply);
+                            onMessage.accept(reply);
+                        }
+                    });
                 } else {
                     String remaining = replyBuffer.toString().trim();
                     if (!remaining.isEmpty()) {
                         ReplyMessage reply = new ReplyMessage(remaining);
                         chat.addMessage(reply);
                         onMessage.accept(reply);
-                        update();
                     }
                 }
 
@@ -199,12 +186,8 @@ public class LangChain4jActor implements Actor {
             throw new RuntimeException("Interrupted while streaming chat", e);
         }
 
-        if (error.get() != null) {
+        ifNotNull(error.get(), () -> {
             throw new RuntimeException("Streaming chat failed", error.get());
-        }
-    }
-
-    private void update() {
-        ifNotNull(updated, () -> updated.updated(conversation));
+        });
     }
 }

@@ -15,7 +15,7 @@
  * the License.
  */
 
-package ste.ai.model;
+package ste.ai.llm;
 
 import java.io.File;
 import java.io.IOException;

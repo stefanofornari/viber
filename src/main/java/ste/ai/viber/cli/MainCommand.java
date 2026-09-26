@@ -1,13 +1,12 @@
 package ste.ai.viber.cli;
 
-import ste.ai.viber.log.LogViewerWindow;
 import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
 import picocli.CommandLine;
 import ste.ai.viber.actor.LangChain4jActor;
 import ste.ai.viber.actor.Actor;
 import ste.ai.viber.actor.StdInStdOutActor;
-import ste.ai.viber.cli.command.CliOptions;
+import ste.ai.viber.cli.command.CLIOptions;
 import ste.ai.viber.model.Chat;
 import ste.ai.viber.model.Conversation;
 import ste.ai.viber.model.ErrorMessage;
@@ -15,12 +14,12 @@ import ste.ai.viber.model.PromptMessage;
 import ste.ai.viber.renderer.StringRenderer;
 import ste.ai.viber.tools.InputTool;
 
+import java.io.InputStreamReader;
 import java.util.List;
 
 import java.util.concurrent.Callable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.application.Application;
 
 public class MainCommand implements Callable<Integer> {
     private static final Logger LOG = Logger.getLogger(MainCommand.class.getName());
@@ -29,7 +28,7 @@ public class MainCommand implements Callable<Integer> {
     CommandLine.Model.CommandSpec spec;
 
     @CommandLine.Mixin
-    CliOptions options;
+    CLIOptions options;
 
     @Override
     public Integer call() {
@@ -46,16 +45,15 @@ public class MainCommand implements Callable<Integer> {
 
         try {
             Actor actor = createActor();
-            LogViewerWindow logWindow = null;
-            if (options.isShowLog()) {
-                new Thread(() -> Application.launch(LogViewerWindow.class)).start();
-            }
             Conversation conversation = actor.conversation();
-            ViberCLI cli = new ViberCLI(actor);
+
+            ViberCLI cli = new ViberCLI(
+                actor,
+                conversation,
+                new StringRenderer(),
+                new InputStreamReader(System.in)
+            );
             cli.start();
-            if (logWindow != null) {
-                logWindow.cleanup();
-            }
             return 0;
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
@@ -81,7 +79,7 @@ public class MainCommand implements Callable<Integer> {
         }
     }
 
-    private Actor createActor() {
+    protected Actor createActor() {
         if (options.isEcho()) {
             return new StdInStdOutActor();
         }
@@ -98,8 +96,7 @@ public class MainCommand implements Callable<Integer> {
         return new LangChain4jActor(
             chatModel,
             List.of(new InputTool()),
-            options.systemPrompt(),
-            null
+            options.systemPrompt()
         );
     }
 }

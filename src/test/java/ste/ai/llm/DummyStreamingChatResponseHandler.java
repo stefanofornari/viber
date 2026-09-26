@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package ste.ai.model;
+package ste.ai.llm;
 
 import dev.langchain4j.model.chat.response.ChatResponse;
 import dev.langchain4j.model.chat.response.StreamingChatResponseHandler;

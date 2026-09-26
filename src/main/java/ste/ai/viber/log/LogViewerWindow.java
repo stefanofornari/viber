@@ -1,56 +1,58 @@
 package ste.ai.viber.log;
 
 import java.io.IOException;
-import javafx.application.Platform;
-import javafx.stage.Stage;
+import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.stage.Stage;
 
-public class LogViewerWindow extends Application {
-    private final static String VIEWER_WINDOW = "logviewer.fxml";
-    private final Logger LOG = Logger.getLogger(LogViewerWindow.class.getName());
-
-    private Stage stage; // This will hold the reference created in start()
+public class LogViewerWindow {
+    private static Stage stage;
+    private static LogViewerWindow instance;
     private LogViewerHandler requestHandler;
     private LogViewerHandler responseHandler;
+    private final Logger LOG = Logger.getLogger(LogViewerWindow.class.getName());
 
     @FXML
     private LogViewer requestLogViewer, responseLogViewer;
 
-    // 1. Keep the constructor completely empty (or remove it entirely)
-    public LogViewerWindow() {
-        // DO NOT call Application.launch() here
+    public static synchronized void show() {
+        Platform.runLater(() -> {
+            if (instance == null) {
+                instance = new LogViewerWindow();
+                instance.start(new Stage());
+            } else if (stage != null) {
+                stage.show();
+                stage.toFront();
+            }
+        });
     }
 
-    @Override
-    public void start(Stage stage) {
-        // 2. Save the stage reference passed by JavaFX
+    private void start(Stage stage) {
         this.stage = stage;
-
         stage.setTitle("Viber - HTTP Logs");
         try {
-            final FXMLLoader loader = new FXMLLoader(getClass().getResource(VIEWER_WINDOW));
+            final FXMLLoader loader = new FXMLLoader(getClass().getResource("logviewer.fxml"));
             loader.setController(this);
             stage.setScene(new Scene(loader.load(), 1200, 800));
             stage.setMinWidth(800);
             stage.setMinHeight(500);
-            show();
+            stage.show();
         } catch (IOException x) {
-            LOG.severe(() -> "error loading " + VIEWER_WINDOW);
+            LOG.severe(() -> "error loading logviewer.fxml");
             throw new RuntimeException(x);
         }
         stage.setOnCloseRequest(event -> cleanupHandlers());
+        initializeHandlers();
     }
 
-    @FXML
-    private void initialize() {
+    private void initializeHandlers() {
         final Logger httpLogger = Logger.getLogger("dev.langchain4j.http.client.log");
-        httpLogger.setLevel(java.util.logging.Level.ALL);
+        httpLogger.setLevel(Level.ALL);
 
-        // Fixed minor typo: (was double assigned requestLogViewer.main)
         requestLogViewer.main = this;
 
         requestHandler = new LogViewerHandler("dev.langchain4j.http.client.log", requestLogViewer);
@@ -66,19 +68,6 @@ public class LogViewerWindow extends Application {
         httpLogger.addHandler(responseHandler);
 
         LOG.finest(() -> "creating Scene and showing Stage");
-    }
-
-    public void show() {
-        LOG.finest(() -> "show() called, isFxApplicationThread=" + Platform.isFxApplicationThread());
-
-        // 3. Since start() initializes the stage, ensure we handle showing it properly
-        if (Platform.isFxApplicationThread()) {
-            if (stage != null) stage.show();
-        } else {
-            Platform.runLater(() -> {
-                if (stage != null) stage.show();
-            });
-        }
     }
 
     private void cleanupHandlers() {

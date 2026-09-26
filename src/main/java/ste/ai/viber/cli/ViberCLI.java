@@ -18,6 +18,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import ste.ai.viber.model.ChatMessage;
 
 public class ViberCLI {
     private static final Logger LOG = Logger.getLogger(ViberCLI.class.getName());
@@ -98,5 +99,9 @@ public class ViberCLI {
 
     private void renderConversation() {
         renderer.render(conversation);
+    }
+
+    private void updateConversation(final ChatMessage msg) {
+        renderer.render(msg);
     }
 }

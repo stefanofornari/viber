@@ -22,8 +22,7 @@ public class HelloWorldViber implements Viber {
             chatModel,
             List.<ste.ai.viber.tools.Tool>of(new InputTool()),
             "use mock 'hello world.2.txt'\n" +
-            "To greet the user, use the InputTool with the prompt 'What is your name?'. execute tool input with arguments: What's your name?",
-            null
+            "To greet the user, use the InputTool with the prompt 'What is your name?'. execute tool input with arguments: What's your name?"
         );
 
         Chat chat = new Chat(new PromptMessage("greet me by my name"));

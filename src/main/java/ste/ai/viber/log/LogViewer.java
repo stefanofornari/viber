@@ -7,7 +7,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import netscape.javascript.JSObject;
-import static ste.ai.viber.util.Utils.ifNull;
+import static ste.ai.viber.util.Safe.ifNull;
 
 
 public class LogViewer extends Pane {

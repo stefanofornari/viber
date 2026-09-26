@@ -4,14 +4,23 @@ import picocli.CommandLine;
 
 import java.util.List;
 
-public class CliOptions {
+public class CLIOptions {
 
     @CommandLine.Option(
         names = {"--key"},
-        description = "API key for the LLM provider",
-        required = true
+        description = "API key for the LLM provider"
     )
     String key;
+
+    @CommandLine.Option(
+        names = {"--gui"},
+        description = "Start the standalone GUI application (default when no other mode flags are provided)"
+    )
+    boolean gui;
+
+    public boolean isGui() {
+        return gui;
+    }
 
     @CommandLine.Option(
         names = {"--endpoint"},
@@ -44,6 +53,16 @@ public class CliOptions {
     }
 
     @CommandLine.Option(
+        names = {"--fx-render"},
+        description = "Render the conversation in a JavaFX window with AtlantaFX styles"
+    )
+    boolean fxRender;
+
+    public boolean isFxRender() {
+        return fxRender;
+    }
+
+    @CommandLine.Option(
         names = {"--echo"},
         description = "Echo mode: actor repeats user input without calling an LLM"
     )
@@ -51,6 +70,16 @@ public class CliOptions {
 
     public boolean isEcho() {
         return echo;
+    }
+
+    @CommandLine.Option(
+        names = {"--dev"},
+        description = "Dev mode: opens a JavaFX window to manually add chats and messages"
+    )
+    boolean dev;
+
+    public boolean isDev() {
+        return dev;
     }
 
     public String key() {

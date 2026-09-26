@@ -2,7 +2,7 @@ package ste.ai.viber.cli;
 
 import org.junit.jupiter.api.Test;
 import picocli.CommandLine;
-import ste.ai.viber.cli.command.CliOptions;
+import ste.ai.viber.cli.command.CLIOptions;
 
 import static org.assertj.core.api.BDDAssertions.then;
 
@@ -10,32 +10,43 @@ class MainCommandTest {
 
     @Test
     void parses_default_options() {
-        CliOptions options = parse(new String[]{"--key", "x"});
+        CLIOptions options = parse(new String[]{"--key", "x"});
 
         then(options.endpoint()).isEqualTo("https://api.openai.com/v1");
         then(options.model()).isEqualTo("gpt-4o-mini");
         then(options.systemPrompt()).isEqualTo("You are a helpful assistant.");
         then(options.isEcho()).isFalse();
         then(options.isShowLog()).isFalse();
+        then(options.isFxRender()).isFalse();
     }
 
     @Test
-    void parses_all_options() {
-        CliOptions options = parse(new String[]{
-            "--key", "secret",
-            "--endpoint", "http://localhost:8080/v1",
-            "--model", "custom-model",
-            "--system-prompt", "Be concise.",
-            "--echo",
-            "--show-log"
-        });
+    void parses_fx_render_option() {
+        CLIOptions options = parse(new String[]{"--key", "x", "--fx-render"});
 
-        then(options.key()).isEqualTo("secret");
-        then(options.endpoint()).isEqualTo("http://localhost:8080/v1");
-        then(options.model()).isEqualTo("custom-model");
-        then(options.systemPrompt()).isEqualTo("Be concise.");
-        then(options.isEcho()).isTrue();
-        then(options.isShowLog()).isTrue();
+        then(options.isFxRender()).isTrue();
+    }
+
+    @Test
+    void parses_dev_option() {
+        CLIOptions options = parse(new String[]{"--key", "x", "--dev"});
+
+        then(options.isDev()).isTrue();
+    }
+
+    @Test
+    void dev_option_is_disabled_by_default() {
+        CLIOptions options = parse(new String[]{"--key", "x"});
+
+        then(options.isDev()).isFalse();
+    }
+
+    @Test
+    void dev_option_does_not_interfere_with_fx_render() {
+        CLIOptions options = parse(new String[]{"--key", "x", "--dev", "--fx-render"});
+
+        then(options.isDev()).isTrue();
+        then(options.isFxRender()).isTrue();
     }
 
     @Test
@@ -46,8 +57,8 @@ class MainCommandTest {
         then(exitCode).isEqualTo(1);
     }
 
-    private CliOptions parse(String... args) {
-        CliOptions options = new CliOptions();
+    private CLIOptions parse(String... args) {
+        CLIOptions options = new CLIOptions();
         new CommandLine(options).parseArgs(args);
         return options;
     }

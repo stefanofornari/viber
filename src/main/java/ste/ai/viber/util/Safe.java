@@ -23,7 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 /**
  *
  */
-public class Utils {
+public class Safe {
     public static final void ifNotNull(final Object o, final Runnable r) {
         if (o != null) {
             r.run();

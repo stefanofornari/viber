@@ -14,7 +14,7 @@
  * the License.
  */
 
-package ste.ai.model;
+package ste.ai.llm;
 
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessage;

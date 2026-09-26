@@ -1,15 +1,15 @@
 package ste.ai.viber.model;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Represents a conversation: an ordered sequence of chats between a Viber and an Actor.
  */
 public class Conversation {
-    private final List<Chat> chats = new ArrayList<>();
+    private final List<Chat> chats = new CopyOnWriteArrayList<>();
     private SystemMessage systemMessage;
 
     /**

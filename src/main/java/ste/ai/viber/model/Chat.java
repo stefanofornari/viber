@@ -1,13 +1,15 @@
 package ste.ai.viber.model;
 
-import java.util.ArrayList;
+import dev.langchain4j.model.output.TokenUsage;
 import java.util.Collections;
 import java.util.List;
-import static ste.ai.viber.util.Utils.requireNonNull;
+import java.util.concurrent.CopyOnWriteArrayList;
+import static ste.ai.viber.util.Safe.requireNonNull;
 
 public class Chat {
     private final PromptMessage prompt;
-    private final List<ChatMessage> messages = new ArrayList<>();
+    private final List<ChatMessage> messages = new CopyOnWriteArrayList<>();
+    private TokenUsage tokenUsage;
 
     public Chat(PromptMessage prompt) {
         requireNonNull(prompt, "prompt");
@@ -26,5 +28,13 @@ public class Chat {
 
     public List<ChatMessage> messages() {
         return Collections.unmodifiableList(messages);
+    }
+
+    public TokenUsage tokenUsage() {
+        return tokenUsage;
+    }
+
+    public void tokenUsage(TokenUsage tokenUsage) {
+        this.tokenUsage = tokenUsage;
     }
 }

@@ -20,18 +20,42 @@ mvn package
 
 This produces an uber JAR at `target/viber-0.0-SNAPSHOT.jar`.
 
-## Running the CLI
+## Running the Application
 
 ```bash
-# Echo mode (no LLM)
-java -jar target/viber-0.0-SNAPSHOT.jar --echo
+# Standalone GUI application (no API key needed)
+mvn javafx:run
 
-# Real LLM
-java -jar target/viber-0.0-SNAPSHOT.jar \
-  --key sk-... \
-  --endpoint https://api.openai.com/v1 \
-  --model gpt-4o-mini \
-  --system-prompt "You are a helpful assistant."
+# Standalone GUI application with explicit flag
+mvn javafx:run -Djavafx.run.args="--gui"
+
+# CLI with real LLM (requires API key)
+mvn javafx:run -Djavafx.run.args="--key sk-..."
+
+# CLI with Echo mode (no LLM)
+mvn javafx:run -Djavafx.run.args="--echo"
+
+# Dev mode (manual message editor)
+mvn javafx:run -Djavafx.run.args="--dev"
+
+# CLI + FX rendering (CLI with conversation window)
+mvn javafx:run -Djavafx.run.args="--key sk-... --fx-render"
+```
+
+### Launch Behavior
+
+- **No flags / `--gui`**: Launches the standalone JavaFX GUI application with FXActor as the default actor. No API key required.
+- **`--key`**: Launches the CLI with LangChain4jActor connected to the specified LLM provider.
+- **`--echo`**: Launches the CLI with StdInStdOutActor, echoing user input without calling an LLM.
+- **`--dev`**: Opens the JavaFX dev mode window for manually adding chats and messages.
+- **`--fx-render`**: Runs the CLI while also rendering the conversation in a JavaFX window.
+
+You can also run the packaged JAR directly:
+
+```bash
+java -jar target/viber-0.0-SNAPSHOT.jar --gui
+java -jar target/viber-0.0-SNAPSHOT.jar --echo
+java -jar target/viber-0.0-SNAPSHOT.jar --dev
 ```
 
 ## Status

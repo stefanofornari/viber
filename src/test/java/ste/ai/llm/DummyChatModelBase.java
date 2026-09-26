@@ -14,7 +14,7 @@
  * the License.
  */
 
-package ste.ai.model;
+package ste.ai.llm;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -46,8 +46,8 @@ import dev.langchain4j.model.output.TokenUsage;
 
 import java.nio.file.Paths;
 
-import static ste.ai.viber.util.Utils.ifNotNull;
-import static ste.ai.viber.util.Utils.ifNull;
+import static ste.ai.viber.util.Safe.ifNotNull;
+import static ste.ai.viber.util.Safe.ifNull;
 import static ste.lloop.Loop._break_;
 import static ste.lloop.Loop.on;
 

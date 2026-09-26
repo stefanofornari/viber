@@ -1,7 +1,7 @@
 package ste.ai.viber;
 
 import org.junit.jupiter.api.Test;
-import ste.ai.model.DummyChatModel;
+import ste.ai.llm.DummyStreamingChatModel;
 
 import static com.github.stefanbirkner.systemlambda.SystemLambda.tapSystemOut;
 import static com.github.stefanbirkner.systemlambda.SystemLambda.withTextFromSystemIn;
@@ -13,7 +13,7 @@ class HelloWorldViberTest {
     void starts_session_and_renders_hello_world_conversation() throws Exception {
         String name = "Alice";
 
-        DummyChatModel dummyModel = new DummyChatModel();
+        DummyStreamingChatModel dummyModel = new DummyStreamingChatModel();
         dummyModel.toolChoice = dev.langchain4j.model.chat.request.ToolChoice.AUTO;
 
         String[] output = new String[1];

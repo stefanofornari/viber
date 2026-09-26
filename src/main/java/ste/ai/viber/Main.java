@@ -1,11 +1,9 @@
 package ste.ai.viber;
 
-import picocli.CommandLine;
-import ste.ai.viber.cli.MainCommand;
+import ste.ai.viber.cli.ViberApplication;
 
 public class Main {
     public static void main(String[] args) {
-        int exitCode = new CommandLine(new MainCommand()).execute(args);
-        System.exit(exitCode);
+        ViberApplication.main(args);
     }
 }
