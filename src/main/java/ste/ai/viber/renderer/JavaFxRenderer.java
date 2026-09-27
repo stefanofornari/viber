@@ -3,6 +3,7 @@ package ste.ai.viber.renderer;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.scene.control.ScrollPane;
 import ste.ai.viber.model.Chat;
 import ste.ai.viber.model.ChatMessage;
 import ste.ai.viber.model.Conversation;
@@ -31,30 +32,21 @@ import static ste.lloop.Loop.on;
  *         a different type starts a new pane.</li>
  * </ul>
  */
-public class JavaFxRenderer implements Renderer {
+public class JavaFxRenderer extends ScrollPane implements Renderer {
 
-    private final Parent root;
     private final ConversationPaneController conversationPaneController;
 
     public JavaFxRenderer() {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("ConversationPane.fxml"));
+        loader.setRoot(this);
         try {
-            this.root = loader.load();
+            loader.load();
             this.conversationPaneController = loader.getController();
         } catch (IOException e) {
             throw new UncheckedIOException("Failed to initialize JavaFxRenderer", e);
         }
-    }
-
-    /**
-     * Returns the root node of the renderer's component tree.
-     *
-     * <p>The host application should embed this node into its own scene.</p>
-     *
-     * @return the root node, never {@code null}
-     */
-    public Parent getRoot() {
-        return root;
+        getStylesheets().add(getClass().getResource("/ste/ai/viber/ui/viber.css").toExternalForm());
+        getStyleClass().add("root");
     }
 
     @Override

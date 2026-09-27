@@ -7,6 +7,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.StackPane;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import ste.ai.viber.actor.FXActor;
 import ste.ai.viber.model.Conversation;
@@ -22,7 +23,7 @@ public class DevModeWindow {
     private final Stage stage;
     private final JavaFxRenderer renderer;
 
-    public DevModeWindow(FXActor fxActor, Conversation conversation) {
+    public DevModeWindow(FXActor fxActor, Conversation conversation, Stage owner) {
         this.fxActor = fxActor;
         this.conversation = conversation;
         this.stage = new Stage();
@@ -38,6 +39,29 @@ public class DevModeWindow {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+
+        stage.setOnShown(e -> positionNextTo(owner));
+    }
+
+    private void positionNextTo(Stage owner) {
+        double mainX = owner.getX();
+        double mainY = owner.getY();
+        double mainWidth = owner.getWidth();
+        double mainHeight = owner.getHeight();
+        double devWidth = stage.getWidth();
+        double devHeight = stage.getHeight();
+        double totalWidth = mainWidth + devWidth;
+        double totalHeight = Math.max(mainHeight, devHeight);
+        double screenWidth = Screen.getPrimary().getVisualBounds().getWidth();
+        double screenHeight = Screen.getPrimary().getVisualBounds().getHeight();
+
+        double startX = (screenWidth - totalWidth) / 2;
+        double startY = mainY + (mainHeight - totalHeight) / 2;
+
+        owner.setX(startX);
+        owner.setY(startY);
+        stage.setX(startX + mainWidth);
+        stage.setY(startY);
     }
 
     public void show() {

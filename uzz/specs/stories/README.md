@@ -25,7 +25,8 @@ This index lists the user stories derived from `uzz/specs/scope.md`.
 | [US-000018](ui/US-000018/US-000018.md) | ViberFX Standalone Application Entry Point | DONE |
 | [US-000019](ui/US-000019/US-000019.md) | GUI Prompt Input Area | DONE |
 | [US-000020](ui/US-000020/US-000020.md) | New Chat GUI Action | TODO |
-| [US-000021](ui/US-000021/US-000021.md) | Actor Selection Menu | TODO |
+| [US-000021](ui/US-000021/US-000021.md) | Actor Selection Menu | DONE |
+| [US-000022](ui/US-000022/US-000022.md) | Actor Settings Configuration | TODO |
 
 ### actor
 
@@ -42,13 +43,9 @@ This index lists the user stories derived from `uzz/specs/scope.md`.
 | ID | Title | Status |
 |----|-------|--------|
 | [US-000005](development/US-000005/US-000005.md) | Embeddable JavaFX Component | TODO |
-
-### devmode
-
-| ID | Title | Status |
-|----|-------|--------|
-| [US-000016](devmode/US-000016/US-000016.md) | Dev Mode Conversation Editor | TODO |
-| [US-000017](devmode/US-000017/US-000017.md) | Dev Mode CLI Flag | TODO |
+| [US-000016](development/US-000016/US-000016.md) | Dev Mode Conversation Editor | TODO |
+| [US-000017](development/US-000017/US-000017.md) | Dev Mode CLI Flag | TODO |
+| [US-000023](development/US-000023/US-000023.md) | Embeddable JavaFX Component via FXML | TODO |
 
 ## Scope Reference
 - [Scope Overview](../scope.md)

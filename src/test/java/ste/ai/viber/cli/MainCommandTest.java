@@ -17,36 +17,6 @@ class MainCommandTest {
         then(options.systemPrompt()).isEqualTo("You are a helpful assistant.");
         then(options.isEcho()).isFalse();
         then(options.isShowLog()).isFalse();
-        then(options.isFxRender()).isFalse();
-    }
-
-    @Test
-    void parses_fx_render_option() {
-        CLIOptions options = parse(new String[]{"--key", "x", "--fx-render"});
-
-        then(options.isFxRender()).isTrue();
-    }
-
-    @Test
-    void parses_dev_option() {
-        CLIOptions options = parse(new String[]{"--key", "x", "--dev"});
-
-        then(options.isDev()).isTrue();
-    }
-
-    @Test
-    void dev_option_is_disabled_by_default() {
-        CLIOptions options = parse(new String[]{"--key", "x"});
-
-        then(options.isDev()).isFalse();
-    }
-
-    @Test
-    void dev_option_does_not_interfere_with_fx_render() {
-        CLIOptions options = parse(new String[]{"--key", "x", "--dev", "--fx-render"});
-
-        then(options.isDev()).isTrue();
-        then(options.isFxRender()).isTrue();
     }
 
     @Test

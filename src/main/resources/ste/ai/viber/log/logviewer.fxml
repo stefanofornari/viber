@@ -9,7 +9,7 @@
 <?import javafx.scene.web.WebView?>
 <?import ste.ai.viber.log.LogViewer?>
 
-<HBox spacing="5.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
+<HBox spacing="5.0" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1">
     <VBox maxWidth="Infinity" HBox.hgrow="ALWAYS" maxHeight="Infinity">
         <LogViewer fx:id="requestLogViewer" userData="request" maxWidth="Infinity" maxHeight="Infinity" VBox.vgrow="ALWAYS" />
         <LogViewer fx:id="responseLogViewer" userData="response" maxWidth="Infinity" maxHeight="Infinity" VBox.vgrow="ALWAYS" />

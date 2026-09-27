@@ -4,7 +4,7 @@
 <?import javafx.scene.web.WebView?>
 
 
-<TitledPane fx:id="root" id="message" styleClass="message" animated="true" stylesheets="@../ui/viber.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ste.ai.viber.renderer.MessagePaneController">
+<TitledPane fx:id="root" id="message" styleClass="message" animated="true" stylesheets="@../ui/viber.css" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ste.ai.viber.renderer.MessagePaneController">
    <content>
       <WebView fx:id="webView" prefHeight="0"/>
    </content>

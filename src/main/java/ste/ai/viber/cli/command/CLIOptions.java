@@ -2,7 +2,6 @@ package ste.ai.viber.cli.command;
 
 import picocli.CommandLine;
 
-import java.util.List;
 
 public class CLIOptions {
 
@@ -14,7 +13,7 @@ public class CLIOptions {
 
     @CommandLine.Option(
         names = {"--gui"},
-        description = "Start the standalone GUI application (default when no other mode flags are provided)"
+        description = "Start the standalone GUI application"
     )
     boolean gui;
 
@@ -53,16 +52,6 @@ public class CLIOptions {
     }
 
     @CommandLine.Option(
-        names = {"--fx-render"},
-        description = "Render the conversation in a JavaFX window with AtlantaFX styles"
-    )
-    boolean fxRender;
-
-    public boolean isFxRender() {
-        return fxRender;
-    }
-
-    @CommandLine.Option(
         names = {"--echo"},
         description = "Echo mode: actor repeats user input without calling an LLM"
     )
@@ -72,18 +61,12 @@ public class CLIOptions {
         return echo;
     }
 
-    @CommandLine.Option(
-        names = {"--dev"},
-        description = "Dev mode: opens a JavaFX window to manually add chats and messages"
-    )
-    boolean dev;
-
-    public boolean isDev() {
-        return dev;
-    }
-
     public String key() {
         return key;
+    }
+
+    public void key(String key) {
+        this.key = key;
     }
 
     public String endpoint() {

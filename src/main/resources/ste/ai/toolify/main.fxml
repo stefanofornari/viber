@@ -9,7 +9,7 @@
 <?import javafx.scene.web.WebView?>
 <?import ste.ai.toolify.log.LogViewer?>
 
-<VBox spacing="5.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ste.ai.toolify.MainController">
+<VBox spacing="5.0" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ste.ai.toolify.MainController">
     <HBox>
         <VBox>
             <TextArea fx:id="systemPromptTextArea" prefWidth="500.0" promptText="System Prompt" />

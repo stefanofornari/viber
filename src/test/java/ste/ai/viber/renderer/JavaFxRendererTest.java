@@ -17,7 +17,6 @@ import java.util.concurrent.CyclicBarrier;
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.assertj.core.api.BDDAssertions.thenThrownBy;
 
-import javafx.scene.Parent;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.ScrollPane;
 import javafx.stage.Stage;
@@ -31,16 +30,6 @@ class JavaFxRendererTest extends org.testfx.framework.junit5.ApplicationTest {
     }
 
     @Test
-    void getRoot_returns_conversation_pane() throws Exception {
-        JavaFxRenderer renderer = new JavaFxRenderer();
-
-        Parent[] result = new Parent[1];
-        interact(() -> result[0] = renderer.getRoot());
-
-        then(result[0]).isNotNull();
-    }
-
-    @Test
     void renders_conversation_with_one_chat() throws Exception {
         JavaFxRenderer renderer = new JavaFxRenderer();
         Chat chat = new Chat(new PromptMessage("Hello"));
@@ -48,13 +37,12 @@ class JavaFxRendererTest extends org.testfx.framework.junit5.ApplicationTest {
         Conversation conversation = new Conversation().addChat(chat);
 
         interact(() -> {
-            renderer.getRoot();
             renderer.render(conversation);
         });
         WaitForAsyncUtils.waitForFxEvents();
 
-        then(renderer.getRoot()).isNotNull();
-        ScrollPane scrollPane = (ScrollPane) renderer.getRoot();
+        then(renderer).isNotNull();
+        ScrollPane scrollPane = (ScrollPane) renderer;
         TabPane tabPane = (TabPane) scrollPane.getContent();
         then(tabPane).isNotNull();
         then(tabPane.getTabs()).hasSize(1);
@@ -70,13 +58,12 @@ class JavaFxRendererTest extends org.testfx.framework.junit5.ApplicationTest {
             .addChat(chat2);
 
         interact(() -> {
-            renderer.getRoot();
             renderer.render(conversation);
         });
         WaitForAsyncUtils.waitForFxEvents();
 
-        then(renderer.getRoot()).isNotNull();
-        ScrollPane scrollPane = (ScrollPane) renderer.getRoot();
+        then(renderer).isNotNull();
+        ScrollPane scrollPane = (ScrollPane) renderer;
         TabPane tabPane = (TabPane) scrollPane.getContent();
         then(tabPane).isNotNull();
         then(tabPane.getTabs()).hasSize(2);
@@ -93,12 +80,11 @@ class JavaFxRendererTest extends org.testfx.framework.junit5.ApplicationTest {
         Conversation conversation = new Conversation().addChat(chat);
 
         interact(() -> {
-            renderer.getRoot();
             renderer.render(conversation);
         });
         WaitForAsyncUtils.waitForFxEvents();
 
-        then(renderer.getRoot()).isNotNull();
+        then(renderer).isNotNull();
     }
 
     @Test
@@ -107,12 +93,11 @@ class JavaFxRendererTest extends org.testfx.framework.junit5.ApplicationTest {
         Conversation conversation = new Conversation();
 
         interact(() -> {
-            renderer.getRoot();
             renderer.render(conversation);
         });
         WaitForAsyncUtils.waitForFxEvents();
 
-        then(renderer.getRoot()).isNotNull();
+        then(renderer).isNotNull();
     }
 
     @Test
@@ -144,7 +129,7 @@ class JavaFxRendererTest extends org.testfx.framework.junit5.ApplicationTest {
         JavaFxRenderer renderer = new JavaFxRenderer();
         Chat chat = new Chat(new PromptMessage("Hello"));
 
-        interact(() -> renderer.getRoot());
+        interact(() -> renderer);
 
         for (int attempt = 0; attempt < 50; attempt++) {
             CyclicBarrier barrier = new CyclicBarrier(2);

@@ -9,7 +9,6 @@ import ste.ai.viber.actor.LangChain4jActor;
 import ste.ai.viber.actor.StdInStdOutActor;
 import ste.ai.viber.cli.command.CLIOptions;
 import ste.ai.viber.model.Conversation;
-import ste.ai.viber.renderer.JavaFxRenderer;
 import ste.ai.viber.renderer.StringRenderer;
 import ste.ai.viber.tools.InputTool;
 import atlantafx.base.theme.NordLight;
@@ -18,10 +17,10 @@ import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
 import picocli.CommandLine;
 
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.util.List;
 import java.util.logging.Logger;
 import javafx.application.HostServices;
+import javafx.scene.Parent;
 
 public class ViberApplication extends Application {
 
@@ -33,6 +32,7 @@ public class ViberApplication extends Application {
     public void start(Stage primaryStage) {
         Application.setUserAgentStylesheet(new NordLight().getUserAgentStylesheet());
 
+        System.out.println("parameters: " + getParameters().getRaw());
         String[] args = getParameters().getRaw().toArray(new String[0]);
         CLIOptions options = new CLIOptions();
         CommandLine cmd = new CommandLine(options);
@@ -49,55 +49,22 @@ public class ViberApplication extends Application {
 
         primaryStage.setTitle("Viber");
 
-        if (options.isDev()) {
-            startDevMode(primaryStage);
-            return;
-        }
-
-        if (options.isFxRender()) {
-            startCLIWithFx(primaryStage, options);
-            return;
-        }
-
-        if (options.isGui() || options.key() == null) {
-            startStandaloneGui(primaryStage);
+        if (options.isGui()) {
+            startGuiMode(primaryStage, options);
             return;
         }
 
         startCLI(primaryStage, options);
     }
 
-    private void startDevMode(Stage primaryStage) {
-        JavaFxRenderer fxRenderer = new JavaFxRenderer();
-        primaryStage.setScene(new Scene(fxRenderer.getRoot(), 800, 600));
-        primaryStage.show();
-
-        Conversation conversation = new Conversation();
-        Actor actor = new FXActor(conversation, fxRenderer);
-        DevModeWindow devModeWindow = new DevModeWindow((FXActor) actor, conversation);
-        devModeWindow.show();
-
-        ViberCLI cli = new ViberCLI(actor, conversation, fxRenderer, new InputStreamReader(System.in));
-        new Thread(cli::start).start();
-    }
-
-    private void startCLIWithFx(Stage primaryStage, CLIOptions options) {
-        JavaFxRenderer fxRenderer = new JavaFxRenderer();
-        primaryStage.setScene(new Scene(fxRenderer.getRoot(), 800, 600));
-        primaryStage.show();
-
+    private void startGuiMode(Stage primaryStage, CLIOptions options) {
         try {
             Actor actor = createActor(options);
             Conversation conversation = actor.conversation();
-            fxRenderer.render(conversation);
 
-            if (options.isShowLog()) {
-                ste.ai.viber.log.LogViewerWindow.show();
-            }
-
-            Reader input = new InputStreamReader(System.in);
-            ViberCLI cli = new ViberCLI(actor, conversation, fxRenderer, input);
-            new Thread(cli::start).start();
+            MainAppWindow window = new MainAppWindow(conversation, options, actor, primaryStage);
+            primaryStage.setScene(newScene(window.getRoot()));
+            primaryStage.show();
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
             if (e.getCause() != null) {
@@ -110,24 +77,7 @@ public class ViberApplication extends Application {
         }
     }
 
-    private void startStandaloneGui(Stage primaryStage) {
-        Conversation conversation = new Conversation();
-        JavaFxRenderer renderer = new JavaFxRenderer();
-        Actor actor = new FXActor(conversation, renderer);
-
-        MainAppWindow window = new MainAppWindow(actor, conversation, renderer);
-        primaryStage.setScene(new Scene(window.getRoot(), 800, 600));
-        primaryStage.show();
-    }
-
     private void startCLI(Stage primaryStage, CLIOptions options) {
-        primaryStage.setWidth(0);
-        primaryStage.setHeight(0);
-        primaryStage.setX(-1000);
-        primaryStage.setY(-1000);
-        primaryStage.show();
-        primaryStage.hide();
-
         try {
             Actor actor = createActor(options);
             Conversation conversation = actor.conversation();
@@ -136,8 +86,7 @@ public class ViberApplication extends Application {
                 ste.ai.viber.log.LogViewerWindow.show();
             }
 
-            Reader input = new InputStreamReader(System.in);
-            ViberCLI cli = new ViberCLI(actor, conversation, new StringRenderer(), input);
+            ViberCLI cli = new ViberCLI(actor, conversation, new StringRenderer(), new InputStreamReader(System.in));
             new Thread(cli::start).start();
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
@@ -156,8 +105,8 @@ public class ViberApplication extends Application {
             return new StdInStdOutActor();
         }
 
-        if (options.key() == null) {
-            throw new IllegalArgumentException("--key is required for CLI mode with LangChain4jActor");
+        if (options.isGui() || options.key() == null) {
+            return new FXActor(new Conversation(), null);
         }
 
         StreamingChatModel chatModel = OpenAiStreamingChatModel.builder()
@@ -178,5 +127,17 @@ public class ViberApplication extends Application {
 
     public static void main(String[] args) {
         Application.launch(ViberApplication.class, args);
+    }
+
+    // --------------------------------------------------------- private methods
+
+    private Scene newScene(final Parent parent) {
+        final Scene scene = new Scene(parent, 800, 600);
+
+        scene.getStylesheets().addAll(
+            "/ste/ai/viber/ui/viber.css"
+        );
+
+        return scene;
     }
 }

@@ -27,19 +27,19 @@ This produces an uber JAR at `target/viber-0.0-SNAPSHOT.jar`.
 mvn javafx:run
 
 # Standalone GUI application with explicit flag
-mvn javafx:run -Djavafx.run.args="--gui"
+mvn javafx:run -Djavafx.args="--gui"
 
 # CLI with real LLM (requires API key)
-mvn javafx:run -Djavafx.run.args="--key sk-..."
+mvn javafx:run -Djavafx.args="--key sk-..."
 
 # CLI with Echo mode (no LLM)
-mvn javafx:run -Djavafx.run.args="--echo"
+mvn javafx:run -Djavafx.args="--echo"
 
 # Dev mode (manual message editor)
-mvn javafx:run -Djavafx.run.args="--dev"
+mvn javafx:run -Djavafx.args="--dev"
 
 # CLI + FX rendering (CLI with conversation window)
-mvn javafx:run -Djavafx.run.args="--key sk-... --fx-render"
+mvn javafx:run -Djavafx.args="--key sk-... --fx-render"
 ```
 
 ### Launch Behavior

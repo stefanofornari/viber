@@ -42,7 +42,7 @@ public class DevModeController {
     public void initialize(FXActor fxActor, Conversation conversation, JavaFxRenderer renderer) {
         this.fxActor = fxActor;
         this.renderer = renderer;
-        conversationContainer.getChildren().add(renderer.getRoot());
+        conversationContainer.getChildren().add(renderer);
         renderer.render(conversation);
 
         addChatButton.setOnAction(e -> handleAddChat());

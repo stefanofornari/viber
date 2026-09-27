@@ -1,24 +1,24 @@
 .root {
-    -viber-color-accent-1: #C01E6A;
-    -viber-color-accent-2: #F2692A;
-    -viber-color-accent-3: #2B91B1;
-    -viber-color-accent-4: #FBD13D;
+    -fx-viber-color-accent-1: #C01E6A;
+    -fx-viber-color-accent-2: #F2692A;
+    -fx-viber-color-accent-3: #2B91B1;
+    -fx-viber-color-accent-4: #FBD13D;
 
-    -viber-color-accent-muted-1: derive(-viber-color-accent-1, -7%);
-    -viber-color-accent-muted-2: #F2692A;
-    -viber-color-accent-muted-3: #2B91B1;
-    -viber-color-accent-muted-4: #FBD13D;
+    -fx-viber-color-accent-muted-1: derive(-fx-viber-color-accent-1, -7%);
+    -fx-viber-color-accent-muted-2: #F2692A;
+    -fx-viber-color-accent-muted-3: #2B91B1;
+    -fx-viber-color-accent-muted-4: #FBD13D;
 
-    -viber-color-bg: #f9f6f1;
-    -viber-color-bg-muted: derive(-viber-color-bg, -7%);
+    -fx-viber-color-bg: #f9f6f1;
+    -fx-viber-color-bg-muted: derive(-fx-viber-color-bg, -7%);
 }
 
 
 /*******************************************************************************
  Conversation
 *******************************************************************************/
-.conversation {
-    -fx-background-color: -viber-color-bg;
+ .conversation {
+    -fx-background-color: #f9f6f1;
     -fx-padding: 10px;
 }
 
@@ -38,12 +38,12 @@
 *******************************************************************************/
 .chat {
     -fx-animated: true;
-    -fx-background-color: -viber-color-bg;
+    -fx-background-color: -fx-viber-color-bg;
     -fx-background-radius: 4px;
 }
 
 .chat > .title {
-    -fx-background-color: derive(-viber-color-bg, -3%);
+    -fx-background-color: derive(-fx-viber-color-bg, -3%);
     -fx-background-insets: 0;
     -fx-background-radius: 4px 4px 0 0;
     -fx-padding: 8px;
@@ -61,11 +61,11 @@
 }
 
 .chat > .title > .arrow-button > .arrow {
-    -fx-background-color: -viber-color-bg-muted;
+    -fx-background-color: -fx-viber-color-bg-muted;
 }
 
 .chat > .content {
-    -fx-background-color: -viber-color-bg;
+    -fx-background-color: -fx-viber-color-bg;
     -fx-border-color: transparent;
     -fx-padding: 10px;
 }
@@ -80,13 +80,13 @@
 .message {
     -fx-animated: true;
     -fx-border-width: 0 0 0 3px;
-    -fx-border-color: transparent transparent transparent -viber-color-accent-1;
-    -fx-background-color: -viber-color-bg;
+    -fx-border-color: transparent transparent transparent -fx-viber-color-accent-1;
+    -fx-background-color: -fx-viber-color-bg;
     -fx-background-radius: 4px;
 }
 
 .message > .title {
-    -fx-background-color: derive(-viber-color-bg, -3%);
+    -fx-background-color: derive(-fx-viber-color-bg, -3%);
     -fx-background-insets: 0;
     -fx-background-radius: 4px 4px 0 0;
     -fx-padding: 8px 12px;
@@ -104,37 +104,37 @@
 }
 
 .message > .title > .arrow-button > .arrow {
-    -fx-background-color: -viber-color-bg-muted;
+    -fx-background-color: -fx-viber-color-bg-muted;
 }
 
 .message > .content {
-    -fx-background-color: -viber-color-bg;
+    -fx-background-color: -fx-viber-color-bg;
     -fx-border-color: transparent;
     -fx-padding: 10px;
 }
 
 .message:focused > .title {
-    -fx-color: -viber-color-bg-muted;
+    -fx-color: -fx-viber-color-bg-muted;
 }
 
 .message-prompt {
-    -fx-border-color: transparent transparent transparent -viber-color-accent-1;
+    -fx-border-color: transparent transparent transparent -fx-viber-color-accent-1;
 }
 
 .message-reply {
-    -fx-border-color: transparent transparent transparent -viber-color-accent-2;
+    -fx-border-color: transparent transparent transparent -fx-viber-color-accent-2;
 }
 
 .message-thought {
-    -fx-border-color: transparent transparent transparent -viber-color-accent-3;
+    -fx-border-color: transparent transparent transparent -fx-viber-color-accent-3;
 }
 
 .message-tool-request {
-    -fx-border-color: transparent transparent transparent -viber-color-accent-4;
+    -fx-border-color: transparent transparent transparent -fx-viber-color-accent-4;
 }
 
 .message-tool-response {
-    -fx-border-color: transparent transparent transparent -viber-color-bg-muted;
+    -fx-border-color: transparent transparent transparent -fx-viber-color-bg-muted;
 }
 
 .message-error {

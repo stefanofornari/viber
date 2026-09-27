@@ -4,8 +4,8 @@
 <?import javafx.scene.control.TabPane?>
 
 
-<ScrollPane id="conversation" prefHeight="400.0" prefWidth="600.0" styleClass="conversation" fitToWidth="true" stylesheets="@../ui/viber.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ste.ai.viber.renderer.ConversationPaneController">
+<fx:root type="javafx.scene.control.ScrollPane" id="conversation" prefHeight="400.0" prefWidth="600.0" styleClass="conversation" fitToWidth="true" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ste.ai.viber.renderer.ConversationPaneController">
    <content>
       <TabPane fx:id="chatsContainer" styleClass="chats-container" tabClosingPolicy="UNAVAILABLE" />
    </content>
-</ScrollPane>
+</fx:root>

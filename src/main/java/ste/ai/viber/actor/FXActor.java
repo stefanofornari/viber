@@ -25,14 +25,18 @@ import static ste.ai.viber.util.Safe.requireNonNull;
  */
 public class FXActor implements Actor {
 
-    private final Conversation conversation;
-    private final Renderer renderer;
+    private Conversation conversation;
+    private Renderer renderer;
     private Chat currentChat;
 
     public FXActor(Conversation conversation, Renderer renderer) {
         requireNonNull(conversation, "conversation");
-        requireNonNull(renderer, "renderer");
         this.conversation = conversation;
+        this.renderer = renderer;
+    }
+
+    public void renderer(Renderer renderer) {
+        requireNonNull(renderer, "renderer");
         this.renderer = renderer;
     }
 
