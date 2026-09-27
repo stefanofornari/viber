@@ -11,6 +11,63 @@
 
     -fx-viber-color-bg: #f9f6f1;
     -fx-viber-color-bg-muted: derive(-fx-viber-color-bg, -7%);
+
+    /**
+       AtlantaFX colors
+    **/
+
+    /* Primary color for text and icons. It should be used for body content, titles and labels. */
+    -color-fg-default: #271e1c;
+    /* For content that is secondary or that provides additional context but is not critical to understanding the flow of an interface. */
+    -color-fg-muted: derive(-color-fg-default, +7%);
+    /* For placeholders or decorative foregrounds. */
+    -color-fg-subtle: derive(-color-fg-default, -7%);
+    /* The text color designed to combine with *-emphasis backgrounds for optimal contrast. */
+    -color-fg-emphasis: derive(-color-fg-default, -14%);
+
+    /* Primary background color. */
+    -color-bg-default: -fx-viber-color-bg;
+    /* Background color for popup controls such as popovers and tooltips. */
+    -color-bg-overlay: #dcd9d1;
+    /* Provides visual rest and contrast against the default background. */
+    -color-bg-subtle: derive(-color-bg-default, -7%);
+    /* For a focal point, such as in conversations or activity feeds. */
+    -color-bg-inset: #fcfbf8;
+
+    /* Color for creating shadow effects around controls. */
+    -color-shadow-default: derive(-color-bg-default, -50%);
+    /* Default color to create bounds around content. */
+    -color-border-default: #e5e4e2;
+    /* For dividers to emphasize the separation between items, columns or sections. */
+    -color-border-muted: #d2cabc;
+    /* Faint border color. */
+    -color-border-subtle: #d9d2c4;
+
+    /* Accent colors */
+    -color-accent-fg: -color-fg-default;
+    -color-accent-emphasis: -color-fg-emphasis;
+    -color-accent-muted: -color-fg-muted;
+    -color-accent-subtle: -color-fg-subtle;
+}
+
+/*******************************************************************************
+   Menu bar
+*******************************************************************************/
+.menu-item {
+    -fx-border-color: transparent;
+    -fx-border-width: 0 0 1 0;
+}
+.menu-bar .menu:hover,
+.menu-bar .menu:showing,
+.menu-item:hover,
+.menu-item:focused {
+    -fx-background-color: -color-bg-inset;
+}
+
+.menu-item:hover,
+.menu-item:focused {
+    -fx-border-color: transparent transparent -color-border-muted transparent;
+    -fx-border-width: 0 0 1 0;
 }
 
 
@@ -70,10 +127,6 @@
     -fx-padding: 10px;
 }
 
-.messages-container {
-}
-
-
 /*******************************************************************************
  Message
 *******************************************************************************/
@@ -89,7 +142,7 @@
     -fx-background-color: derive(-fx-viber-color-bg, -3%);
     -fx-background-insets: 0;
     -fx-background-radius: 4px 4px 0 0;
-    -fx-padding: 8px 12px;
+    -fx-padding: 8px;
 }
 
 .message > .title > .text {
