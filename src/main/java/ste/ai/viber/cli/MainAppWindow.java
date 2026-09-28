@@ -15,12 +15,12 @@ public class MainAppWindow {
     private final Parent root;
     private final MainAppController controller;
 
-    public MainAppWindow(Conversation conversation, CLIOptions options, Actor actor, Stage owner) {
+    public MainAppWindow(Conversation conversation, CLIOptions options, Stage owner) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("MainAppWindow.fxml"));
             this.root = loader.load();
             this.controller = loader.getController();
-            controller.initialize(conversation, options, actor, owner);
+            controller.initialize(conversation, options, owner);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

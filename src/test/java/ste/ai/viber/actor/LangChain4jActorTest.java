@@ -25,6 +25,7 @@ import ste.ai.viber.model.ToolExecutionRequestMessage;
 import ste.ai.viber.model.ToolExecutionResponseMessage;
 import ste.ai.viber.model.ThoughtMessage;
 import ste.ai.viber.tools.InputTool;
+import ste.ai.viber.tools.FileSystemTools;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -65,6 +66,21 @@ class LangChain4jActorTest {
         thenThrownBy(() -> actor.chat(chat, null))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("onMessage must not be null");
+    }
+
+    @Test
+    void chat_with_filesystem_tools_creates_actor_successfully() throws Exception {
+        DummyStreamingChatModel model = new DummyStreamingChatModel();
+        java.nio.file.Path tempDir = java.nio.file.Files.createTempDirectory("viber-test");
+        FileSystemTools fsTools = new FileSystemTools(tempDir.toString());
+        LangChain4jActor actor = new LangChain4jActor(
+            model,
+            List.of(fsTools),
+            "system"
+        );
+
+        then(actor.conversation()).isNotNull();
+        then(actor.conversation().systemMessage()).isPresent();
     }
 
     @Test

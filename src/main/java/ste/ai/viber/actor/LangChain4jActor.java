@@ -5,6 +5,7 @@ import dev.langchain4j.service.AiServices;
 import dev.langchain4j.service.TokenStream;
 import dev.langchain4j.service.UserMessage;
 import dev.langchain4j.agent.tool.ToolExecutionRequest;
+import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
 import ste.ai.viber.model.Chat;
 import ste.ai.viber.model.ChatMessage;
 import ste.ai.viber.model.Conversation;
@@ -64,6 +65,27 @@ public class LangChain4jActor implements Actor {
             .tools(tools.toArray())
             .systemMessageProvider(o -> systemPrompt)
             .build();
+    }
+
+    public LangChain4jActor(
+        String endpoint,
+        String apiKey,
+        String model,
+        String systemPrompt,
+        List<Tool> tools
+    ) {
+        this(
+            OpenAiStreamingChatModel.builder()
+                .baseUrl(endpoint)
+                .apiKey(apiKey)
+                .modelName(model)
+                .returnThinking(true)
+                .logRequests(true)
+                .logResponses(true)
+                .build(),
+            tools,
+            systemPrompt
+        );
     }
 
     @Override

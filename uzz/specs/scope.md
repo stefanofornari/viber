@@ -26,6 +26,8 @@ Viber provides the following submodules to interact with the chat counterpart (e
 - **STDIOActor** — writes messages from the counterpart to `stdout` and reads messages to return from `stdin`
 - **LangChain4jActor** — interacts with a LangChain4j model
 
+Viber provides an interactive tool execution framework that classifies tool methods by risk policy and supports human-in-the-middle approval flows in both CLI and JavaFX GUI modes.
+
 ### Conversations and Chats
 
 A conversation is a sequence of `chat`s. Each `chat` is a sequence of `message`s that are related in some way. Visually, a conversation can be thought of as chats that develop left to right, while each chat develops top to bottom.
@@ -60,16 +62,23 @@ A message is any exchange between the two actors chatting. It can be of differen
 - `ViberCLI` terminal interface
 - `STDIOActor` for standard input/output interaction
 - `LangChain4jActor` for LangChain4j integration
+- Interactive tool execution policy with `InteractionMode` (`ASK`, `AGENT`, `INTERACTIVE`)
+- `@ToolPolicy` classification for tool methods (`READONLY`, `READWRITE`, `INTERACTIVE`, `UNKNOWN`)
+- Generic `HumanInTheMiddleWrapper` for intercepting tool execution based on policy and mode
+- Human-in-the-middle confirmation flows in both CLI and JavaFX GUI for `READWRITE`/`UNKNOWN` tools in `INTERACTIVE` mode
+- Wiring of existing filesystem tools into the policy-enabled execution path
 - `ViberNB` NetBeans module (post-MVP, after the pure JavaFX MVP is complete)
 
 ## Out-of-Scope / Future Enhancements
 
 - LLM actor implementations beyond `STDIOActor` and `LangChain4jActor`
 - LLM-specific features
+- New filesystem tools beyond the existing `FileSystemTools` set
+- NetBeans-specific tool UI integration (deferred to `ViberNB` post-MVP)
 
 ## Technical Context & Infrastructure
 
-- **Development Toolchain**: Java, JavaFX, CommonsFX, AtlantaFX, Maven, JUnit 5, TestFX, AssertJ, Headless test execution support, TDD-oriented workflow
+- **Development Toolchain**: Java, JavaFX, CommonsFX, AtlantaFX, Maven, JUnit 5, TestFX, AssertJ, Headless test execution support, TDD-oriented workflow, Byte Buddy
 - **Target Systems/Platforms**: JavaFX desktop applications, Terminal application, Demo application for local desktop execution, Host applications embedding the component
 - **Project Reference Docs**:
   - Coding Standard: `uzz/specs/coding-standard.md`

@@ -30,7 +30,7 @@ import java.util.logging.Logger;
 import static ste.lloop.Loop.on;
 import ste.ai.viber.model.ConversationListener;
 
-public abstract class AbstractTool {
+public abstract class AbstractTool implements Tool {
 
     /**
      * property notified for changes: status, progress or any other log

@@ -10,6 +10,7 @@ import ste.ai.viber.actor.StdInStdOutActor;
 import ste.ai.viber.cli.command.CLIOptions;
 import ste.ai.viber.model.Conversation;
 import ste.ai.viber.renderer.StringRenderer;
+import ste.ai.viber.tools.FileSystemTools;
 import ste.ai.viber.tools.InputTool;
 import atlantafx.base.theme.NordLight;
 import dev.langchain4j.model.chat.StreamingChatModel;
@@ -59,10 +60,9 @@ public class ViberApplication extends Application {
 
     private void startGuiMode(Stage primaryStage, CLIOptions options) {
         try {
-            Actor actor = createActor(options);
-            Conversation conversation = actor.conversation();
+            Conversation conversation = new Conversation();
 
-            MainAppWindow window = new MainAppWindow(conversation, options, actor, primaryStage);
+            MainAppWindow window = new MainAppWindow(conversation, options, primaryStage);
             primaryStage.setScene(newScene(window.getRoot()));
             primaryStage.show();
         } catch (Exception e) {
@@ -79,7 +79,7 @@ public class ViberApplication extends Application {
 
     private void startCLI(Stage primaryStage, CLIOptions options) {
         try {
-            Actor actor = createActor(options);
+            Actor actor = createCliActor(options);
             Conversation conversation = actor.conversation();
 
             if (options.isShowLog()) {
@@ -100,13 +100,9 @@ public class ViberApplication extends Application {
         }
     }
 
-    private Actor createActor(CLIOptions options) {
+    private Actor createCliActor(CLIOptions options) {
         if (options.isEcho()) {
             return new StdInStdOutActor();
-        }
-
-        if (options.isGui() || options.key() == null) {
-            return new FXActor(new Conversation(), null);
         }
 
         StreamingChatModel chatModel = OpenAiStreamingChatModel.builder()
@@ -118,11 +114,15 @@ public class ViberApplication extends Application {
             .logResponses(true)
             .build();
 
-        return new LangChain4jActor(
-            chatModel,
-            List.of(new InputTool()),
-            options.systemPrompt()
-        );
+        try {
+            return new LangChain4jActor(
+                chatModel,
+                List.of(new InputTool(), new FileSystemTools(System.getProperty("user.dir"))),
+                options.systemPrompt()
+            );
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to initialize actor tools", e);
+        }
     }
 
     public static void main(String[] args) {

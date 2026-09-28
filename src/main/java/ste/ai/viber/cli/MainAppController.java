@@ -14,9 +14,9 @@ import ste.ai.viber.model.Chat;
 import ste.ai.viber.model.Conversation;
 import ste.ai.viber.model.PromptMessage;
 import ste.ai.viber.renderer.JavaFxRenderer;
+import ste.ai.viber.tools.FileSystemTools;
 import ste.ai.viber.tools.InputTool;
 
-import java.util.List;
 
 public class MainAppController {
 
@@ -43,13 +43,27 @@ public class MainAppController {
     private DevModeWindow devModeWindow;
     private Stage owner;
 
-    public void initialize(Conversation conversation, CLIOptions options, Actor actor, Stage owner) {
+    public void initialize(Conversation conversation, CLIOptions options, Stage owner) {
         this.conversationModel = conversation;
         this.options = options;
-        this.currentActor = actor;
+
+        if (options == null || options.key() == null || options.key().isBlank()) {
+            this.currentActor = new FXActor(conversationModel, this.conversation);
+            this.currentActorType = "FXActor";
+        } else {
+            this.currentActor = new LangChain4jActor(
+                options.endpoint(),
+                options.key(),
+                options.model(),
+                options.systemPrompt(),
+                defaultTools()
+            );
+            this.currentActorType = "LangChain4jActor";
+        }
+
         this.owner = owner;
 
-        if (actor instanceof FXActor fxActor) {
+        if (currentActor instanceof FXActor fxActor) {
             fxActor.renderer(this.conversation);
             if (owner != null && devModeWindow == null) {
                 final javafx.beans.value.ChangeListener<Boolean>[] listener = new javafx.beans.value.ChangeListener[1];
@@ -122,13 +136,11 @@ public class MainAppController {
         switching = true;
         try {
             LangChain4jActor actor = new LangChain4jActor(
-                dev.langchain4j.model.openai.OpenAiStreamingChatModel.builder()
-                    .baseUrl(options.endpoint())
-                    .apiKey(options.key())
-                    .modelName(options.model())
-                    .build(),
-                List.of(new InputTool()),
-                options.systemPrompt()
+                options.endpoint(),
+                options.key(),
+                options.model(),
+                options.systemPrompt(),
+                defaultTools()
             );
             this.currentActor = actor;
             this.currentActorType = "LangChain4jActor";
@@ -141,6 +153,14 @@ public class MainAppController {
             }
         } finally {
             switching = false;
+        }
+    }
+
+    private java.util.List<ste.ai.viber.tools.Tool> defaultTools() {
+        try {
+            return java.util.List.of(new InputTool(), new FileSystemTools(System.getProperty("user.dir")));
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to initialize default tools", e);
         }
     }
 

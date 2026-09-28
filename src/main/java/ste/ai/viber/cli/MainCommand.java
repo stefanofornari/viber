@@ -12,6 +12,7 @@ import ste.ai.viber.model.Conversation;
 import ste.ai.viber.model.ErrorMessage;
 import ste.ai.viber.model.PromptMessage;
 import ste.ai.viber.renderer.StringRenderer;
+import ste.ai.viber.tools.FileSystemTools;
 import ste.ai.viber.tools.InputTool;
 
 import java.io.InputStreamReader;
@@ -93,10 +94,14 @@ public class MainCommand implements Callable<Integer> {
             .logResponses(true)
             .build();
 
-        return new LangChain4jActor(
-            chatModel,
-            List.of(new InputTool()),
-            options.systemPrompt()
-        );
+        try {
+            return new LangChain4jActor(
+                chatModel,
+                List.of(new InputTool(), new FileSystemTools(System.getProperty("user.dir"))),
+                options.systemPrompt()
+            );
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to initialize actor tools", e);
+        }
     }
 }

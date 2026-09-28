@@ -36,6 +36,12 @@ This index lists the user stories derived from `uzz/specs/scope.md`.
 | [US-000010](actor/US-000010/US-000010.md) | Streaming Actor Contract and LangChain4j Streaming | DONE |
 | [US-000011](actor/US-000011/US-000011.md) | Reasoning Message Capture and Rendering | DONE |
 | [US-000013](actor/US-000013/US-000013.md) | Token Usage Capture | TODO |
+| [US-000024](actor/US-000024/US-000024.md) | Interaction Mode and Tool Policy Enforcement | TODO |
+| [US-000025](actor/US-000025/US-000025.md) | CLI Human-in-the-Middle Confirmation | TODO |
+| [US-000026](actor/US-000026/US-000026.md) | JavaFX Human-in-the-Middle Confirmation | TODO |
+| [US-000027](actor/US-000027/US-000027.md) | FileSystemTools Unrestricted Execution | DONE |
+| [US-000028](actor/US-000028/US-000028.md) | FileSystemTools Policy-Enforced Execution | TODO |
+| [US-000029](actor/US-000029/US-000029.md) | Standalone CLI FileSystemTools Integration | TODO |
 
 ### development
 

@@ -2,14 +2,13 @@ package ste.ai.viber.cli;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.control.MenuBar;
 import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
 import javafx.scene.control.CheckMenuItem;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.testfx.util.WaitForAsyncUtils;
-import ste.ai.viber.actor.Actor;
 import ste.ai.viber.cli.command.CLIOptions;
 import ste.ai.viber.model.Chat;
 import ste.ai.viber.model.Conversation;
@@ -17,7 +16,6 @@ import ste.ai.viber.model.PromptMessage;
 import ste.ai.viber.renderer.JavaFxRenderer;
 
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
 
 import static org.assertj.core.api.BDDAssertions.then;
 
@@ -111,15 +109,6 @@ class MainAppControllerTest extends org.testfx.framework.junit5.ApplicationTest 
         MainAppController controller = loadController(options);
         WaitForAsyncUtils.waitForFxEvents();
 
-        then(controller.getCurrentActorType()).isEqualTo("FXActor");
-
-        CheckMenuItem langChainItem = (CheckMenuItem) getActorMenuItem(controller, 1);
-        interact(() -> {
-            langChainItem.setSelected(true);
-            langChainItem.fire();
-        });
-        WaitForAsyncUtils.waitForFxEvents();
-
         then(controller.getCurrentActorType()).isEqualTo("LangChain4jActor");
     }
 
@@ -162,20 +151,10 @@ class MainAppControllerTest extends org.testfx.framework.junit5.ApplicationTest 
             FXMLLoader loader = new FXMLLoader(getClass().getResource("MainAppWindow.fxml"));
             Parent root = loader.load();
             MainAppController controller = loader.getController();
-            Actor actor = new Actor() {
-                @Override
-                public void chat(Chat chat, Consumer<ste.ai.viber.model.ChatMessage> onMessage) {
-                }
-
-                @Override
-                public Conversation conversation() {
-                    return conversation;
-                }
-            };
             AtomicReference<Stage> ownerRef = new AtomicReference<>();
             interact(() -> ownerRef.set(new Stage()));
             Stage owner = ownerRef.get();
-            controller.initialize(conversation, options, actor, owner);
+            controller.initialize(conversation, options, owner);
             return controller;
         } catch (Exception e) {
             throw new RuntimeException(e);
