@@ -33,3 +33,7 @@
 ## Validation
 
 - Full test suite passes: 139 tests, 0 failures, 0 errors
+
+## Developer Documentation
+
+- See `docs/development.md` for a developer-focused guide covering this and related completed user stories in the model and development domains.
