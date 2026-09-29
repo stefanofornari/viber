@@ -65,6 +65,10 @@ public class ViberApplication extends Application {
             MainAppWindow window = new MainAppWindow(conversation, options, primaryStage);
             primaryStage.setScene(newScene(window.getRoot()));
             primaryStage.show();
+
+            if (options.isShowLog()) {
+                ste.ai.viber.log.LogViewerWindow.show();
+            }
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
             if (e.getCause() != null) {

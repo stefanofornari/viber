@@ -1,14 +1,11 @@
 package ste.ai.viber.renderer;
 
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 import ste.ai.viber.model.ChatMessage;
@@ -22,7 +19,7 @@ public class ChatPaneController implements Initializable {
     private VBox messagesContainer;
 
     private String lastMessageType = null;
-    private MessagePaneController lastMessageController = null;
+    private MessagePane lastMessagePane = null;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -42,26 +39,21 @@ public class ChatPaneController implements Initializable {
      * @param message the message to append
      */
     public void appendMessage(ChatMessage message) {
-        String type = MessagePaneController.typeNameFor(message);
-        if (!type.equals(lastMessageType) || lastMessageController == null) {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("MessagePane.fxml"));
-            try {
-                loader.load();
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-            lastMessageController = loader.getController();
-            lastMessageController.setMessage(message);
-            addMessage(loader.getRoot());
+        String type = MessagePane.messageTypeFor(message);
+        if (!type.equals(lastMessageType) || lastMessagePane == null) {
+            MessagePane messagePane = new MessagePane();
+            lastMessagePane = messagePane;
+            messagePane.setMessage(message);
+            addMessage(messagePane.getRoot());
             lastMessageType = type;
         } else {
-            lastMessageController.appendMessage(message);
+            lastMessagePane.appendMessage(message);
         }
     }
 
     public void clear() {
         messagesContainer.getChildren().clear();
         lastMessageType = null;
-        lastMessageController = null;
+        lastMessagePane = null;
     }
 }

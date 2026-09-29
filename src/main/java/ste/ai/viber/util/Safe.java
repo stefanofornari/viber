@@ -17,8 +17,10 @@
 
 package ste.ai.viber.util;
 
+import java.util.List;
 import java.util.function.Consumer;
 import org.apache.commons.lang3.StringUtils;
+import static ste.lloop.Loop.on;
 
 /**
  *
@@ -54,6 +56,18 @@ public class Safe {
         if (o == null) {
             throw new IllegalArgumentException(name + " must not be null");
         }
+    }
+
+    public static final void requireFullyNonNull(final Object[] o, final String name) {
+        requireFullyNonNull(List.of(o), name);
+        on(o).loop((item) -> requireNonNull(item, name));
+    }
+
+    public static final void requireFullyNonNull(final List o, final String name) {
+        if (o == null) {
+            throw new IllegalArgumentException(name + " must not be null");
+        }
+        on(o).loop((item) -> requireNonNull(item, name));
     }
 
     public static final void requireNonEmpty(final String s, final String name) {

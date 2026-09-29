@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import static ste.ai.viber.util.Safe.ifNotNull;
 import static ste.ai.viber.util.Safe.requireNonNull;
+import static ste.ai.viber.util.Safe.requireFullyNonNull;
 import static ste.ai.viber.util.Safe.safe;
 
 public class LangChain4jActor implements Actor {
@@ -33,7 +34,6 @@ public class LangChain4jActor implements Actor {
 
     private final ActorService service;
     private final Conversation conversation;
-    private final List<Tool> tools;
 
     public LangChain4jActor(
         StreamingChatModel streamingChatModel,
@@ -41,22 +41,13 @@ public class LangChain4jActor implements Actor {
         String systemPrompt
     ) {
         requireNonNull(streamingChatModel, "streamingChatModel");
-        requireNonNull(tools, "tools");
+        requireFullyNonNull(tools, "tools");
         requireNonNull(systemPrompt, "systemPrompt");
         if (systemPrompt.isBlank()) {
             throw new IllegalArgumentException("systemPrompt must not be blank");
         }
-        if (tools.isEmpty()) {
-            throw new IllegalArgumentException("tools must not be empty");
-        }
-        for (int i = 0; i < tools.size(); i++) {
-            if (tools.get(i) == null) {
-                throw new IllegalArgumentException("tools[%d] must not be null".formatted(i));
-            }
-        }
 
         this.conversation = new Conversation();
-        this.tools = tools;
 
         conversation.systemMessage(new SystemMessage(systemPrompt));
 
