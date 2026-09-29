@@ -2,7 +2,7 @@
 name: implement-user-story
 description: Safely and systematically evaluates, plans, and implements a vertical user story using TDD while updating an active notes.md file and the story's status. Use whenever the user asks to implement, build, or code up a user story (especially one produced by user-story-generator), or asks to work a story from spec to tested code.
 metadata:
-  version: "20260926"
+  version: "20260929"
 ---
 
 # Skill: Implement User Story
@@ -38,11 +38,12 @@ Draft a concise execution plan covering:
 2. **Data / State Changes:** Any schema updates, state updates, or API contract updates.
 3. **Edge Case Handling:** Plan for potential failure points defined in acceptance criteria.
 
-### Step 4: Test-Driven Implementation
-1. **Write Unit/Integration Tests First:** Create failing tests based directly on the story's `Given / When / Then` acceptance criteria.
-2. **Implement Feature Code:** Write the minimal code necessary to make the tests pass.
-3. **Run The Tests:** Run the tests that failed to make sure they now pass against the implementation; if a test still fails, go back to sub-step 2 (Implement Feature Code). Preferably run specific tests during the development of one piece of functionality; run the full class's tests once that feature is done, to catch regressions.
-4. **Refactor:** Clean up the implementation to strictly match the rules in the coding-standard doc without breaking passing tests.
+### Step 4: Test-Driven Implementation (red, green, triangulate, refactor)
+1. **Red:** Pick the simplest acceptance scenario. Write one failing test for it — nothing else yet.
+2. **Green, the obvious way:** Write the most obvious code that makes it pass, even if that's a constant or hard-coded return. Do not generalize ahead of a test that demands it — an untested generalization is exactly the code TDD exists to avoid writing.
+3. **Triangulate:** Write a second test whose expected result the current (possibly constant) implementation cannot satisfy — a different input, a case that shouldn't trigger the behavior, or, for anything involving more than one item, a multi-item case where only one should be affected. If it fails, generalize the implementation just enough to pass both tests — no further. If it happens to already pass, the implementation was already general enough; move to the next scenario instead of adding redundant tests. Repeat one differentiating test at a time until every acceptance scenario is covered.
+4. **Run the tests:** run specific tests during the development of one piece of functionality; run the full class's tests once that scenario is done, to catch regressions.
+5. **Refactor:** clean up the implementation to strictly match the rules in the coding-standard doc without breaking passing tests.
 
 ### Step 5: Acceptance & Scope Verification
 - Run the full test suite to ensure no regressions occurred.
