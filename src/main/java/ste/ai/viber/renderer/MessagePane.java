@@ -1,12 +1,13 @@
 package ste.ai.viber.renderer;
 
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.control.TitledPane;
 import javafx.scene.web.WebView;
 import javafx.scene.web.WebEngine;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
+import javafx.fxml.Initializable;
 import org.w3c.dom.Document;
 import io.github.raghultech.markdown.javafx.preview.MarkdownWebView;
 import ste.ai.viber.cli.ViberApplication;
@@ -18,13 +19,12 @@ import ste.ai.viber.model.ThoughtMessage;
 import ste.ai.viber.model.ToolExecutionRequestMessage;
 import ste.ai.viber.model.ToolExecutionResponseMessage;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class MessagePaneController implements Initializable {
-
-    @FXML
-    private TitledPane root;
+public class MessagePane extends TitledPane implements Initializable {
 
     @FXML
     private WebView webView;
@@ -32,7 +32,15 @@ public class MessagePaneController implements Initializable {
     private MarkdownWebView markdownPreview;
     private ChangeListener<Document> documentListener;
 
-    public MessagePaneController() {
+    public MessagePane() {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("MessagePane.fxml"));
+        loader.setRoot(this);
+        loader.setController(this);
+        try {
+            loader.load();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     @Override
@@ -40,12 +48,12 @@ public class MessagePaneController implements Initializable {
         this.markdownPreview = new MarkdownWebView(this.webView, "", ViberApplication.HOST);
     }
 
-    public void setMessage(ChatMessage message) {
+    public void message(ChatMessage message) {
         String content = message.content();
-        String type = typeNameFor(message);
-        root.setText(message.role().name() + " / " + type);
-        root.getStyleClass().removeAll("message-prompt", "message-reply", "message-thought", "message-tool-request", "message-tool-response", "message-error");
-        root.getStyleClass().add(styleClassFor(message));
+        String type = messageTypeFor(message);
+        setText(message.role().name() + " / " + type);
+        getStyleClass().removeAll("message-prompt", "message-reply", "message-thought", "message-tool-request", "message-tool-response", "message-error");
+        getStyleClass().add(styleClassFor(message));
 
         markdownPreview.setContent(content);
 
@@ -80,7 +88,7 @@ public class MessagePaneController implements Initializable {
         markdownPreview.setContent(newContent);
     }
 
-    public static String typeNameFor(ChatMessage message) {
+    public static String messageTypeFor(ChatMessage message) {
         return switch (message) {
             case PromptMessage ignored -> "PROMPT";
             case ReplyMessage ignored -> "REPLY";
