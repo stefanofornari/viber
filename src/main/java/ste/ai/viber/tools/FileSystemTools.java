@@ -49,7 +49,7 @@ public class FileSystemTools extends AbstractTool {
      * @param path the file path relative to the project
      * @return the file content, or an error message if it could not be read
      */
-    @Tool("Read the content of a file by path")
+    @Tool(name = "ReadFile", value = "Read the content of a file by path")
     @ToolPolicy(READONLY)
     public String readFile(
         @P("path of the file to read")
@@ -76,7 +76,9 @@ public class FileSystemTools extends AbstractTool {
      * @param regexPattern the regex pattern to match against the absolute path of the files
      * @return a list of matching file paths, or an empty string if none were found
      */
-    @Tool("""
+    @Tool(
+        name= "FindFile",
+        value = """
     Recursively find files in a given root folder whose file name matches a regex
     pattern. The pattern is matched against the full pathname. It returns a
     newline-separated list of relative pathnames, or an empty string if no matches
@@ -138,7 +140,9 @@ public class FileSystemTools extends AbstractTool {
      * @param pattern the regex pattern to search for
      * @return all matches with their offsets, or a message if none were found
      */
-    @Tool("Search for a regex pattern in a file by path")
+    @Tool(
+        name="RegexInFile", value = "Search for a regex pattern in a file by path"
+    )
     @ToolPolicy(READONLY)
     public String searchInFile(
             @P("the file pathname")
@@ -171,7 +175,10 @@ public class FileSystemTools extends AbstractTool {
      * @param content optional content to write into the file
      * @return a status message
      */
-    @Tool("Create a new file at the given path with optional content with no user interaction")
+    @Tool(
+        name = "CreateFile",
+        value = "Create a new file at the given path with optional content with no user interaction"
+    )
     @ToolPolicy(READWRITE)
     public String createFile(
         @P("the pathname of the file to create")
@@ -208,7 +215,9 @@ public class FileSystemTools extends AbstractTool {
      * @param path the file path relative to the project
      * @return a status message
      */
-    @Tool("Delete a file at the given path")
+    @Tool(
+        name = "DeleteFile", value = "Delete a file at the given path"
+    )
     @ToolPolicy(READWRITE)
     public String deleteFile(
         @P("the pathname of the file to delete")
@@ -241,6 +250,8 @@ public class FileSystemTools extends AbstractTool {
      * @return a list of files and directories, or an error message
      */
     @Tool(
+        name = "ListFilesInDirectory",
+        value =
         """
         List all files and directories inside a given path one on each line.
         If an element of the list is a directory, the pathname will end with
@@ -287,7 +298,9 @@ public class FileSystemTools extends AbstractTool {
      *
      * @return a status message
      */
-    @Tool("Create a new directory at the given path")
+    @Tool(
+        name = "CreateDirectory", value="Create a new directory at the given path"
+    )
     @ToolPolicy(READWRITE)
     public String createDirectory(
         @P("the pathname of the directory to create")
@@ -320,7 +333,10 @@ public class FileSystemTools extends AbstractTool {
      * @param path the directory path relative to the project
      * @return a status message
      */
-    @Tool("Delete a directory at the given path (must be empty)")
+    @Tool(
+        name = "DeleteDirectory",
+        value = "Delete a directory at the given path (must be empty)"
+    )
     @ToolPolicy(READWRITE)
     public String deleteDirectory(
         @P("the pathname of the directory to delete")

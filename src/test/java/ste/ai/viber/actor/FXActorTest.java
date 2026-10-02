@@ -8,8 +8,8 @@ import ste.ai.viber.model.ErrorMessage;
 import ste.ai.viber.model.PromptMessage;
 import ste.ai.viber.model.ReplyMessage;
 import ste.ai.viber.model.ThoughtMessage;
-import ste.ai.viber.model.ToolExecutionRequestMessage;
-import ste.ai.viber.model.ToolExecutionResponseMessage;
+import ste.ai.viber.model.ToolInvocationMessage;
+import ste.ai.viber.model.ToolExecutionMessage;
 import ste.ai.viber.renderer.Renderer;
 
 import java.util.ArrayList;
@@ -87,7 +87,7 @@ class FXActorTest {
         actor.addToolExecution("tool(args)");
 
         then(chat.messages()).hasSize(2);
-        then(chat.messages().getLast()).isInstanceOf(ToolExecutionRequestMessage.class);
+        then(chat.messages().getLast()).isInstanceOf(ToolInvocationMessage.class);
         then(chat.messages().getLast().content()).isEqualTo("tool(args)");
     }
 
@@ -102,7 +102,7 @@ class FXActorTest {
         actor.addToolReply("result");
 
         then(chat.messages()).hasSize(2);
-        then(chat.messages().getLast()).isInstanceOf(ToolExecutionResponseMessage.class);
+        then(chat.messages().getLast()).isInstanceOf(ToolExecutionMessage.class);
         then(chat.messages().getLast().content()).isEqualTo("result");
     }
 

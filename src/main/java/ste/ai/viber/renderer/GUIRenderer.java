@@ -14,7 +14,7 @@ import java.io.UncheckedIOException;
 import static ste.lloop.Loop.on;
 
 /**
- * JavaFX implementation of {@link Renderer}.
+ * GUI implementation of {@link Renderer}.
  *
  * <p>This renderer manages an internal JavaFX component tree loaded from
  * {@code ConversationPane.fxml}. It never creates or shows a {@link javafx.stage.Stage};
@@ -32,18 +32,18 @@ import static ste.lloop.Loop.on;
  *         a different type starts a new pane.</li>
  * </ul>
  */
-public class JavaFxRenderer extends ScrollPane implements Renderer {
+public class GUIRenderer extends ScrollPane implements Renderer {
 
     private final ConversationPaneController conversationPaneController;
 
-    public JavaFxRenderer() {
+    public GUIRenderer() {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("ConversationPane.fxml"));
         loader.setRoot(this);
         try {
             loader.load();
             this.conversationPaneController = loader.getController();
         } catch (IOException e) {
-            throw new UncheckedIOException("Failed to initialize JavaFxRenderer", e);
+            throw new UncheckedIOException("Failed to initialize GUIRenderer", e);
         }
         getStylesheets().add(getClass().getResource("/ste/ai/viber/ui/viber.css").toExternalForm());
         getStyleClass().add("root");

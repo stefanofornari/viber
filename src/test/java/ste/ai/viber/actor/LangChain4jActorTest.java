@@ -21,8 +21,8 @@ import ste.ai.viber.model.Chat;
 import ste.ai.viber.model.ChatMessage;
 import ste.ai.viber.model.PromptMessage;
 import ste.ai.viber.model.ReplyMessage;
-import ste.ai.viber.model.ToolExecutionRequestMessage;
-import ste.ai.viber.model.ToolExecutionResponseMessage;
+import ste.ai.viber.model.ToolInvocationMessage;
+import ste.ai.viber.model.ToolExecutionMessage;
 import ste.ai.viber.model.ThoughtMessage;
 import ste.ai.viber.tools.InputTool;
 import ste.ai.viber.tools.FileSystemTools;
@@ -181,10 +181,10 @@ class LangChain4jActorTest {
         });
 
         then(emitted).anySatisfy(msg -> {
-            then(msg).isInstanceOf(ToolExecutionRequestMessage.class);
+            then(msg).isInstanceOf(ToolInvocationMessage.class);
         });
         then(emitted).anySatisfy(msg -> {
-            then(msg).isInstanceOf(ToolExecutionResponseMessage.class);
+            then(msg).isInstanceOf(ToolExecutionMessage.class);
         });
         then(emitted).anySatisfy(msg -> {
             then(msg).isInstanceOf(ReplyMessage.class);

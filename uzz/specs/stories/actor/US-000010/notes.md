@@ -13,7 +13,7 @@
 
 - Chose `Consumer<ChatMessage>` over `Flux<ChatMessage>` or a custom stream type to keep the actor contract dependency-light. Reactor is not on the classpath.
 - Tool request/response messages are emitted through `onIntermediateResponse` and `onToolExecuted` rather than parsed from partial text. This matches LangChain4j's structured streaming events.
-- `ChatMessage` is used as the common event type. Specific tool-related events were added as new implementations (`ToolExecutionRequestMessage`, `ToolExecutionResponseMessage`).
+- `ChatMessage` is used as the common event type. Specific tool-related events were added as new implementations (`ToolInvocationMessage`, `ToolExecutionMessage`).
 - Blocking on `CountDownLatch` inside `chat()` preserves the synchronous feel for callers while still enabling incremental callback delivery. A fully async API was deemed out of scope for this story.
 
 ## References

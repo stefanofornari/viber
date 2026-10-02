@@ -7,7 +7,7 @@
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuItem?>
-<?import ste.ai.viber.renderer.JavaFxRenderer?>
+<?import ste.ai.viber.renderer.GUIRenderer?>
 
 <VBox fx:id="root" spacing="10" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ste.ai.viber.cli.MainAppController">
    <children>
@@ -21,7 +21,7 @@
             </Menu>
          </menus>
       </MenuBar>
-      <JavaFxRenderer fx:id="conversation" />
+      <GUIRenderer fx:id="conversation" />
       <TextArea fx:id="inputField" promptText="Type a prompt..." prefRowCount="4" wrapText="true" />
    </children>
 </VBox>

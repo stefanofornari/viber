@@ -1,6 +1,6 @@
 package ste.ai.viber.model;
 
-public sealed interface ChatMessage permits PromptMessage, ReplyMessage, ThoughtMessage, ToolExecutionRequestMessage, ToolExecutionResponseMessage, ErrorMessage {
+public sealed interface ChatMessage permits PromptMessage, ReplyMessage, ThoughtMessage, ToolInvocationMessage, ToolExecutionMessage, ErrorMessage {
     Role role();
     String content();
     default String contentType() {

@@ -6,8 +6,8 @@ import ste.ai.viber.model.Conversation;
 import ste.ai.viber.model.PromptMessage;
 import ste.ai.viber.model.ReplyMessage;
 import ste.ai.viber.model.ThoughtMessage;
-import ste.ai.viber.model.ToolExecutionRequestMessage;
-import ste.ai.viber.model.ToolExecutionResponseMessage;
+import ste.ai.viber.model.ToolInvocationMessage;
+import ste.ai.viber.model.ToolExecutionMessage;
 import ste.ai.viber.model.ErrorMessage;
 
 import java.io.IOException;
@@ -78,8 +78,8 @@ public class StringRenderer implements Renderer {
             case PromptMessage ignored -> "PROMPT";
             case ReplyMessage ignored -> "REPLY";
             case ThoughtMessage ignored -> "THOUGHT";
-            case ToolExecutionRequestMessage ignored -> "TOOL_EXECUTION_REQUEST";
-            case ToolExecutionResponseMessage ignored -> "TOOL_EXECUTION_RESPONSE";
+            case ToolInvocationMessage ignored -> "TOOL_EXECUTION_REQUEST";
+            case ToolExecutionMessage ignored -> "TOOL_EXECUTION_RESPONSE";
             case ErrorMessage ignored -> "ERROR";
         };
     }
@@ -89,8 +89,8 @@ public class StringRenderer implements Renderer {
             case PromptMessage ignored -> "> ";
             case ReplyMessage ignored -> ": ";
             case ThoughtMessage ignored -> "~ ";
-            case ToolExecutionRequestMessage ignored -> "[TOOL] ";
-            case ToolExecutionResponseMessage ignored -> "[OUT] ";
+            case ToolInvocationMessage ignored -> "[TOOL] ";
+            case ToolExecutionMessage ignored -> "[OUT] ";
             case ErrorMessage ignored -> "[ERROR] ";
         };
     }

@@ -11,7 +11,7 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import ste.ai.viber.actor.FXActor;
 import ste.ai.viber.model.Conversation;
-import ste.ai.viber.renderer.JavaFxRenderer;
+import ste.ai.viber.renderer.GUIRenderer;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -21,13 +21,13 @@ public class DevModeWindow {
     private final FXActor fxActor;
     private final Conversation conversation;
     private final Stage stage;
-    private final JavaFxRenderer renderer;
+    private final GUIRenderer renderer;
 
     public DevModeWindow(FXActor fxActor, Conversation conversation, Stage owner) {
         this.fxActor = fxActor;
         this.conversation = conversation;
         this.stage = new Stage();
-        this.renderer = new JavaFxRenderer();
+        this.renderer = new GUIRenderer();
 
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("DevModeWindow.fxml"));

@@ -8,8 +8,8 @@ import ste.ai.viber.model.PromptMessage;
 import ste.ai.viber.model.ReplyMessage;
 import ste.ai.viber.model.Role;
 import ste.ai.viber.model.ThoughtMessage;
-import ste.ai.viber.model.ToolExecutionRequestMessage;
-import ste.ai.viber.model.ToolExecutionResponseMessage;
+import ste.ai.viber.model.ToolInvocationMessage;
+import ste.ai.viber.model.ToolExecutionMessage;
 
 import static com.github.stefanbirkner.systemlambda.SystemLambda.tapSystemOut;
 import static org.assertj.core.api.BDDAssertions.then;
@@ -111,8 +111,8 @@ class StringRendererTest {
     @Test
     void renders_tool_messages_with_distinct_prefix() throws Exception {
         Chat chat = new Chat(new PromptMessage("Hello"));
-        chat.addMessage(new ToolExecutionRequestMessage("search(query=foo)"));
-        chat.addMessage(new ToolExecutionResponseMessage("result: 3 items"));
+        chat.addMessage(new ToolInvocationMessage("search(query=foo)"));
+        chat.addMessage(new ToolExecutionMessage("result: 3 items"));
 
         Conversation conversation = new Conversation().addChat(chat);
         String output = tapSystemOut(() -> new StringRenderer().render(conversation));

@@ -2,8 +2,8 @@
 
 ## Technical Decisions
 
-- **MainAppWindow as standalone application view**: A new FXML layout (`MainAppWindow.fxml`) wraps the existing `JavaFxRenderer` and adds a prompt input area (TextField + Send Button) below the conversation view.
-- **MainAppController manages input and actor interaction**: The controller holds references to `Actor` and `JavaFxRenderer`. On send, it creates a new `Chat` with a `PromptMessage` and delegates to `actor.chat(chat, msg -> renderer.render(msg))`, mirroring how `ViberCLI` creates chats.
+- **MainAppWindow as standalone application view**: A new FXML layout (`MainAppWindow.fxml`) wraps the existing `GUIRenderer` and adds a prompt input area (TextField + Send Button) below the conversation view.
+- **MainAppController manages input and actor interaction**: The controller holds references to `Actor` and `GUIRenderer`. On send, it creates a new `Chat` with a `PromptMessage` and delegates to `actor.chat(chat, msg -> renderer.render(msg))`, mirroring how `ViberCLI` creates chats.
 - **Enter key triggers send**: `inputField.setOnAction(e -> handleSend())` enables Enter-to-send behavior, matching user expectations for prompt input.
 - **Empty input is ignored**: `text.isBlank()` check prevents creating empty messages, consistent with `ViberCLI` behavior.
 - **Input cleared and refocused after send**: After sending, the input field is cleared and focus is returned for rapid successive prompts.

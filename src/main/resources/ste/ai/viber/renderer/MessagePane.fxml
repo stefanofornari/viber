@@ -4,8 +4,8 @@
 <?import javafx.scene.web.WebView?>
 
 
-<TitledPane id="message" styleClass="message" animated="true" stylesheets="@../ui/viber.css" xmlns:fx="http://javafx.com/fxml/1">
+<fx:root type="javafx.scene.control.TitledPane" id="message" styleClass="message" animated="true" stylesheets="@../ui/viber.css" xmlns:fx="http://javafx.com/fxml/1">
    <content>
       <WebView fx:id="webView" prefHeight="0"/>
    </content>
-</TitledPane>
+</fx:root>

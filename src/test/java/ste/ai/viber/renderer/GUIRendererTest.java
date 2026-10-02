@@ -9,8 +9,8 @@ import ste.ai.viber.model.Conversation;
 import ste.ai.viber.model.PromptMessage;
 import ste.ai.viber.model.ReplyMessage;
 import ste.ai.viber.model.ThoughtMessage;
-import ste.ai.viber.model.ToolExecutionRequestMessage;
-import ste.ai.viber.model.ToolExecutionResponseMessage;
+import ste.ai.viber.model.ToolInvocationMessage;
+import ste.ai.viber.model.ToolExecutionMessage;
 
 import java.util.concurrent.CyclicBarrier;
 
@@ -21,7 +21,7 @@ import javafx.scene.control.TabPane;
 import javafx.scene.control.ScrollPane;
 import javafx.stage.Stage;
 
-class JavaFxRendererTest extends org.testfx.framework.junit5.ApplicationTest {
+class GUIRendererTest extends org.testfx.framework.junit5.ApplicationTest {
 
     @Override
     public void start(Stage stage) {
@@ -31,7 +31,7 @@ class JavaFxRendererTest extends org.testfx.framework.junit5.ApplicationTest {
 
     @Test
     void renders_conversation_with_one_chat() throws Exception {
-        JavaFxRenderer renderer = new JavaFxRenderer();
+        GUIRenderer renderer = new GUIRenderer();
         Chat chat = new Chat(new PromptMessage("Hello"));
         chat.addMessage(new ReplyMessage("Hi there"));
         Conversation conversation = new Conversation().addChat(chat);
@@ -50,7 +50,7 @@ class JavaFxRendererTest extends org.testfx.framework.junit5.ApplicationTest {
 
     @Test
     void renders_conversation_with_multiple_chats() throws Exception {
-        JavaFxRenderer renderer = new JavaFxRenderer();
+        GUIRenderer renderer = new GUIRenderer();
         Chat chat1 = new Chat(new PromptMessage("A"));
         Chat chat2 = new Chat(new PromptMessage("B"));
         Conversation conversation = new Conversation()
@@ -71,12 +71,12 @@ class JavaFxRendererTest extends org.testfx.framework.junit5.ApplicationTest {
 
     @Test
     void renders_conversation_with_different_message_types() throws Exception {
-        JavaFxRenderer renderer = new JavaFxRenderer();
+        GUIRenderer renderer = new GUIRenderer();
         Chat chat = new Chat(new PromptMessage("prompt"));
         chat.addMessage(new ReplyMessage("reply"));
         chat.addMessage(new ThoughtMessage("thought"));
-        chat.addMessage(new ToolExecutionRequestMessage("tool(args)"));
-        chat.addMessage(new ToolExecutionResponseMessage("result"));
+        chat.addMessage(new ToolInvocationMessage("tool(args)"));
+        chat.addMessage(new ToolExecutionMessage("result"));
         Conversation conversation = new Conversation().addChat(chat);
 
         interact(() -> {
@@ -89,7 +89,7 @@ class JavaFxRendererTest extends org.testfx.framework.junit5.ApplicationTest {
 
     @Test
     void renders_empty_conversation() throws Exception {
-        JavaFxRenderer renderer = new JavaFxRenderer();
+        GUIRenderer renderer = new GUIRenderer();
         Conversation conversation = new Conversation();
 
         interact(() -> {
@@ -102,7 +102,7 @@ class JavaFxRendererTest extends org.testfx.framework.junit5.ApplicationTest {
 
     @Test
     void render_throws_on_null_conversation() {
-        JavaFxRenderer renderer = new JavaFxRenderer();
+        GUIRenderer renderer = new GUIRenderer();
         thenThrownBy(() -> renderer.render((Conversation) null))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("conversation must not be null");
@@ -110,7 +110,7 @@ class JavaFxRendererTest extends org.testfx.framework.junit5.ApplicationTest {
 
     @Test
     void renderChat_throws_on_null_chat() {
-        JavaFxRenderer renderer = new JavaFxRenderer();
+        GUIRenderer renderer = new GUIRenderer();
         thenThrownBy(() -> renderer.render((Chat) null))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("chat must not be null");
@@ -118,7 +118,7 @@ class JavaFxRendererTest extends org.testfx.framework.junit5.ApplicationTest {
 
     @Test
     void renderMessage_throws_on_null_message() {
-        JavaFxRenderer renderer = new JavaFxRenderer();
+        GUIRenderer renderer = new GUIRenderer();
         thenThrownBy(() -> renderer.render((ste.ai.viber.model.ChatMessage) null))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("message must not be null");
@@ -126,7 +126,7 @@ class JavaFxRendererTest extends org.testfx.framework.junit5.ApplicationTest {
 
     @Test
     void concurrent_modification_when_messages_added_during_render() throws Exception {
-        JavaFxRenderer renderer = new JavaFxRenderer();
+        GUIRenderer renderer = new GUIRenderer();
         Chat chat = new Chat(new PromptMessage("Hello"));
 
         interact(() -> renderer);

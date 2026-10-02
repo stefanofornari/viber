@@ -5,9 +5,9 @@
     -fx-viber-color-accent-4: #FBD13D;
 
     -fx-viber-color-accent-muted-1: derive(-fx-viber-color-accent-1, -7%);
-    -fx-viber-color-accent-muted-2: #F2692A;
-    -fx-viber-color-accent-muted-3: #2B91B1;
-    -fx-viber-color-accent-muted-4: #FBD13D;
+    -fx-viber-color-accent-muted-2: derive(-fx-viber-color-accent-2, -7%);
+    -fx-viber-color-accent-muted-3: derive(-fx-viber-color-accent-3, -7%);
+    -fx-viber-color-accent-muted-4: derive(-fx-viber-color-accent-4, -7%);
 
     -fx-viber-color-bg: #f9f6f1;
     -fx-viber-color-bg-muted: derive(-fx-viber-color-bg, -7%);
@@ -72,7 +72,7 @@
 
 
 /*******************************************************************************
- Conversation
+   Conversation
 *******************************************************************************/
  .conversation {
     -fx-background-color: #f9f6f1;
@@ -91,7 +91,7 @@
 
 
 /*******************************************************************************
- Chat
+   Chat
 *******************************************************************************/
 .chat {
     -fx-animated: true;
@@ -128,7 +128,7 @@
 }
 
 /*******************************************************************************
- Message
+   Message
 *******************************************************************************/
 .message {
     -fx-animated: true;
@@ -182,14 +182,105 @@
     -fx-border-color: transparent transparent transparent -fx-viber-color-accent-3;
 }
 
-.message-tool-request {
+.message-tool {
     -fx-border-color: transparent transparent transparent -fx-viber-color-accent-4;
-}
-
-.message-tool-response {
-    -fx-border-color: transparent transparent transparent -fx-viber-color-bg-muted;
 }
 
 .message-error {
     -fx-border-color: transparent transparent transparent #cc0000;
+}
+
+/*******************************************************************************
+   Argument Chip
+*******************************************************************************/
+.argument-chip {
+    -fx-background-color: -color-bg-default;
+    -fx-border-color: -color-border-default -color-border-default -color-border-default -fx-viber-color-accent-muted-3;
+    -fx-border-width: 1px 1px 1px 3px;
+    -fx-padding: 2px 4px 2px 4px;
+    -fx-spacing: 8px;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.argument-chip .chip-copy-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-min-width: 14px;
+    -fx-max-width: 14px;
+    -fx-pref-width: 14px;
+    -fx-min-height: 14px;
+    -fx-max-height: 14px;
+    -fx-pref-height: 14px;
+    -fx-cursor: hand;
+}
+
+.argument-chip .chip-copy-button:hover {
+    -fx-background-color: -color-bg-subtle;
+}
+
+.argument-chip .chip-copy-button:pressed {
+    -fx-background-color: -color-border-default;
+}
+
+/*******************************************************************************
+   Tool Invocation Pane
+*******************************************************************************/
+.tool-invocation-pane {
+    -fx-background-color: -color-bg-default;
+}
+
+.tool-invocation-pane .tool-name {
+    -fx-text-fill: -fx-viber-color-accent-1;
+}
+
+/*******************************************************************************
+   Tool Confirmation Pane
+*******************************************************************************/
+.tool-confirmation-pane {
+    -fx-background-color: -color-bg-default;
+    -fx-border-color: -color-border-default;
+    -fx-border-width: 1px;
+    -fx-border-radius: 4px;
+    -fx-padding: 8px;
+    -fx-spacing: 8px;
+}
+
+.tool-confirmation-pane .action-pane {
+    -fx-padding: 4px 0 0 0;
+}
+
+/*******************************************************************************
+   Tool Execution Pane
+*******************************************************************************/
+.tool-execution-pane {
+    -fx-background-color: -color-bg-default;
+    -fx-border-color: -color-border-default;
+    -fx-border-width: 1px;
+    -fx-border-radius: 4px;
+    -fx-padding: 8px;
+    -fx-spacing: 8px;
+}
+
+.tool-execution-pane .tool-result {
+    -fx-background-color: -color-bg-default;
+    -fx-border-color: -color-border-default;
+    -fx-border-width: 1px;
+    -fx-border-radius: 4px;
+    -fx-padding: 5px;
+}
+
+.tool-execution-pane .tool-result-text {
+    -fx-background-color: -color-bg-default;
+    -fx-border-color: transparent;
+    -fx-padding: 1px;
+}
+
+.tool-accept-button {
+    -fx-background-color: -color-accent-emphasis;
+    -fx-text-fill: -color-accent-fg;
+}
+
+.tool-reject-button {
+    -fx-background-color: -color-bg-subtle;
+    -fx-text-fill: -color-fg-default;
 }

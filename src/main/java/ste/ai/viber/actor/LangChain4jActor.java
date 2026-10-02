@@ -13,8 +13,8 @@ import ste.ai.viber.model.PromptMessage;
 import ste.ai.viber.model.ReplyMessage;
 import ste.ai.viber.model.SystemMessage;
 import ste.ai.viber.model.ThoughtMessage;
-import ste.ai.viber.model.ToolExecutionRequestMessage;
-import ste.ai.viber.model.ToolExecutionResponseMessage;
+import ste.ai.viber.model.ToolInvocationMessage;
+import ste.ai.viber.model.ToolExecutionMessage;
 import ste.ai.viber.tools.Tool;
 
 import java.util.List;
@@ -145,7 +145,7 @@ public class LangChain4jActor implements Actor {
                             displayText = displayText + ": " + arguments;
                         }
 
-                        ToolExecutionRequestMessage toolMsg = new ToolExecutionRequestMessage(displayText);
+                        ToolInvocationMessage toolMsg = new ToolInvocationMessage(displayText);
                         chat.addMessage(toolMsg);
                         onMessage.accept(toolMsg);
                     }
@@ -153,7 +153,7 @@ public class LangChain4jActor implements Actor {
             })
             .onToolExecuted(execution -> {
                 String toolResult = execution.result();
-                ToolExecutionResponseMessage toolResponse = new ToolExecutionResponseMessage(toolResult);
+                ToolExecutionMessage toolResponse = new ToolExecutionMessage(toolResult);
                 chat.addMessage(toolResponse);
                 onMessage.accept(toolResponse);
             })

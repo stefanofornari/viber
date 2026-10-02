@@ -8,8 +8,8 @@ import ste.ai.viber.model.ErrorMessage;
 import ste.ai.viber.model.PromptMessage;
 import ste.ai.viber.model.ReplyMessage;
 import ste.ai.viber.model.ThoughtMessage;
-import ste.ai.viber.model.ToolExecutionRequestMessage;
-import ste.ai.viber.model.ToolExecutionResponseMessage;
+import ste.ai.viber.model.ToolInvocationMessage;
+import ste.ai.viber.model.ToolExecutionMessage;
 import ste.ai.viber.renderer.Renderer;
 
 import java.util.function.Consumer;
@@ -67,11 +67,11 @@ public class FXActor implements Actor {
     }
 
     public void addToolExecution(String text) {
-        addMessage(new ToolExecutionRequestMessage(text));
+        addMessage(new ToolInvocationMessage(text));
     }
 
     public void addToolReply(String text) {
-        addMessage(new ToolExecutionResponseMessage(text));
+        addMessage(new ToolExecutionMessage(text));
     }
 
     public void addError(String text) {

@@ -16,8 +16,8 @@ import ste.ai.viber.model.ErrorMessage;
 import ste.ai.viber.model.PromptMessage;
 import ste.ai.viber.model.ReplyMessage;
 import ste.ai.viber.model.ThoughtMessage;
-import ste.ai.viber.model.ToolExecutionRequestMessage;
-import ste.ai.viber.model.ToolExecutionResponseMessage;
+import ste.ai.viber.model.ToolInvocationMessage;
+import ste.ai.viber.model.ToolExecutionMessage;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -52,7 +52,7 @@ public class MessagePane extends TitledPane implements Initializable {
         String content = message.content();
         String type = messageTypeFor(message);
         setText(message.role().name() + " / " + type);
-        getStyleClass().removeAll("message-prompt", "message-reply", "message-thought", "message-tool-request", "message-tool-response", "message-error");
+        getStyleClass().removeAll("message-prompt", "message-reply", "message-thought", "message-tool", "message-error");
         getStyleClass().add(styleClassFor(message));
 
         markdownPreview.setContent(content);
@@ -65,9 +65,10 @@ public class MessagePane extends TitledPane implements Initializable {
             if (newDoc != null) {
                 Platform.runLater(() -> {
                     try {
-                        Object height = engine.executeScript("document.body.scrollHeight");
-                        if (height instanceof Number) {
-                            webView.setPrefHeight(((Number) height).doubleValue());
+                        final Object height = engine.executeScript("document.body.scrollHeight");
+                        System.out.println("height: " + height);
+                        if (height instanceof Number h) {
+                            webView.setPrefHeight(h.doubleValue());
                         }
                     } catch (Exception e) {
                         webView.setPrefHeight(40);
@@ -93,8 +94,8 @@ public class MessagePane extends TitledPane implements Initializable {
             case PromptMessage ignored -> "PROMPT";
             case ReplyMessage ignored -> "REPLY";
             case ThoughtMessage ignored -> "THOUGHT";
-            case ToolExecutionRequestMessage ignored -> "TOOL_EXECUTION_REQUEST";
-            case ToolExecutionResponseMessage ignored -> "TOOL_EXECUTION_RESPONSE";
+            case ToolInvocationMessage ignored -> "TOOL_EXECUTION_REQUEST";
+            case ToolExecutionMessage ignored -> "TOOL_EXECUTION_RESPONSE";
             case ErrorMessage ignored -> "ERROR";
         };
     }
@@ -104,8 +105,8 @@ public class MessagePane extends TitledPane implements Initializable {
             case PromptMessage ignored -> "message-prompt";
             case ReplyMessage ignored -> "message-reply";
             case ThoughtMessage ignored -> "message-thought";
-            case ToolExecutionRequestMessage ignored -> "message-tool-request";
-            case ToolExecutionResponseMessage ignored -> "message-tool-response";
+            case ToolInvocationMessage ignored -> "message-tool";
+            case ToolExecutionMessage ignored -> "message-tool";
             case ErrorMessage ignored -> "message-error";
         };
     }

@@ -11,7 +11,7 @@ import ste.ai.viber.actor.FXActor;
 import ste.ai.viber.cli.ViberApplication;
 import ste.ai.viber.model.Conversation;
 import ste.ai.viber.model.ReplyMessage;
-import ste.ai.viber.renderer.JavaFxRenderer;
+import ste.ai.viber.renderer.GUIRenderer;
 
 import static org.assertj.core.api.BDDAssertions.then;
 
@@ -47,7 +47,7 @@ class DevModeControllerTest extends org.testfx.framework.junit5.ApplicationTest 
     @Test
     void controller_add_reply_creates_message() {
         Conversation conversation = new Conversation();
-        JavaFxRenderer renderer = new JavaFxRenderer();
+        GUIRenderer renderer = new GUIRenderer();
         FXActor fxActor = new FXActor(conversation, renderer);
 
         DevModeController controller = loadController(fxActor, conversation, renderer);
@@ -73,12 +73,12 @@ class DevModeControllerTest extends org.testfx.framework.junit5.ApplicationTest 
     }
 
     private DevModeController loadController() {
-        JavaFxRenderer renderer = new JavaFxRenderer();
+        GUIRenderer renderer = new GUIRenderer();
         FXActor fxActor = new FXActor(new Conversation(), renderer);
         return loadController(fxActor, fxActor.conversation(), renderer);
     }
 
-    private DevModeController loadController(FXActor fxActor, Conversation conversation, JavaFxRenderer renderer) {
+    private DevModeController loadController(FXActor fxActor, Conversation conversation, GUIRenderer renderer) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("DevModeWindow.fxml"));
             Parent root = loader.load();

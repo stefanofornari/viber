@@ -13,7 +13,7 @@ import ste.ai.viber.cli.command.CLIOptions;
 import ste.ai.viber.model.Chat;
 import ste.ai.viber.model.Conversation;
 import ste.ai.viber.model.PromptMessage;
-import ste.ai.viber.renderer.JavaFxRenderer;
+import ste.ai.viber.renderer.GUIRenderer;
 
 import java.util.concurrent.atomic.AtomicReference;
 

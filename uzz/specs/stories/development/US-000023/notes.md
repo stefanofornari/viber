@@ -2,17 +2,17 @@
 
 ## Technical Decisions
 
-- **JavaFxRenderer as JavaFX Node**: Changed `JavaFxRenderer` from a plain Java class to extend `ScrollPane`, making it a first-class JavaFX node that can be embedded directly in FXML. `getRoot()` now returns `this` for backward compatibility.
+- **GUIRenderer as JavaFX Node**: Changed `GUIRenderer` from a plain Java class to extend `ScrollPane`, making it a first-class JavaFX node that can be embedded directly in FXML. `getRoot()` now returns `this` for backward compatibility.
 
-- **FXML `fx:root` pattern**: Updated `ConversationPane.fxml` to use `<fx:root type="javafx.scene.control.ScrollPane">` instead of `<ScrollPane>`, enabling `FXMLLoader.setRoot(this)` to merge FXML properties into the `JavaFxRenderer` instance.
+- **FXML `fx:root` pattern**: Updated `ConversationPane.fxml` to use `<fx:root type="javafx.scene.control.ScrollPane">` instead of `<ScrollPane>`, enabling `FXMLLoader.setRoot(this)` to merge FXML properties into the `GUIRenderer` instance.
 
-- **FXML injection in MainAppWindow**: Removed programmatic `root.getChildren().add(1, renderer.getRoot())` from `MainAppController.initialize()`. The renderer is now declared in `MainAppWindow.fxml` as `<JavaFxRenderer fx:id="conversation" />` and injected via `@FXML`.
+- **FXML injection in MainAppWindow**: Removed programmatic `root.getChildren().add(1, renderer.getRoot())` from `MainAppController.initialize()`. The renderer is now declared in `MainAppWindow.fxml` as `<GUIRenderer fx:id="conversation" />` and injected via `@FXML`.
 
 ## Implementation Changes
 
-- `JavaFxRenderer.java`: extends `ScrollPane`, loads `ConversationPane.fxml` with `setRoot(this)`, attaches stylesheet programmatically
+- `GUIRenderer.java`: extends `ScrollPane`, loads `ConversationPane.fxml` with `setRoot(this)`, attaches stylesheet programmatically
 - `ConversationPane.fxml`: switched to `<fx:root>` pattern
-- `MainAppWindow.fxml`: added `<JavaFxRenderer fx:id="conversation" />`
+- `MainAppWindow.fxml`: added `<GUIRenderer fx:id="conversation" />`
 - `MainAppController.java`: uses FXML-injected `conversation` field; removed `renderer` parameter from `initialize()`
 - `MainAppWindow.java`: removed `renderer` parameter and `getRenderer()` method
 - `ViberApplication.java`: updated `MainAppWindow` instantiation
@@ -26,7 +26,7 @@
 
 ## Test Changes
 
-- `MainAppControllerTest`: removed `JavaFxRenderer` parameter from `loadController()` helpers; added `fxml_injects_conversation_renderer` and `fxml_renderer_displays_conversation` tests; uses anonymous `Actor` stub and `AtomicReference<Stage>` via `interact()` to satisfy FX-thread requirements
+- `MainAppControllerTest`: removed `GUIRenderer` parameter from `loadController()` helpers; added `fxml_injects_conversation_renderer` and `fxml_renderer_displays_conversation` tests; uses anonymous `Actor` stub and `AtomicReference<Stage>` via `interact()` to satisfy FX-thread requirements
 - `MainCommandTest`: removed `--dev` and `--fx-render` related tests
 - Added `TestNameLogger` extension to print test names before execution
 

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.VBox?>
+<?import ste.ai.viber.renderer.ToolInvocationPane?>
+<?import javafx.scene.web.WebView?>
+
+<fx:root type="javafx.scene.control.TitledPane" styleClass="message" animated="true" xmlns:fx="http://javafx.com/fxml/1">
+   <content>
+      <VBox>
+         <ToolInvocationPane fx:id="invocationPane" />
+         <WebView fx:id="resultWebView" prefHeight="0" />
+      </VBox>
+   </content>
+</fx:root>

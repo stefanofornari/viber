@@ -19,8 +19,8 @@ The `ste.ai.viber.model` package provides the foundational data structures for r
   - `PromptMessage` (role: VIBER)
   - `ReplyMessage` (role: ACTOR)
   - `ThoughtMessage` (role: ACTOR)
-  - `ToolExecutionRequestMessage` (role: ACTOR)
-  - `ToolExecutionResponseMessage` (role: VIBER)
+  - `ToolInvocationMessage` (role: ACTOR)
+  - `ToolExecutionMessage` (role: VIBER)
   - `ErrorMessage` (role: ACTOR)
 - **`SystemMessage`** - Optional system-level instructions for the conversation.
 - **`Role`** - Enum with values `VIBER` and `ACTOR`.
@@ -62,11 +62,11 @@ Conversation conversation = new Conversation()
 
 ### Overview
 
-`JavaFxRenderer` is a reusable JavaFX component that renders conversations. It extends `ScrollPane` and loads its UI from FXML. It never creates or manages a `Stage`; the host application is responsible for embedding it.
+`GUIRenderer` is a reusable JavaFX component that renders conversations. It extends `ScrollPane` and loads its UI from FXML. It never creates or manages a `Stage`; the host application is responsible for embedding it.
 
 ### Class
 
-- **`ste.ai.viber.renderer.JavaFxRenderer`** - extends `ScrollPane`, implements `Renderer`.
+- **`ste.ai.viber.renderer.GUIRenderer`** - extends `ScrollPane`, implements `Renderer`.
 
 ### Usage in a Host Application
 
@@ -79,12 +79,12 @@ import ste.ai.viber.model.Conversation;
 import ste.ai.viber.model.Chat;
 import ste.ai.viber.model.PromptMessage;
 import ste.ai.viber.model.ReplyMessage;
-import ste.ai.viber.renderer.JavaFxRenderer;
+import ste.ai.viber.renderer.GUIRenderer;
 
 public class HostApp extends Application {
     @Override
     public void start(Stage stage) {
-        JavaFxRenderer renderer = new JavaFxRenderer();
+        GUIRenderer renderer = new GUIRenderer();
 
         Conversation conversation = new Conversation()
             .addChat(new Chat(new PromptMessage("Hello")));
@@ -107,7 +107,7 @@ public class HostApp extends Application {
 
 ### Rendering Methods
 
-The `Renderer` interface (implemented by `JavaFxRenderer`) provides three overloads:
+The `Renderer` interface (implemented by `GUIRenderer`) provides three overloads:
 
 - `render(Conversation)` - Clears and renders all chats as tabs.
 - `render(Chat)` - Appends a new chat tab to the existing conversation.
@@ -189,8 +189,8 @@ When the application is started with `--gui`, a **Dev Mode** window opens adjace
   - `handleAddChat()` - Creates a new `Chat` with a `PromptMessage`
   - `handleAddReply()` - Appends a `ReplyMessage` via `fxActor.addReply(text)`
   - `handleAddThought()` - Appends a `ThoughtMessage` via `fxActor.addThought(text)`
-  - `handleAddToolExecution()` - Appends a `ToolExecutionRequestMessage` via `fxActor.addToolExecution(text)`
-  - `handleAddToolReply()` - Appends a `ToolExecutionResponseMessage` via `fxActor.addToolReply(text)`
+  - `handleAddToolExecution()` - Appends a `ToolInvocationMessage` via `fxActor.addToolExecution(text)`
+  - `handleAddToolReply()` - Appends a `ToolExecutionMessage` via `fxActor.addToolReply(text)`
   - `handleAddError()` - Appends an `ErrorMessage` via `fxActor.addError(text)`
 
 ---
@@ -199,18 +199,18 @@ When the application is started with `--gui`, a **Dev Mode** window opens adjace
 
 ### Overview
 
-`JavaFxRenderer` can be embedded directly in FXML files, enabling declarative composition of the conversation UI alongside other JavaFX controls.
+`GUIRenderer` can be embedded directly in FXML files, enabling declarative composition of the conversation UI alongside other JavaFX controls.
 
 ### FXML Usage
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.layout.BorderPane?>
-<?import ste.ai.viber.renderer.JavaFxRenderer?>
+<?import ste.ai.viber.renderer.GUIRenderer?>
 
 <BorderPane xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1">
     <center>
-        <JavaFxRenderer fx:id="conversation" />
+        <GUIRenderer fx:id="conversation" />
     </center>
 </BorderPane>
 ```
@@ -223,7 +223,7 @@ import javafx.fxml.Initializable;
 import ste.ai.viber.model.Conversation;
 import ste.ai.viber.model.Chat;
 import ste.ai.viber.model.PromptMessage;
-import ste.ai.viber.renderer.JavaFxRenderer;
+import ste.ai.viber.renderer.GUIRenderer;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -231,7 +231,7 @@ import java.util.ResourceBundle;
 public class HostController implements Initializable {
 
     @FXML
-    private JavaFxRenderer conversation;
+    private GUIRenderer conversation;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -253,7 +253,7 @@ The component participates in the standard FXML lifecycle. Its `initialize()` me
 | Feature | Key Classes / Files | How to Use |
 |---------|-------------------|------------|
 | Core Data Model | `Conversation`, `Chat`, `ChatMessage` (and subclasses) | Build conversations programmatically using the fluent API |
-| Embeddable JavaFX Component | `JavaFxRenderer` | Instantiate and add to any JavaFX scene graph; call `render()` to display conversations |
+| Embeddable JavaFX Component | `GUIRenderer` | Instantiate and add to any JavaFX scene graph; call `render()` to display conversations |
 | Dev Mode CLI Flag | `CLIOptions` (`--gui`) | Pass `--gui` on the command line to launch GUI mode |
 | Dev Mode Conversation Editor | `DevModeWindow`, `DevModeController` | Opens automatically with `--gui`; use the button bar to inject messages |
-| FXML Embedding | `JavaFxRenderer` | Declare `<JavaFxRenderer fx:id="..."/>` in FXML and reference it from the controller |
+| FXML Embedding | `GUIRenderer` | Declare `<GUIRenderer fx:id="..."/>` in FXML and reference it from the controller |

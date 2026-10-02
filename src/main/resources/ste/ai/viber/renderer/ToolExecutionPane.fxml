@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextArea?>
+
+<fx:root type="javafx.scene.layout.VBox" styleClass="tool-execution-pane" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <ToolInvocationPane fx:id="toolInvocationPane" />
+      <ScrollPane fx:id="resultScrollPane" styleClass="tool-result" fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" maxHeight="300">
+         <content>
+            <TextArea fx:id="resultTextArea" styleClass="tool-result-text" editable="false" wrapText="true" />
+         </content>
+      </ScrollPane>
+   </children>
+</fx:root>

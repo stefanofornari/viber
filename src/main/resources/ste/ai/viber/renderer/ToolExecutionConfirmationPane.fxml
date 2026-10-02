@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Button?>
+
+<fx:root type="javafx.scene.layout.VBox" styleClass="tool-confirmation-pane" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <ToolInvocationPane fx:id="headerPane" />
+      <HBox fx:id="actionPane" styleClass="action-pane" alignment="CENTER_RIGHT" spacing="5">
+         <children>
+            <Label fx:id="confirmationLabel" text="I'd like to execute %s ..." />
+            <Button fx:id="acceptButton" text="Accept" styleClass="tool-accept-button" />
+            <Button fx:id="rejectButton" text="Reject" styleClass="tool-reject-button" />
+         </children>
+      </HBox>
+   </children>
+</fx:root>
