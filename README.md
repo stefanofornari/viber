@@ -58,10 +58,6 @@ java -jar target/viber-0.0-SNAPSHOT.jar --echo
 java -jar target/viber-0.0-SNAPSHOT.jar --dev
 ```
 
-## Status
-
-- [x] US-000006: CLI Interface
-
 ## Development
 
 - Java 21
@@ -69,3 +65,18 @@ java -jar target/viber-0.0-SNAPSHOT.jar --dev
 - JUnit 5 + AssertJ + TestFX
 - LangChain4j
 - picocli
+
+## Key Dependencies
+
+| Dependency | Purpose | Project URL |
+|------------|---------|-------------|
+| **AnimateFX** | JavaFX animations | https://github.com/typhon0/AnimateFX |
+| **AtlantaFX Base** | Modern JavaFX CSS themes | https://github.com/mkpaz/atlantafx |
+| **CommonMark** | Markdown parsing & rendering | https://commonmark.org/ |
+| **JavaFX** | UI framework (controls, FXML, WebView) | https://openjfx.io/ |
+| **Lambda Loop** | Light *loop on everything* library | https://github.com/stefanofornari/lambda-loop |
+| **LangChain4j** | LLM integration & agent framework | https://github.com/langchain4j/langchain4j |
+| **LazyJava Core** | Safe/nullable utilities | https://github.com/stefanofornari/lazyjava |
+| **TestFX** | JavaFX testing | https://github.com/TestFX/TestFX |
+| **Uzzo LLM** | LLM chat model & tools | https://github.com/stefanofornari/uzzo-llm |
+| **XTest** | Extended test utilities | https://github.com/stefanofornari/xtest |
