@@ -1,183 +1,50 @@
-# Knowledge Base Instructions
-version: 0.0
+---
+name: kb-man
+description: Manage and structure knowledge base articles across library, project, and user story folders. Use when creating, updating, or organizing markdown documentation, requirements, and user stories.
+meta:
+  version: "20261002"
+---
 
-## Structure
-The knowledge base is a loosely structured collection of articles in markdown files. The root of the knowledge contains the following main folders:
-- **library**: Useful general information on various topics, such as:
-  - Development practices
-  - Programming languages
-  - Frameworks
-  - Standard definitions
-  - ...
-- **project**: Project-specific information, such as:
-  - Project name and version
-  - Project summary (short description)
-  - Roles and people
-  - Timeline
-  - Online repository
-  - ...
-- **stories**: User stories implemented, in progress, or to be done. Each article contains one user story only with the following structure:
-  - **Title**
-  - **User Story**
-    - Body (the user story itself)
-    - Status
-    - Dependencies
-    - Notes
-  - **Acceptance Criteria**
-  - **References**
-  - **Keywords** (list of relevant keywords)
+# Knowledge Base Management
 
-## User Stories
+Standard instructions and guidelines for structuring, organizing, and writing markdown articles within the knowledge base directory structure.
 
-### The Title
-- Should be **clear and concise** (e.g., `US101 - Enable Dark Mode for Improved User Experience`).
-- Include the **US identifier** (e.g., `US101`).
+## Knowledge Base Structure
 
-### The Body
-- Written in the **standard format**:
-  ```
-  AS A [role]
-  I WANT [goal]
-  SO THAT [benefit]
-  ```
-- Focus on **user intent** and **value**.
+The knowledge base consists of articles written in Markdown, organized into four primary top-level directories:
 
-### The Status
-- Possible values: `DONE`, `TO BE DONE`, `IN PROGRESS`, `BLOCKED`.
-- Indicates the **current state** of the user story.
+- **`library/`**: General reference information, development practices, programming language guides, frameworks, and standard definitions.
+- **`project/`**: Project-specific information such as name, version, summary, team roles/people, timeline, online repositories, and architectural overviews.
+- **`skills/`**: Uzzo workflow skills
+- **`stories/`**: User stories (implemented, in progress, or planned). Each file represents exactly **one** user story.
 
-### Dependencies
-- List any **dependent user stories** (e.g., `US100` for `US101`).
-- Helps track **implementation order**.
+### File & Path Rules
 
-### Notes
-- Provide **technical details**, **implementation guidance**, or **edge cases**.
-- Should **not** include acceptance criteria (keep it separate).
+- **No direct root files**: Do not place articles directly under the root folder. All articles must reside within `library/`, `project/`, `stories/`, or their subdirectories.
+- **Subdirectories**: Categorize articles into nested subdirectories under the main folders as appropriate.
+- **Full Relative Path References**: Identify and reference articles by their complete relative path (e.g., `stories/authentication/US101-dark-mode.md`).
+- **Keywords Requirement**: Every knowledge base article MUST conclude with a `### Keywords` section containing relevant search and categorization tags.
 
-### The Acceptance Criteria
-- Structured as **scenarios** with:
-  - **Given** (preconditions, if any).
-  - **When** (user action).
-  - **Expect** (observed result).
-- Use **bold** for keywords like `WHEN`, `EXPECT`, and `GIVEN`.
-- Ensure **testability**: Each criterion should be verifiable.
+---
 
-### The References
-- Link to **external sources** (e.g., GitHub issues, design documents).
-- Helps trace **requirements back to discussions**.
+## User Story Specification (`stories/`)
+
+Each article in `stories/` must contain exactly **one** user story.
+
+For the complete template, field specifications, INVEST principles, identifier format, acceptance criteria rules, and all authoring standards, refer to the shared reference:
+
+→ **[User Story Standard Reference](references/user_story.md)**
+
+### User Stories Scope
+
+The overall scope of the project or of a domain is summarized in a `scope.md` document under `stories/` or the domain's folder.
+Unlike `index.md`, which is a structured table of stories, `scope.md` is a descriptive narrative that summarizes the user stories contained in the folder. Its goal is to serve as a first read that gives enough context to understand the domain without having to open each individual story file.
 
 ### Keywords
-- Add a **"Keywords"** section **at the end** of each article.
-- Include **relevant keywords** to improve searchability and categorization.
-
-### Example 1: Enable Dark Mode
-```markdown
-## US101 - Enable Dark Mode for Improved User Experience
-
-### User Story
-```
-AS A user
-I WANT to enable a dark mode in the application
-SO THAT I can reduce eye strain during prolonged use
-```
-
-#### Status
-TO BE DONE
-
-#### Dependencies
-- US99
-
-#### Notes
-1. Implement a toggle button in the **Settings** menu.
-2. Ensure dark mode is consistent across all UI components.
-3. Allow users to customize text and background colors.
-
-### Acceptance Criteria
-
-1. **Primary action: toggle dark mode**
-   ```
-   **WHEN** the user toggles dark mode from the Settings menu
-   **EXPECT**
-   - The UI switches to dark mode immediately.
-   - All components adjust to the dark theme.
-   ```
-
-2. **Primary action: customize theme colors**
-   ```
-   **GIVEN** dark mode is enabled
-   **WHEN** the user clicks on "Customize Colors"
-   **EXPECT**
-   - A dialog appears to adjust text and background colors.
-   - Changes are applied in real-time.
-   ```
-
-### References
-- [Design Document #101](https://example.com/design-docs/101)
-
-### Keywords
-...
-
-```
-
-### Example 2: Add Multi-Language Support
-```markdown
-## US102 - Add Multi-Language Support for Global Accessibility
-
-### User Story
-```
-AS A user
-I WANT to use the application in my preferred language
-SO THAT I can interact with it comfortably
-```
-
-#### Status
-IN PROGRESS
-
-#### Dependencies
-- US98
-
-#### Notes
-1. Integrate a language selector dropdown in the **Profile** section.
-2. Support at least five languages initially.
-3. Ensure text translations are accurate and contextually appropriate.
-
-### Acceptance Criteria
-
-1. **Primary action: select language**
-   ```
-   **WHEN** the user selects a language from the dropdown
-   **EXPECT**
-   - The application UI updates to the selected language.
-   - All text elements reflect the translation.
-   ```
-
-2. **Primary action: default language**
-   ```
-   **GIVEN** no language preference is set
-   **WHEN** the application is launched
-   **EXPECT**
-   - The UI appears in the system default language.
-   ```
-
-### References
-- [Localization Guide #102](https://example.com/localization/102)
-
-### Keywords
-...
-
-```
-
-## Rules
-- Do not create anything directly under the root.
-- Under the main folders, articles can be organized in subfolders, although this is not mandatory.
-- When creating a new article, ensure it includes a **"Keywords"** section listing the most relevant keywords.
-- Every article can be fully referenced by its parent folder(s) and filename.
-
-## Keywords
 - Knowledge Base
 - Markdown files
 - Library
 - Project
 - User Stories
 - Instructions
-- Acceptance creteria
+- Acceptance criteria

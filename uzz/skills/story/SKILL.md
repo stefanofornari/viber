@@ -1,6 +1,6 @@
 ---
 name: user-story-generator
-description: Analyzes a scope.md file (and an optional users.md for persona/actor mapping) to break its functional domains into actionable, INVEST-compliant user stories with BDD/Gherkin acceptance criteria. Writes one markdown file per story under uzz/specs/stories/[DOMAIN]/[US-ID]/, plus a domain-indexed README.md. Use this skill whenever the user asks to generate, break down, split, or update user stories from a scope or requirements document, mentions INVEST criteria or Gherkin/BDD acceptance criteria, or wants a scope.md turned into a backlog of stories — even if they don't say "user story generator" by name.
+description: Analyzes a scope.md file (and an optional users.md for persona/actor mapping) to break its functional domains into actionable, INVEST-compliant user stories with BDD/Gherkin acceptance criteria. Writes one markdown file per story under stories/[DOMAIN]/[US-ID]/, plus a domain-indexed README.md. Use this skill whenever the user asks to generate, break down, split, or update user stories from a scope or requirements document, mentions INVEST criteria or Gherkin/BDD acceptance criteria, or wants a scope.md turned into a backlog of stories — even if they don't say "user story generator" by name.
 metadata:
   version: "20260926"
 ---
@@ -28,7 +28,7 @@ This skill needs to: read files, create nested directories, and create/edit mark
 ### Step 1: Parse & Map Domains
 * **Ingest Assets**: Read and parse `scope.md` and `users.md`.
 * **Map Vectors**: Extract distinct functional domains, platform environments, constraints, and valid user roles.
-* **Derive Domain Codes**: If `scope.md` already labels functional domains explicitly, use those labels directly. Otherwise, derive short, stable, uppercase domain codes from the named submodules/components in the Overall Description and In-Scope Capabilities (e.g. a submodule called "BillingService" → `BILLING`). Group cross-cutting capabilities with no obvious owning submodule (e.g. a shared data model, persistence) under a `CORE` domain unless a clearer split is obvious. Before inventing a new domain code, check for an existing `uzz/specs/stories/<DOMAIN>/` folder covering the same area and reuse it rather than creating a near-duplicate.
+* **Derive Domain Codes**: If `scope.md` already labels functional domains explicitly, use those labels directly. Otherwise, derive short, stable, uppercase domain codes from the named submodules/components in the Overall Description and In-Scope Capabilities (e.g. a submodule called "BillingService" → `BILLING`). Group cross-cutting capabilities with no obvious owning submodule (e.g. a shared data model, persistence) under a `CORE` domain unless a clearer split is obvious. Before inventing a new domain code, check for an existing `stories/<DOMAIN>/` folder covering the same area and reuse it rather than creating a near-duplicate.
 
 ### Step 2: Story Decomposition
 * **Slice Vertically**: Evaluate every in-scope functional domain. Slice capabilities into the smallest independent blocks that provide direct business value.
@@ -36,15 +36,15 @@ This skill needs to: read files, create nested directories, and create/edit mark
   `AS A [role], I WANT [capability], SO THAT [value/benefit]`
 
 ### Step 3: Assign IDs and Persist
-* **Determine the next ID**: Scan all existing `uzz/specs/stories/*/US-*/` folders, across every domain, and take the highest `US-NUMBER` found. Continue numbering from there. Do not maintain a separate counter file — the folder structure is the single source of truth, so there is nothing that can drift out of sync with it.
-* **Check for conflicts before writing**: For each story, if `uzz/specs/stories/[DOMAIN]/[US-ID]/[US-ID].md` already exists, generate the new content and diff it against the current file content.
+* **Determine the next ID**: Scan all existing `stories/*/US-*/` folders, across every domain, and take the highest `US-NUMBER` found. Continue numbering from there. Do not maintain a separate counter file — the folder structure is the single source of truth, so there is nothing that can drift out of sync with it.
+* **Check for conflicts before writing**: For each story, if `stories/[DOMAIN]/[US-ID]/[US-ID].md` already exists, generate the new content and diff it against the current file content.
   - Identical → skip, no write needed.
   - Different → do **not** overwrite. Report the story ID and a short description of what changed, and wait for explicit confirmation before applying that specific update. Handle each conflicting story individually; never batch several conflicts into one blanket yes/no.
 * **Write new stories**: For every story with no existing file, create the parent directories recursively and write the file at:
-  `uzz/specs/stories/[DOMAIN]/[US-ID]/[US-ID].md`
+  `stories/[DOMAIN]/[US-ID]/[US-ID].md`
 
 ### Step 4: Review and Update README.md
-After a user story writing/updating session, update `uzz/specs/stories/README.md` so it reflects the current state:
+After a user story writing/updating session, update `stories/README.md` so it reflects the current state:
 - One section per domain, domain name as a second-level heading.
 - In each section, a table of that domain's stories: `id | title | status`, where status is one of `TODO`, `WIP`, `DONE`, `CLOSED`. New stories default to `TODO`; preserve the existing status of any story already in the README.
 
