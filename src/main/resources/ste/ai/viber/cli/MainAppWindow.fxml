@@ -22,6 +22,6 @@
          </menus>
       </MenuBar>
       <GUIRenderer fx:id="conversation" />
-      <TextArea fx:id="inputField" promptText="Type a prompt..." prefRowCount="4" wrapText="true" />
+      <TextArea fx:id="inputField" promptText="Type a prompt..." prefRowCount="4" wrapText="true" styleClass="text-normal" />
    </children>
 </VBox>

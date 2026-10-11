@@ -6,16 +6,15 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import ste.ai.viber.util.Safe;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URL;
 import java.util.ResourceBundle;
+import ste.lazyjava.safe.Safe;
 
-public class ToolExecutionConfirmationPane extends VBox implements Initializable {
+public class ToolExecutionConfirmationPane extends VBox implements Initializable, Safe {
 
     @FXML
     private ToolInvocationPane headerPane;
@@ -50,7 +49,7 @@ public class ToolExecutionConfirmationPane extends VBox implements Initializable
     }
 
     public void showMessage(final ToolExecutionRequest execution) {
-        Safe.requireNonNull(execution, "execution");
+        requireNonNull(execution, "execution");
         headerPane.toolInvocation(execution);
         confirmationLabel.setText(String.format(confirmationLabel.getText(), execution.name()));
         setVisible(true);

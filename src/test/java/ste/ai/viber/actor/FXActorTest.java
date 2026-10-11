@@ -1,15 +1,6 @@
 package ste.ai.viber.actor;
 
 import org.junit.jupiter.api.Test;
-import ste.ai.viber.model.Chat;
-import ste.ai.viber.model.ChatMessage;
-import ste.ai.viber.model.Conversation;
-import ste.ai.viber.model.ErrorMessage;
-import ste.ai.viber.model.PromptMessage;
-import ste.ai.viber.model.ReplyMessage;
-import ste.ai.viber.model.ThoughtMessage;
-import ste.ai.viber.model.ToolInvocationMessage;
-import ste.ai.viber.model.ToolExecutionMessage;
 import ste.ai.viber.renderer.Renderer;
 
 import java.util.ArrayList;
@@ -17,6 +8,14 @@ import java.util.List;
 
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.assertj.core.api.BDDAssertions.thenThrownBy;
+import ste.llm.chat.model.Chat;
+import ste.llm.chat.model.Conversation;
+import ste.llm.chat.model.ErrorMessage;
+import ste.llm.chat.model.PromptMessage;
+import ste.llm.chat.model.ReplyMessage;
+import ste.llm.chat.model.ThoughtMessage;
+import ste.llm.chat.model.ToolExecutionMessage;
+import ste.llm.chat.model.ToolInvocationMessage;
 
 class FXActorTest {
 
@@ -143,7 +142,7 @@ class FXActorTest {
 
     private static class RecordingRenderer implements Renderer {
         List<Conversation> renderedConversations = new ArrayList<>();
-        List<ChatMessage> renderedMessages = new ArrayList<>();
+        List<ste.llm.chat.model.ChatMessage> renderedMessages = new ArrayList<>();
 
         @Override
         public void render(Conversation conversation) {
@@ -155,7 +154,7 @@ class FXActorTest {
         }
 
         @Override
-        public void render(ChatMessage message) {
+        public void render(ste.llm.chat.model.ChatMessage message) {
             renderedMessages.add(message);
         }
     }

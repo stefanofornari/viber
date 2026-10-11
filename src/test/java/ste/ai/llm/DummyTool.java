@@ -21,12 +21,13 @@ import dev.langchain4j.agent.tool.Tool;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import ste.ai.viber.tools.AbstractTool;
-import ste.ai.viber.tools.ToolPolicy;
-import static ste.ai.viber.tools.ToolPolicy.Policy.INTERACTIVE;
-import static ste.ai.viber.tools.ToolPolicy.Policy.READONLY;
-import static ste.ai.viber.tools.ToolPolicy.Policy.READWRITE;
-import static ste.ai.viber.tools.ToolPolicy.Policy.UNKNOWN;
+import ste.llm.tools.AbstractTool;
+import ste.llm.tools.ToolPolicy;
+import static ste.llm.tools.ToolPolicy.Policy.INTERACTIVE;
+import static ste.llm.tools.ToolPolicy.Policy.READONLY;
+import static ste.llm.tools.ToolPolicy.Policy.READWRITE;
+import static ste.llm.tools.ToolPolicy.Policy.UNKNOWN;
+
 
 /**
  *

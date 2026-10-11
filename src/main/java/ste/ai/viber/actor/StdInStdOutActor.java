@@ -1,12 +1,11 @@
 package ste.ai.viber.actor;
 
-import ste.ai.viber.model.Chat;
-import ste.ai.viber.model.ChatMessage;
-import ste.ai.viber.model.Conversation;
-import ste.ai.viber.model.PromptMessage;
-import ste.ai.viber.model.ReplyMessage;
-
 import java.util.function.Consumer;
+import ste.llm.chat.model.Chat;
+import ste.llm.chat.model.ChatMessage;
+import ste.llm.chat.model.Conversation;
+import ste.llm.chat.model.PromptMessage;
+import ste.llm.chat.model.ReplyMessage;
 
 public class StdInStdOutActor implements Actor {
     private final Conversation conversation;

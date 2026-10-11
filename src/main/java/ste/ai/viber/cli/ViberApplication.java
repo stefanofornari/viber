@@ -1,27 +1,27 @@
 package ste.ai.viber.cli;
 
+import java.util.List;
+import java.util.logging.Logger;
+import javafx.application.HostServices;
 import javafx.application.Application;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import ste.ai.viber.actor.Actor;
-import ste.ai.viber.actor.FXActor;
 import ste.ai.viber.actor.LangChain4jActor;
 import ste.ai.viber.actor.StdInStdOutActor;
 import ste.ai.viber.cli.command.CLIOptions;
-import ste.ai.viber.model.Conversation;
-import ste.ai.viber.renderer.StringRenderer;
-import ste.ai.viber.tools.FileSystemTools;
-import ste.ai.viber.tools.InputTool;
 import atlantafx.base.theme.NordLight;
 import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
 import picocli.CommandLine;
 
 import java.io.InputStreamReader;
-import java.util.List;
-import java.util.logging.Logger;
-import javafx.application.HostServices;
-import javafx.scene.Parent;
+
+import ste.ai.viber.renderer.StringRenderer;
+import ste.llm.chat.model.Conversation;
+import ste.llm.tools.FileSystemTools;
+import ste.llm.tools.InputTool;
 
 public class ViberApplication extends Application {
 

@@ -1,17 +1,17 @@
 package ste.ai.viber.renderer;
 
-import ste.ai.viber.model.Chat;
-import ste.ai.viber.model.ChatMessage;
-import ste.ai.viber.model.Conversation;
-import ste.ai.viber.model.PromptMessage;
-import ste.ai.viber.model.ReplyMessage;
-import ste.ai.viber.model.ThoughtMessage;
-import ste.ai.viber.model.ToolInvocationMessage;
-import ste.ai.viber.model.ToolExecutionMessage;
-import ste.ai.viber.model.ErrorMessage;
+import ste.llm.chat.model.Chat;
+import ste.llm.chat.model.ChatMessage;
+import ste.llm.chat.model.Conversation;
+import ste.llm.chat.model.ErrorMessage;
+import ste.llm.chat.model.PromptMessage;
+import ste.llm.chat.model.ReplyMessage;
+import ste.llm.chat.model.SystemMessage;
+import ste.llm.chat.model.ThoughtMessage;
+import ste.llm.chat.model.ToolExecutionMessage;
+import ste.llm.chat.model.ToolInvocationMessage;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
+
 
 /**
  * Plain-text {@link Renderer} that writes rendered output directly to {@link System#out}.
@@ -58,7 +58,7 @@ public class StringRenderer implements Renderer {
         System.out.print("--- Chat " + index + " ---" + System.lineSeparator());
     }
 
-    private void renderSystemMessage(ste.ai.viber.model.SystemMessage systemMessage) {
+    private void renderSystemMessage(SystemMessage systemMessage) {
         System.out.print("--- System ---" + System.lineSeparator());
         System.out.print("  " + systemMessage.content() + System.lineSeparator());
     }

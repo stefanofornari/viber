@@ -7,14 +7,14 @@ import org.junit.jupiter.api.Test;
 import java.io.StringReader;
 
 import ste.ai.viber.actor.Actor;
-import ste.ai.viber.model.Chat;
-import ste.ai.viber.model.ChatMessage;
-import ste.ai.viber.model.Conversation;
-import ste.ai.viber.model.ErrorMessage;
-import ste.ai.viber.model.PromptMessage;
-import ste.ai.viber.model.ReplyMessage;
 
 import static org.assertj.core.api.BDDAssertions.then;
+import ste.llm.chat.model.Chat;
+import ste.llm.chat.model.ChatMessage;
+import ste.llm.chat.model.Conversation;
+import ste.llm.chat.model.ErrorMessage;
+import ste.llm.chat.model.PromptMessage;
+import ste.llm.chat.model.ReplyMessage;
 
 class ViberCLITest {
 

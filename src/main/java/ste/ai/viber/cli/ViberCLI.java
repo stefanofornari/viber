@@ -4,12 +4,7 @@ import dev.langchain4j.exception.AuthenticationException;
 import dev.langchain4j.exception.ModelNotFoundException;
 import dev.langchain4j.exception.RateLimitException;
 import ste.ai.viber.actor.Actor;
-import ste.ai.viber.model.Chat;
-import ste.ai.viber.model.Conversation;
-import ste.ai.viber.model.PromptMessage;
-import ste.ai.viber.model.ReplyMessage;
-import ste.ai.viber.model.ErrorMessage;
-import ste.ai.viber.renderer.Renderer;
+
 import ste.ai.viber.renderer.StringRenderer;
 
 import java.io.BufferedReader;
@@ -18,7 +13,13 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import ste.ai.viber.model.ChatMessage;
+import ste.ai.viber.renderer.Renderer;
+import ste.llm.chat.model.Chat;
+import ste.llm.chat.model.ChatMessage;
+import ste.llm.chat.model.Conversation;
+import ste.llm.chat.model.ErrorMessage;
+import ste.llm.chat.model.PromptMessage;
+import ste.llm.chat.model.ReplyMessage;
 
 public class ViberCLI {
     private static final Logger LOG = Logger.getLogger(ViberCLI.class.getName());

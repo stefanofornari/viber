@@ -24,7 +24,8 @@ import dev.langchain4j.model.chat.response.ChatResponse;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
-import ste.ai.viber.model.ConversationListener;
+import ste.llm.chat.model.ConversationListener;
+
 
 
 /**

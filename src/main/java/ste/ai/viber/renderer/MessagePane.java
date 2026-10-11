@@ -11,18 +11,20 @@ import javafx.fxml.Initializable;
 import org.w3c.dom.Document;
 import io.github.raghultech.markdown.javafx.preview.MarkdownWebView;
 import ste.ai.viber.cli.ViberApplication;
-import ste.ai.viber.model.ChatMessage;
-import ste.ai.viber.model.ErrorMessage;
-import ste.ai.viber.model.PromptMessage;
-import ste.ai.viber.model.ReplyMessage;
-import ste.ai.viber.model.ThoughtMessage;
-import ste.ai.viber.model.ToolInvocationMessage;
-import ste.ai.viber.model.ToolExecutionMessage;
+
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URL;
 import java.util.ResourceBundle;
+
+import ste.llm.chat.model.ChatMessage;
+import ste.llm.chat.model.ErrorMessage;
+import ste.llm.chat.model.PromptMessage;
+import ste.llm.chat.model.ReplyMessage;
+import ste.llm.chat.model.ThoughtMessage;
+import ste.llm.chat.model.ToolExecutionMessage;
+import ste.llm.chat.model.ToolInvocationMessage;
 
 public class MessagePane extends TitledPane implements Initializable {
 
@@ -66,7 +68,6 @@ public class MessagePane extends TitledPane implements Initializable {
                 Platform.runLater(() -> {
                     try {
                         final Object height = engine.executeScript("document.body.scrollHeight");
-                        System.out.println("height: " + height);
                         if (height instanceof Number h) {
                             webView.setPrefHeight(h.doubleValue());
                         }

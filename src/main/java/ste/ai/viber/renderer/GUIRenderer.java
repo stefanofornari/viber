@@ -1,16 +1,18 @@
 package ste.ai.viber.renderer;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.ScrollPane;
-import ste.ai.viber.model.Chat;
-import ste.ai.viber.model.ChatMessage;
-import ste.ai.viber.model.Conversation;
-import ste.ai.viber.util.Safe;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
+
+import ste.lazyjava.safe.Safe;
+import ste.llm.chat.model.Chat;
+import ste.llm.chat.model.ChatMessage;
+import ste.llm.chat.model.Conversation;
+
 import static ste.lloop.Loop.on;
 
 /**
@@ -32,7 +34,7 @@ import static ste.lloop.Loop.on;
  *         a different type starts a new pane.</li>
  * </ul>
  */
-public class GUIRenderer extends ScrollPane implements Renderer {
+public class GUIRenderer extends ScrollPane implements Renderer, Safe {
 
     private final ConversationPaneController conversationPaneController;
 
@@ -51,7 +53,7 @@ public class GUIRenderer extends ScrollPane implements Renderer {
 
     @Override
     public void render(Conversation conversation) {
-        Safe.requireNonNull(conversation, "conversation");
+        requireNonNull(conversation, "conversation");
         Platform.runLater(() -> {
             // Remove all previously rendered chats before rendering the new conversation
             conversationPaneController.clear();
@@ -70,7 +72,7 @@ public class GUIRenderer extends ScrollPane implements Renderer {
 
     @Override
     public void render(Chat chat) {
-        Safe.requireNonNull(chat, "chat");
+        requireNonNull(chat, "chat");
         Platform.runLater(() -> {
             // Append a new tab for the chat to the existing conversation
             int index = conversationPaneController.getChatCount() + 1;
@@ -81,7 +83,7 @@ public class GUIRenderer extends ScrollPane implements Renderer {
 
     @Override
     public void render(ChatMessage message) {
-        Safe.requireNonNull(message, "message");
+        requireNonNull(message, "message");
         Platform.runLater(() -> {
             // Append the message to the current (last) chat
             ChatPaneController chatController = conversationPaneController.getLastChatController();

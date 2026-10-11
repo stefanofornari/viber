@@ -1,20 +1,15 @@
 package ste.ai.viber.cli;
 
-import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextArea;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import ste.ai.viber.actor.FXActor;
-import ste.ai.viber.model.Conversation;
 import ste.ai.viber.renderer.GUIRenderer;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import ste.llm.chat.model.Conversation;
 
 public class DevModeWindow {
 

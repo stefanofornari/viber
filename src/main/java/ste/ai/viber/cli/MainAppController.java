@@ -10,12 +10,14 @@ import ste.ai.viber.actor.Actor;
 import ste.ai.viber.actor.FXActor;
 import ste.ai.viber.actor.LangChain4jActor;
 import ste.ai.viber.cli.command.CLIOptions;
-import ste.ai.viber.model.Chat;
-import ste.ai.viber.model.Conversation;
-import ste.ai.viber.model.PromptMessage;
 import ste.ai.viber.renderer.GUIRenderer;
-import ste.ai.viber.tools.FileSystemTools;
-import ste.ai.viber.tools.InputTool;
+import ste.llm.chat.model.Chat;
+import ste.llm.chat.model.Conversation;
+import ste.llm.chat.model.PromptMessage;
+import ste.llm.tools.FileSystemTools;
+import ste.llm.tools.InputTool;
+import ste.llm.tools.Tool;
+
 
 
 public class MainAppController {
@@ -156,7 +158,7 @@ public class MainAppController {
         }
     }
 
-    private java.util.List<ste.ai.viber.tools.Tool> defaultTools() {
+    private java.util.List<Tool> defaultTools() {
         try {
             return java.util.List.of(new InputTool(), new FileSystemTools(System.getProperty("user.dir")));
         } catch (Exception e) {

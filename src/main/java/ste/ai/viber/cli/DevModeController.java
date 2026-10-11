@@ -5,10 +5,10 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.StackPane;
 import ste.ai.viber.actor.FXActor;
-import ste.ai.viber.model.Chat;
-import ste.ai.viber.model.Conversation;
-import ste.ai.viber.model.PromptMessage;
 import ste.ai.viber.renderer.GUIRenderer;
+import ste.llm.chat.model.Chat;
+import ste.llm.chat.model.Conversation;
+import ste.llm.chat.model.PromptMessage;
 
 public class DevModeController {
 

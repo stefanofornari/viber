@@ -7,13 +7,6 @@ import ste.ai.viber.actor.LangChain4jActor;
 import ste.ai.viber.actor.Actor;
 import ste.ai.viber.actor.StdInStdOutActor;
 import ste.ai.viber.cli.command.CLIOptions;
-import ste.ai.viber.model.Chat;
-import ste.ai.viber.model.Conversation;
-import ste.ai.viber.model.ErrorMessage;
-import ste.ai.viber.model.PromptMessage;
-import ste.ai.viber.renderer.StringRenderer;
-import ste.ai.viber.tools.FileSystemTools;
-import ste.ai.viber.tools.InputTool;
 
 import java.io.InputStreamReader;
 import java.util.List;
@@ -21,6 +14,13 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import ste.ai.viber.renderer.StringRenderer;
+import ste.llm.chat.model.Chat;
+import ste.llm.chat.model.Conversation;
+import ste.llm.chat.model.ErrorMessage;
+import ste.llm.chat.model.PromptMessage;
+import ste.llm.tools.FileSystemTools;
+import ste.llm.tools.InputTool;
 
 public class MainCommand implements Callable<Integer> {
     private static final Logger LOG = Logger.getLogger(MainCommand.class.getName());

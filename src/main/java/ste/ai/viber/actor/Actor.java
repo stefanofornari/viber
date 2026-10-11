@@ -1,10 +1,10 @@
 package ste.ai.viber.actor;
 
-import ste.ai.viber.model.Chat;
-import ste.ai.viber.model.ChatMessage;
-import ste.ai.viber.model.Conversation;
 
 import java.util.function.Consumer;
+import ste.llm.chat.model.Chat;
+import ste.llm.chat.model.ChatMessage;
+import ste.llm.chat.model.Conversation;
 
 public interface Actor {
     void chat(Chat chat, Consumer<ChatMessage> onMessage);

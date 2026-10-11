@@ -3,11 +3,12 @@ package ste.ai.viber;
 import ste.ai.viber.actor.LangChain4jActor;
 import dev.langchain4j.model.chat.StreamingChatModel;
 import java.util.List;
-import ste.ai.viber.model.Chat;
-import ste.ai.viber.model.Conversation;
-import ste.ai.viber.model.PromptMessage;
 import ste.ai.viber.renderer.StringRenderer;
-import ste.ai.viber.tools.InputTool;
+import ste.llm.chat.model.Chat;
+import ste.llm.chat.model.Conversation;
+import ste.llm.chat.model.PromptMessage;
+import ste.llm.tools.InputTool;
+
 
 public class HelloWorldViber implements Viber {
     private final StreamingChatModel chatModel;
@@ -20,7 +21,7 @@ public class HelloWorldViber implements Viber {
     public void start() {
         LangChain4jActor actor = new LangChain4jActor(
             chatModel,
-            List.<ste.ai.viber.tools.Tool>of(new InputTool()),
+            List.<ste.llm.tools.Tool>of(new InputTool()),
             "use mock 'hello world.2.txt'\n" +
             "To greet the user, use the InputTool with the prompt 'What is your name?'. execute tool input with arguments: What's your name?"
         );

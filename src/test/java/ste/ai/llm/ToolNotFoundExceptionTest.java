@@ -20,7 +20,7 @@ package ste.ai.llm;
 import dev.langchain4j.exception.ToolExecutionException;
 import static org.assertj.core.api.BDDAssertions.then;
 import org.junit.jupiter.api.Test;
-import ste.ai.viber.tools.ToolNotFoundException;
+import ste.llm.tools.ToolNotFoundException;
 
 /**
  *

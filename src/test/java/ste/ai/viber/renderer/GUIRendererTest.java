@@ -3,14 +3,6 @@ package ste.ai.viber.renderer;
 import org.junit.jupiter.api.Test;
 import org.testfx.util.WaitForAsyncUtils;
 import ste.ai.viber.cli.ViberApplication;
-import ste.ai.viber.model.Chat;
-import ste.ai.viber.model.ChatMessage;
-import ste.ai.viber.model.Conversation;
-import ste.ai.viber.model.PromptMessage;
-import ste.ai.viber.model.ReplyMessage;
-import ste.ai.viber.model.ThoughtMessage;
-import ste.ai.viber.model.ToolInvocationMessage;
-import ste.ai.viber.model.ToolExecutionMessage;
 
 import java.util.concurrent.CyclicBarrier;
 
@@ -20,6 +12,14 @@ import static org.assertj.core.api.BDDAssertions.thenThrownBy;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.ScrollPane;
 import javafx.stage.Stage;
+import ste.llm.chat.model.Chat;
+import ste.llm.chat.model.ChatMessage;
+import ste.llm.chat.model.Conversation;
+import ste.llm.chat.model.PromptMessage;
+import ste.llm.chat.model.ReplyMessage;
+import ste.llm.chat.model.ThoughtMessage;
+import ste.llm.chat.model.ToolExecutionMessage;
+import ste.llm.chat.model.ToolInvocationMessage;
 
 class GUIRendererTest extends org.testfx.framework.junit5.ApplicationTest {
 
@@ -119,7 +119,7 @@ class GUIRendererTest extends org.testfx.framework.junit5.ApplicationTest {
     @Test
     void renderMessage_throws_on_null_message() {
         GUIRenderer renderer = new GUIRenderer();
-        thenThrownBy(() -> renderer.render((ste.ai.viber.model.ChatMessage) null))
+        thenThrownBy(() -> renderer.render((ChatMessage) null))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("message must not be null");
     }

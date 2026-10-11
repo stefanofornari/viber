@@ -1,8 +1,9 @@
 package ste.ai.viber.renderer;
 
-import ste.ai.viber.model.Chat;
-import ste.ai.viber.model.ChatMessage;
-import ste.ai.viber.model.Conversation;
+import ste.llm.chat.model.Chat;
+import ste.llm.chat.model.ChatMessage;
+import ste.llm.chat.model.Conversation;
+
 
 /**
  * Renders the content of a Conversation, Chat, or ChatMessage.

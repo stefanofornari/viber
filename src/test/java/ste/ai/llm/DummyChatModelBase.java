@@ -45,13 +45,12 @@ import dev.langchain4j.model.chat.response.StreamingHandle;
 import dev.langchain4j.model.output.TokenUsage;
 
 import java.nio.file.Paths;
+import ste.lazyjava.safe.Safe;
 
-import static ste.ai.viber.util.Safe.ifNotNull;
-import static ste.ai.viber.util.Safe.ifNull;
 import static ste.lloop.Loop._break_;
 import static ste.lloop.Loop.on;
 
-public abstract class DummyChatModelBase {
+public abstract class DummyChatModelBase implements Safe {
 
     private final Logger LOG = Logger.getLogger(getClass().getCanonicalName());
 

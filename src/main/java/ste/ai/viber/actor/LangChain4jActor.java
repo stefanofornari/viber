@@ -6,28 +6,26 @@ import dev.langchain4j.service.TokenStream;
 import dev.langchain4j.service.UserMessage;
 import dev.langchain4j.agent.tool.ToolExecutionRequest;
 import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
-import ste.ai.viber.model.Chat;
-import ste.ai.viber.model.ChatMessage;
-import ste.ai.viber.model.Conversation;
-import ste.ai.viber.model.PromptMessage;
-import ste.ai.viber.model.ReplyMessage;
-import ste.ai.viber.model.SystemMessage;
-import ste.ai.viber.model.ThoughtMessage;
-import ste.ai.viber.model.ToolInvocationMessage;
-import ste.ai.viber.model.ToolExecutionMessage;
-import ste.ai.viber.tools.Tool;
+
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
-import static ste.ai.viber.util.Safe.ifNotNull;
-import static ste.ai.viber.util.Safe.requireNonNull;
-import static ste.ai.viber.util.Safe.requireFullyNonNull;
-import static ste.ai.viber.util.Safe.safe;
+import ste.lazyjava.safe.Safe;
+import ste.llm.chat.model.Chat;
+import ste.llm.chat.model.ChatMessage;
+import ste.llm.chat.model.Conversation;
+import ste.llm.chat.model.PromptMessage;
+import ste.llm.chat.model.ReplyMessage;
+import ste.llm.chat.model.SystemMessage;
+import ste.llm.chat.model.ThoughtMessage;
+import ste.llm.chat.model.ToolExecutionMessage;
+import ste.llm.chat.model.ToolInvocationMessage;
+import ste.llm.tools.Tool;
 
-public class LangChain4jActor implements Actor {
+public class LangChain4jActor implements Actor, Safe {
     public interface ActorService {
         TokenStream chat(@UserMessage String userMessage);
     }

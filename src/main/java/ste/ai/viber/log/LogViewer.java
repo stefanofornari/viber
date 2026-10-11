@@ -7,10 +7,10 @@ import javafx.scene.layout.Pane;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import netscape.javascript.JSObject;
-import static ste.ai.viber.util.Safe.ifNull;
+import ste.lazyjava.safe.Safe;
 
 
-public class LogViewer extends Pane {
+public class LogViewer extends Pane implements Safe {
 
     private static final Logger LOG = Logger.getLogger(LogViewer.class.getName());
 

@@ -8,9 +8,10 @@ import javafx.scene.layout.VBox;
 
 import java.net.URL;
 import java.util.ResourceBundle;
-import ste.ai.viber.model.ChatMessage;
-import ste.ai.viber.model.ToolExecutionMessage;
-import ste.ai.viber.model.ToolInvocationMessage;
+import ste.llm.chat.model.ChatMessage;
+import ste.llm.chat.model.ToolExecutionMessage;
+import ste.llm.chat.model.ToolInvocationMessage;
+
 
 public class ChatPaneController implements Initializable {
 

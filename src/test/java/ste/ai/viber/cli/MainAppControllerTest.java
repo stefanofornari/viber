@@ -10,14 +10,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.testfx.util.WaitForAsyncUtils;
 import ste.ai.viber.cli.command.CLIOptions;
-import ste.ai.viber.model.Chat;
-import ste.ai.viber.model.Conversation;
-import ste.ai.viber.model.PromptMessage;
-import ste.ai.viber.renderer.GUIRenderer;
 
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.BDDAssertions.then;
+import ste.llm.chat.model.Chat;
+import ste.llm.chat.model.Conversation;
+import ste.llm.chat.model.PromptMessage;
 
 @ExtendWith(TestNameLogger.class)
 class MainAppControllerTest extends org.testfx.framework.junit5.ApplicationTest {
@@ -122,7 +121,7 @@ class MainAppControllerTest extends org.testfx.framework.junit5.ApplicationTest 
 
     @Test
     void fxml_renderer_displays_conversation() {
-        Conversation conversation = new Conversation().addChat(new ste.ai.viber.model.Chat(new PromptMessage("Hello")));
+        Conversation conversation = new Conversation().addChat(new Chat(new PromptMessage("Hello")));
         MainAppController controller = loadController(conversation, null);
         WaitForAsyncUtils.waitForFxEvents();
 

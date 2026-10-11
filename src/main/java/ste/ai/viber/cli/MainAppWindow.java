@@ -3,12 +3,12 @@ package ste.ai.viber.cli;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.stage.Stage;
-import ste.ai.viber.actor.Actor;
-import ste.ai.viber.cli.command.CLIOptions;
-import ste.ai.viber.model.Conversation;
+
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import ste.ai.viber.cli.command.CLIOptions;
+import ste.llm.chat.model.Conversation;
 
 public class MainAppWindow {
 

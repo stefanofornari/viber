@@ -7,15 +7,15 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.VBox;
-import ste.ai.viber.util.Safe;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 import org.apache.commons.lang3.StringUtils;
+import ste.lazyjava.safe.Safe;
 
-public class ToolExecutionPane extends VBox implements Initializable {
+public class ToolExecutionPane extends VBox implements Initializable, Safe {
 
     @FXML
     private ToolInvocationPane toolInvocationPane;
@@ -27,7 +27,7 @@ public class ToolExecutionPane extends VBox implements Initializable {
     private TextArea resultTextArea;
 
     public ToolExecutionPane(final ToolExecutionRequest execution, final String result) {
-        Safe.requireNonNull(execution, "execution");
+        requireNonNull(execution, "execution");
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("ToolExecutionPane.fxml"));
         loader.setRoot(this);

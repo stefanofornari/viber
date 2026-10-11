@@ -10,16 +10,16 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import org.json.JSONObject;
-import ste.ai.viber.util.Safe;
 
 import java.net.URL;
 import java.util.Map;
 import java.util.ResourceBundle;
 import javafx.fxml.FXMLLoader;
+import ste.lazyjava.safe.Safe;
 
 import static ste.lloop.Loop.on;
 
-public class ToolInvocationPane extends VBox implements Initializable {
+public class ToolInvocationPane extends VBox implements Initializable, Safe {
 
     public static final String ARGUMENT_SAMPLE_TOOL_NAME = "toolName";
 
@@ -39,7 +39,7 @@ public class ToolInvocationPane extends VBox implements Initializable {
     }
 
     public ToolInvocationPane(final String name, final Map<String, Object> arguments) {
-        Safe.requireNonBlank(name, "name");
+        requireNonBlank(name, "name");
 
         loadFxml();
         nameLabel.setText(name);
@@ -50,7 +50,7 @@ public class ToolInvocationPane extends VBox implements Initializable {
     }
 
     public ToolInvocationPane(final ToolExecutionRequest execution) {
-        Safe.requireNonNull(execution, "execution");
+        requireNonNull(execution, "execution");
         loadFxml();
         nameLabel.setText(execution.name());
         JSONObject arguments = new JSONObject(execution.arguments());
@@ -119,7 +119,7 @@ public class ToolInvocationPane extends VBox implements Initializable {
     }
 
     public void toolInvocation(final ToolExecutionRequest execution) {
-        Safe.requireNonNull(execution, "execution");
+        requireNonNull(execution, "execution");
         nameLabel.setText(execution.name());
         argumentsPanel.getChildren().clear();
         JSONObject arguments = new JSONObject(execution.arguments());

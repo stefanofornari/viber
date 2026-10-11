@@ -1,11 +1,12 @@
 package ste.ai.viber;
 
 import org.junit.jupiter.api.Test;
-import ste.ai.llm.DummyStreamingChatModel;
+
 
 import static com.github.stefanbirkner.systemlambda.SystemLambda.tapSystemOut;
 import static com.github.stefanbirkner.systemlambda.SystemLambda.withTextFromSystemIn;
 import static org.assertj.core.api.BDDAssertions.then;
+import ste.xtest.llm.DummyStreamingChatModel;
 
 class HelloWorldViberTest {
 

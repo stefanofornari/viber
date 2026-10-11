@@ -1,19 +1,18 @@
 package ste.ai.viber.cli;
 
+
 import javafx.fxml.FXMLLoader;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextArea;
 import javafx.scene.Parent;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.Test;
 import org.testfx.util.WaitForAsyncUtils;
 import ste.ai.viber.actor.FXActor;
-import ste.ai.viber.cli.ViberApplication;
-import ste.ai.viber.model.Conversation;
-import ste.ai.viber.model.ReplyMessage;
+
 import ste.ai.viber.renderer.GUIRenderer;
 
 import static org.assertj.core.api.BDDAssertions.then;
+import ste.llm.chat.model.Conversation;
+import ste.llm.chat.model.ReplyMessage;
 
 class DevModeControllerTest extends org.testfx.framework.junit5.ApplicationTest {
 

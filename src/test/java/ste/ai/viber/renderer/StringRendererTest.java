@@ -1,19 +1,20 @@
 package ste.ai.viber.renderer;
 
 import org.junit.jupiter.api.Test;
-import ste.ai.viber.model.Chat;
-import ste.ai.viber.model.ChatMessage;
-import ste.ai.viber.model.Conversation;
-import ste.ai.viber.model.PromptMessage;
-import ste.ai.viber.model.ReplyMessage;
-import ste.ai.viber.model.Role;
-import ste.ai.viber.model.ThoughtMessage;
-import ste.ai.viber.model.ToolInvocationMessage;
-import ste.ai.viber.model.ToolExecutionMessage;
+
 
 import static com.github.stefanbirkner.systemlambda.SystemLambda.tapSystemOut;
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.assertj.core.api.BDDAssertions.thenThrownBy;
+import ste.llm.chat.model.Chat;
+import ste.llm.chat.model.ChatMessage;
+import ste.llm.chat.model.Conversation;
+import ste.llm.chat.model.PromptMessage;
+import ste.llm.chat.model.ReplyMessage;
+import ste.llm.chat.model.SystemMessage;
+import ste.llm.chat.model.ThoughtMessage;
+import ste.llm.chat.model.ToolExecutionMessage;
+import ste.llm.chat.model.ToolInvocationMessage;
 
 class StringRendererTest {
 
@@ -74,7 +75,7 @@ class StringRendererTest {
         Chat chat = new Chat(new PromptMessage("Hello"));
 
         Conversation conversation = new Conversation()
-            .systemMessage(new ste.ai.viber.model.SystemMessage("You are a helpful assistant"))
+            .systemMessage(new SystemMessage("You are a helpful assistant"))
             .addChat(chat);
 
         String output = tapSystemOut(() -> new StringRenderer().render(conversation));

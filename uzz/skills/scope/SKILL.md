@@ -1,7 +1,8 @@
 ---
 name: scope-definition-reviewer
 description: Evaluates, refines, and structures the scope file for a new or modified application, feature, or user story. It guides the user through an iterative clarifying phase to establish solid boundaries before outputting a standardized system profile.
-allowed-tools: read_file write_file modify_file list_dir
+meta:
+    version: "20291003"
 ---
 
 # Skill: Scope Definition Reviewer

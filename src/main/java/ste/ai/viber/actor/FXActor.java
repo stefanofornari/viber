@@ -1,20 +1,18 @@
 package ste.ai.viber.actor;
 
-import javafx.application.Platform;
-import ste.ai.viber.model.Chat;
-import ste.ai.viber.model.ChatMessage;
-import ste.ai.viber.model.Conversation;
-import ste.ai.viber.model.ErrorMessage;
-import ste.ai.viber.model.PromptMessage;
-import ste.ai.viber.model.ReplyMessage;
-import ste.ai.viber.model.ThoughtMessage;
-import ste.ai.viber.model.ToolInvocationMessage;
-import ste.ai.viber.model.ToolExecutionMessage;
+
 import ste.ai.viber.renderer.Renderer;
 
 import java.util.function.Consumer;
-
-import static ste.ai.viber.util.Safe.requireNonNull;
+import ste.lazyjava.safe.Safe;
+import ste.llm.chat.model.Chat;
+import ste.llm.chat.model.ChatMessage;
+import ste.llm.chat.model.Conversation;
+import ste.llm.chat.model.ErrorMessage;
+import ste.llm.chat.model.ReplyMessage;
+import ste.llm.chat.model.ThoughtMessage;
+import ste.llm.chat.model.ToolExecutionMessage;
+import ste.llm.chat.model.ToolInvocationMessage;
 
 /**
  * Actor implementation for dev-mode manual message creation.
@@ -23,7 +21,7 @@ import static ste.ai.viber.util.Safe.requireNonNull;
  * to manually add messages to the current chat, making it suitable for
  * interactive testing and development.</p>
  */
-public class FXActor implements Actor {
+public class FXActor implements Actor, Safe {
 
     private Conversation conversation;
     private Renderer renderer;

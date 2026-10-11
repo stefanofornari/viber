@@ -16,16 +16,7 @@ import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.model.chat.Capability;
 import dev.langchain4j.model.output.TokenUsage;
 import org.junit.jupiter.api.Test;
-import ste.ai.llm.DummyStreamingChatModel;
-import ste.ai.viber.model.Chat;
-import ste.ai.viber.model.ChatMessage;
-import ste.ai.viber.model.PromptMessage;
-import ste.ai.viber.model.ReplyMessage;
-import ste.ai.viber.model.ToolInvocationMessage;
-import ste.ai.viber.model.ToolExecutionMessage;
-import ste.ai.viber.model.ThoughtMessage;
-import ste.ai.viber.tools.InputTool;
-import ste.ai.viber.tools.FileSystemTools;
+
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,6 +26,15 @@ import java.util.Set;
 import static com.github.stefanbirkner.systemlambda.SystemLambda.withTextFromSystemIn;
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.assertj.core.api.BDDAssertions.thenThrownBy;
+import ste.llm.chat.model.Chat;
+import ste.llm.chat.model.PromptMessage;
+import ste.llm.chat.model.ReplyMessage;
+import ste.llm.chat.model.ThoughtMessage;
+import ste.llm.chat.model.ToolExecutionMessage;
+import ste.llm.chat.model.ToolInvocationMessage;
+import ste.llm.tools.FileSystemTools;
+import ste.llm.tools.InputTool;
+import ste.xtest.llm.DummyStreamingChatModel;
 
 class LangChain4jActorTest {
 
@@ -114,7 +114,7 @@ class LangChain4jActorTest {
 
         Chat chat = new Chat(new PromptMessage("greet me"));
 
-        List<ChatMessage> emitted = new ArrayList<>();
+        List<ste.llm.chat.model.ChatMessage> emitted = new ArrayList<>();
         withTextFromSystemIn(name).execute(() -> {
             actor.chat(chat, emitted::add);
         });
@@ -135,7 +135,7 @@ class LangChain4jActorTest {
         );
 
         Chat chat = new Chat(new PromptMessage("hello"));
-        List<ChatMessage> emitted = new ArrayList<>();
+        List<ste.llm.chat.model.ChatMessage> emitted = new ArrayList<>();
         actor.chat(chat, emitted::add);
 
         then(chat.messages()).hasSizeGreaterThanOrEqualTo(2);
@@ -153,7 +153,7 @@ class LangChain4jActorTest {
         );
 
         Chat chat = new Chat(new PromptMessage("say hello"));
-        List<ChatMessage> emitted = new ArrayList<>();
+        List<ste.llm.chat.model.ChatMessage> emitted = new ArrayList<>();
         actor.chat(chat, emitted::add);
 
         then(emitted).anySatisfy(msg -> {
@@ -174,7 +174,7 @@ class LangChain4jActorTest {
         );
 
         Chat chat = new Chat(new PromptMessage("greet me"));
-        List<ChatMessage> emitted = new ArrayList<>();
+        List<ste.llm.chat.model.ChatMessage> emitted = new ArrayList<>();
 
         withTextFromSystemIn("Alice").execute(() -> {
             actor.chat(chat, emitted::add);
@@ -205,7 +205,7 @@ class LangChain4jActorTest {
         );
 
         Chat chat = new Chat(new PromptMessage("hi"));
-        List<ChatMessage> emitted = new ArrayList<>();
+        List<ste.llm.chat.model.ChatMessage> emitted = new ArrayList<>();
         actor.chat(chat, emitted::add);
 
         then(emitted).hasSize(1);
@@ -229,7 +229,7 @@ class LangChain4jActorTest {
         );
 
         Chat chat = new Chat(new PromptMessage("hi"));
-        List<ChatMessage> emitted = new ArrayList<>();
+        List<ste.llm.chat.model.ChatMessage> emitted = new ArrayList<>();
         actor.chat(chat, emitted::add);
 
         then(emitted).hasSize(2);
@@ -251,7 +251,7 @@ class LangChain4jActorTest {
         );
 
         Chat chat = new Chat(new PromptMessage("hi"));
-        List<ChatMessage> emitted = new ArrayList<>();
+        List<ste.llm.chat.model.ChatMessage> emitted = new ArrayList<>();
         actor.chat(chat, emitted::add);
 
         then(emitted).hasSize(1);
@@ -273,7 +273,7 @@ class LangChain4jActorTest {
         );
 
         Chat chat = new Chat(new PromptMessage("hi"));
-        List<ChatMessage> emitted = new ArrayList<>();
+        List<ste.llm.chat.model.ChatMessage> emitted = new ArrayList<>();
         actor.chat(chat, emitted::add);
 
         then(emitted).hasSize(2);
@@ -296,7 +296,7 @@ class LangChain4jActorTest {
         );
 
         Chat chat = new Chat(new PromptMessage("hi"));
-        List<ChatMessage> emitted = new ArrayList<>();
+        List<ste.llm.chat.model.ChatMessage> emitted = new ArrayList<>();
         actor.chat(chat, emitted::add);
 
         then(emitted).anySatisfy(msg -> {
@@ -324,7 +324,7 @@ class LangChain4jActorTest {
         );
 
         Chat chat = new Chat(new PromptMessage("hi"));
-        List<ChatMessage> emitted = new ArrayList<>();
+        List<ste.llm.chat.model.ChatMessage> emitted = new ArrayList<>();
         actor.chat(chat, emitted::add);
 
         then(emitted).anySatisfy(msg -> {
@@ -348,7 +348,7 @@ class LangChain4jActorTest {
         );
 
         Chat chat = new Chat(new PromptMessage("hi"));
-        List<ChatMessage> emitted = new ArrayList<>();
+        List<ste.llm.chat.model.ChatMessage> emitted = new ArrayList<>();
         actor.chat(chat, emitted::add);
 
         then(emitted).anySatisfy(msg -> {
@@ -436,7 +436,7 @@ class LangChain4jActorTest {
         );
 
         Chat chat = new Chat(new PromptMessage("hi"));
-        List<ChatMessage> emitted = new ArrayList<>();
+        List<ste.llm.chat.model.ChatMessage> emitted = new ArrayList<>();
         actor.chat(chat, emitted::add);
 
         then(chat.tokenUsage()).isNotNull();
@@ -456,7 +456,7 @@ class LangChain4jActorTest {
         );
 
         Chat chat = new Chat(new PromptMessage("hi"));
-        List<ChatMessage> emitted = new ArrayList<>();
+        List<ste.llm.chat.model.ChatMessage> emitted = new ArrayList<>();
         actor.chat(chat, emitted::add);
 
         then(chat.tokenUsage()).isNull();
