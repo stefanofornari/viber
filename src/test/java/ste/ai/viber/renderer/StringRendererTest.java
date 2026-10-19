@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import static com.github.stefanbirkner.systemlambda.SystemLambda.tapSystemOut;
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.assertj.core.api.BDDAssertions.thenThrownBy;
+import org.json.JSONObject;
 import ste.llm.chat.model.Chat;
 import ste.llm.chat.model.ChatMessage;
 import ste.llm.chat.model.Conversation;
@@ -15,6 +16,7 @@ import ste.llm.chat.model.SystemMessage;
 import ste.llm.chat.model.ThoughtMessage;
 import ste.llm.chat.model.ToolExecutionMessage;
 import ste.llm.chat.model.ToolInvocationMessage;
+import ste.llm.tools.InvocationJSONObject;
 
 class StringRendererTest {
 
@@ -112,7 +114,7 @@ class StringRendererTest {
     @Test
     void renders_tool_messages_with_distinct_prefix() throws Exception {
         Chat chat = new Chat(new PromptMessage("Hello"));
-        chat.addMessage(new ToolInvocationMessage("search(query=foo)"));
+        chat.addMessage(new ToolInvocationMessage(new InvocationJSONObject("search", new JSONObject("{\"query\":\"foo\"}"))));
         chat.addMessage(new ToolExecutionMessage("result: 3 items"));
 
         Conversation conversation = new Conversation().addChat(chat);
@@ -120,10 +122,10 @@ class StringRendererTest {
 
         then(output)
             .isEqualTo("--- Chat 1 ---\n" +
-                "  VIBER/PROMPT> Hello\n" +
-                "  ACTOR/TOOL_EXECUTION_REQUEST[TOOL] search(query=foo)\n" +
-                "  VIBER/TOOL_EXECUTION_RESPONSE[OUT] result: 3 items\n" +
-                "\n");
+                 "  VIBER/PROMPT> Hello\n" +
+                 "  ACTOR/TOOL_EXECUTION_REQUEST[TOOL] {\"arguments\":{\"query\":\"foo\"},\"tool\":\"search\"}\n" +
+                 "  VIBER/TOOL_EXECUTION_RESPONSE[OUT] result: 3 items\n" +
+                 "\n");
     }
 
     @Test

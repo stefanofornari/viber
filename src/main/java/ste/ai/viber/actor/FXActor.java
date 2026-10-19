@@ -4,6 +4,7 @@ package ste.ai.viber.actor;
 import ste.ai.viber.renderer.Renderer;
 
 import java.util.function.Consumer;
+import org.json.JSONObject;
 import ste.lazyjava.safe.Safe;
 import ste.llm.chat.model.Chat;
 import ste.llm.chat.model.ChatMessage;
@@ -13,6 +14,7 @@ import ste.llm.chat.model.ReplyMessage;
 import ste.llm.chat.model.ThoughtMessage;
 import ste.llm.chat.model.ToolExecutionMessage;
 import ste.llm.chat.model.ToolInvocationMessage;
+import ste.llm.tools.InvocationJSONObject;
 
 /**
  * Actor implementation for dev-mode manual message creation.
@@ -56,27 +58,34 @@ public class FXActor implements Actor, Safe {
         return currentChat;
     }
 
-    public void addReply(String text) {
+    public void addReply(final String text) {
         addMessage(new ReplyMessage(text));
     }
 
-    public void addThought(String text) {
+    public void addThought(final String text) {
         addMessage(new ThoughtMessage(text));
     }
 
-    public void addToolExecution(String text) {
-        addMessage(new ToolInvocationMessage(text));
+    public void addToolInvocation(final String text) {
+        try {
+            JSONObject json = new JSONObject(text);
+            String toolName = json.getString("tool");
+            JSONObject arguments = json.getJSONObject("arguments");
+            addMessage(new ToolInvocationMessage(new InvocationJSONObject(toolName, arguments)));
+        } catch (Exception e) {
+            addError("Invalid tool invocation JSON: " + e.getMessage());
+        }
     }
 
-    public void addToolReply(String text) {
+    public void addToolReply(final String text) {
         addMessage(new ToolExecutionMessage(text));
     }
 
-    public void addError(String text) {
+    public void addError(final String text) {
         addMessage(new ErrorMessage(text, null));
     }
 
-    private void addMessage(ChatMessage message) {
+    private void addMessage(final ChatMessage message) {
         if (currentChat == null) {
             throw new IllegalStateException("No active chat");
         }

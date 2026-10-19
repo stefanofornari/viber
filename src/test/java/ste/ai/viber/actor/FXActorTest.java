@@ -8,6 +8,7 @@ import java.util.List;
 
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.assertj.core.api.BDDAssertions.thenThrownBy;
+import org.json.JSONObject;
 import ste.llm.chat.model.Chat;
 import ste.llm.chat.model.Conversation;
 import ste.llm.chat.model.ErrorMessage;
@@ -16,6 +17,7 @@ import ste.llm.chat.model.ReplyMessage;
 import ste.llm.chat.model.ThoughtMessage;
 import ste.llm.chat.model.ToolExecutionMessage;
 import ste.llm.chat.model.ToolInvocationMessage;
+import ste.xtest.json.api.JSONAssertions;
 
 class FXActorTest {
 
@@ -73,6 +75,7 @@ class FXActorTest {
         then(chat.messages()).hasSize(2);
         then(chat.messages().getLast()).isInstanceOf(ThoughtMessage.class);
         then(chat.messages().getLast().content()).isEqualTo("thinking");
+        then(renderer.renderedMessages).contains(chat.messages().getLast());
     }
 
     @Test
@@ -83,11 +86,15 @@ class FXActorTest {
 
         Chat chat = new Chat(new PromptMessage("hello"));
         actor.chat(chat, msg -> {});
-        actor.addToolExecution("tool(args)");
+        actor.addToolInvocation("{\"arguments\":{\"args\":\"value\"},\"tool\":\"manual\"}");
 
         then(chat.messages()).hasSize(2);
         then(chat.messages().getLast()).isInstanceOf(ToolInvocationMessage.class);
-        then(chat.messages().getLast().content()).isEqualTo("tool(args)");
+        JSONAssertions.then(
+            new JSONObject(chat.messages().getLast().content())
+        ).isEqualTo(
+            new JSONObject("{\"tool\":\"manual\",\"arguments\":{\"args\":\"value\"}}")
+        );
     }
 
     @Test

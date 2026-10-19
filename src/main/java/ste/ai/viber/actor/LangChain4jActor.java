@@ -13,6 +13,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import org.json.JSONObject;
 import ste.lazyjava.safe.Safe;
 import ste.llm.chat.model.Chat;
 import ste.llm.chat.model.ChatMessage;
@@ -23,6 +24,7 @@ import ste.llm.chat.model.SystemMessage;
 import ste.llm.chat.model.ThoughtMessage;
 import ste.llm.chat.model.ToolExecutionMessage;
 import ste.llm.chat.model.ToolInvocationMessage;
+import ste.llm.tools.InvocationJSONObject;
 import ste.llm.tools.Tool;
 
 public class LangChain4jActor implements Actor, Safe {
@@ -133,17 +135,8 @@ public class LangChain4jActor implements Actor, Safe {
             .onIntermediateResponse(response -> {
                 if (response.aiMessage().hasToolExecutionRequests()) {
                     for (ToolExecutionRequest request : response.aiMessage().toolExecutionRequests()) {
-                        String toolName = request.name();
-                        String arguments = request.arguments();
-
-                        String displayText = toolName;
-                        if ("input".equals(toolName)) {
-                            displayText = "ask for the name";
-                        } else if (arguments != null && !arguments.equals("{}")) {
-                            displayText = displayText + ": " + arguments;
-                        }
-
-                        ToolInvocationMessage toolMsg = new ToolInvocationMessage(displayText);
+                        ToolInvocationMessage toolMsg = new ToolInvocationMessage(
+                            new InvocationJSONObject(request.name(), new JSONObject(request.arguments())));
                         chat.addMessage(toolMsg);
                         onMessage.accept(toolMsg);
                     }

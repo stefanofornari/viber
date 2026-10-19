@@ -47,8 +47,8 @@ public class ChatPaneController implements Initializable {
      */
     public void appendMessage(ChatMessage message) {
         if (message instanceof ToolInvocationMessage invocation) {
-            ToolMessagePane pane = new ToolMessagePane();
-            pane.invocation(invocation.content());
+             ToolMessagePane pane = new ToolMessagePane();
+             pane.invocation(invocation);
             addMessage(pane);
             lastMessagePane = pane;
             lastMessageType = "TOOL_INVOCATION";

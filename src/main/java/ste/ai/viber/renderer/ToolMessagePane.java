@@ -16,6 +16,8 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URL;
 import java.util.ResourceBundle;
+import ste.llm.chat.model.ToolInvocationMessage;
+import static ste.lloop.Loop.on;
 
 public class ToolMessagePane extends TitledPane implements Initializable {
 
@@ -71,6 +73,22 @@ public class ToolMessagePane extends TitledPane implements Initializable {
         invocationPane.rawContent(content);
         invocationPane.hideName();
         setText("ACTOR / " + invocationPane.toolName());
+    }
+
+    public void invocation(ToolInvocationMessage message) {
+        invocationSet = true;
+        // Handle special "input" tool case for display
+        String displayName = "input".equals(message.invocation.name()) ? "ask for the name" : message.invocation.name();
+        invocationPane.nameLabel.setText(displayName);
+        invocationPane.argumentsPanel.getChildren().clear();
+        on(message.invocation.arguments().keys()).loop((key) -> {
+            invocationPane.argumentsPanel.getChildren().add(
+                new ArgumentChip(key, String.valueOf(message.invocation.arguments().get(key)))
+            );
+        });
+        invocationPane.updateArgumentsVisibility();
+        invocationPane.hideName();
+        setText("ACTOR / " + displayName);
     }
 
     public void appendResult(String result) {

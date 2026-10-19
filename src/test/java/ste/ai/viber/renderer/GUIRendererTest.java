@@ -12,6 +12,7 @@ import static org.assertj.core.api.BDDAssertions.thenThrownBy;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.ScrollPane;
 import javafx.stage.Stage;
+import org.json.JSONObject;
 import ste.llm.chat.model.Chat;
 import ste.llm.chat.model.ChatMessage;
 import ste.llm.chat.model.Conversation;
@@ -20,6 +21,7 @@ import ste.llm.chat.model.ReplyMessage;
 import ste.llm.chat.model.ThoughtMessage;
 import ste.llm.chat.model.ToolExecutionMessage;
 import ste.llm.chat.model.ToolInvocationMessage;
+import ste.llm.tools.InvocationJSONObject;
 
 class GUIRendererTest extends org.testfx.framework.junit5.ApplicationTest {
 
@@ -75,7 +77,7 @@ class GUIRendererTest extends org.testfx.framework.junit5.ApplicationTest {
         Chat chat = new Chat(new PromptMessage("prompt"));
         chat.addMessage(new ReplyMessage("reply"));
         chat.addMessage(new ThoughtMessage("thought"));
-        chat.addMessage(new ToolInvocationMessage("tool(args)"));
+        chat.addMessage(new ToolInvocationMessage(new InvocationJSONObject("tool", new JSONObject("{\"args\":\"\"}"))));
         chat.addMessage(new ToolExecutionMessage("result"));
         Conversation conversation = new Conversation().addChat(chat);
 

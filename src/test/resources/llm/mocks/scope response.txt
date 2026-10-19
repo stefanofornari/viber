@@ -1,0 +1,11 @@
+Phase 1: Clarification
+Who are the primary users of this product?
+What features are essential vs nice-to-have?
+
+Phase 2: Boundary Definition
+Platform: all
+Data: user-managed
+Integration: none required
+
+Phase 3: Scope Compilation
+The scope document will be generated based on your responses.

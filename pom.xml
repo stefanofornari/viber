@@ -184,6 +184,25 @@
             <version>1.2.4</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.github.stefanofornari</groupId>
+            <artifactId>lazyjava-core</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.stefanofornari</groupId>
+            <artifactId>uzzo-llm</artifactId>
+            <version>0.0.0-SNAPSHOT</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>com.github.stefanofornari</groupId>
+            <artifactId>uzzo-workflow</artifactId>
+            <version>0.0.0-SNAPSHOT</version>
+            <type>jar</type>
+        </dependency>
+
+
         <!--
           TEST DEPENDENCIES
         -->
@@ -222,24 +241,6 @@
             <artifactId>xtest</artifactId>
             <version>3.13.1-SNAPSHOT</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.github.stefanbirkner</groupId>
-            <artifactId>system-lambda</artifactId>
-            <version>1.2.1</version>
-            <scope>test</scope>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>com.github.stefanofornari</groupId>
-            <artifactId>lazyjava-core</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.stefanofornari</groupId>
-            <artifactId>uzzo-llm</artifactId>
-            <version>0.0.0-SNAPSHOT</version>
-            <type>jar</type>
         </dependency>
         <dependency>
             <groupId>com.github.stefanbirkner</groupId>

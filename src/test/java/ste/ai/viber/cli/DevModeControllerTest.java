@@ -1,6 +1,5 @@
 package ste.ai.viber.cli;
 
-
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.stage.Stage;
@@ -13,6 +12,9 @@ import ste.ai.viber.renderer.GUIRenderer;
 import static org.assertj.core.api.BDDAssertions.then;
 import ste.llm.chat.model.Conversation;
 import ste.llm.chat.model.ReplyMessage;
+
+import java.util.Collections;
+import java.util.List;
 
 class DevModeControllerTest extends org.testfx.framework.junit5.ApplicationTest {
 
@@ -49,7 +51,7 @@ class DevModeControllerTest extends org.testfx.framework.junit5.ApplicationTest 
         GUIRenderer renderer = new GUIRenderer();
         FXActor fxActor = new FXActor(conversation, renderer);
 
-        DevModeController controller = loadController(fxActor, conversation, renderer);
+        DevModeController controller = loadController(fxActor, conversation, renderer, Collections.emptyList());
         WaitForAsyncUtils.waitForFxEvents();
 
         interact(() -> {
@@ -74,15 +76,15 @@ class DevModeControllerTest extends org.testfx.framework.junit5.ApplicationTest 
     private DevModeController loadController() {
         GUIRenderer renderer = new GUIRenderer();
         FXActor fxActor = new FXActor(new Conversation(), renderer);
-        return loadController(fxActor, fxActor.conversation(), renderer);
+        return loadController(fxActor, fxActor.conversation(), renderer, Collections.emptyList());
     }
 
-    private DevModeController loadController(FXActor fxActor, Conversation conversation, GUIRenderer renderer) {
+    private DevModeController loadController(FXActor fxActor, Conversation conversation, GUIRenderer renderer, List<ste.llm.tools.Tool> tools) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("DevModeWindow.fxml"));
             Parent root = loader.load();
             DevModeController controller = loader.getController();
-            controller.initialize(fxActor, conversation, renderer);
+            controller.initialize(fxActor, conversation, renderer, tools);
             return controller;
         } catch (Exception e) {
             throw new RuntimeException(e);

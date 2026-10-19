@@ -6,9 +6,11 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import ste.ai.viber.actor.FXActor;
 import ste.ai.viber.renderer.GUIRenderer;
+import ste.llm.tools.Tool;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.List;
 import ste.llm.chat.model.Conversation;
 
 public class DevModeWindow {
@@ -18,7 +20,7 @@ public class DevModeWindow {
     private final Stage stage;
     private final GUIRenderer renderer;
 
-    public DevModeWindow(FXActor fxActor, Conversation conversation, Stage owner) {
+    public DevModeWindow(FXActor fxActor, Conversation conversation, Stage owner, List<Tool> tools) {
         this.fxActor = fxActor;
         this.conversation = conversation;
         this.stage = new Stage();
@@ -28,7 +30,7 @@ public class DevModeWindow {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("DevModeWindow.fxml"));
             Parent root = loader.load();
             DevModeController controller = loader.getController();
-            controller.initialize(fxActor, conversation, renderer);
+            controller.initialize(fxActor, conversation, renderer, tools);
             stage.setScene(new javafx.scene.Scene(root, 800, 600));
             stage.setTitle("Viber - Dev Mode");
         } catch (IOException e) {

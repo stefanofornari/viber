@@ -2,6 +2,7 @@ package ste.ai.viber.cli;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckMenuItem;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.VBox;
@@ -9,14 +10,19 @@ import javafx.stage.Stage;
 import ste.ai.viber.actor.Actor;
 import ste.ai.viber.actor.FXActor;
 import ste.ai.viber.actor.LangChain4jActor;
+import ste.ai.viber.actor.ScopeActor;
 import ste.ai.viber.cli.command.CLIOptions;
 import ste.ai.viber.renderer.GUIRenderer;
 import ste.llm.chat.model.Chat;
 import ste.llm.chat.model.Conversation;
 import ste.llm.chat.model.PromptMessage;
 import ste.llm.tools.FileSystemTools;
-import ste.llm.tools.InputTool;
 import ste.llm.tools.Tool;
+import dev.langchain4j.model.chat.StreamingChatModel;
+import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
+import java.util.List;
+import ste.uzzo.agent.tools.AskTools;
+import ste.ai.viber.tools.ViberGUIAskTools;
 
 
 
@@ -36,6 +42,12 @@ public class MainAppController {
 
     @FXML
     CheckMenuItem langChain4jActorItem;
+
+    @FXML
+    CheckMenuItem scopeAgentItem;
+
+    @FXML
+    Label scopePhaseIndicator;
 
     private Conversation conversationModel;
     private Actor currentActor;
@@ -72,7 +84,7 @@ public class MainAppController {
                 listener[0] = (obs, oldVal, newVal) -> {
                     if (newVal && devModeWindow == null) {
                         owner.showingProperty().removeListener(listener[0]);
-                        devModeWindow = new DevModeWindow(fxActor, conversation, owner);
+                        devModeWindow = new DevModeWindow(fxActor, conversation, owner, defaultTools());
                         devModeWindow.show();
                     }
                 };
@@ -84,8 +96,12 @@ public class MainAppController {
 
         updateActorMenuSelection();
 
+        // Initialize scope phase indicator
+        scopePhaseIndicator.setText("");
+
         fxActorItem.setOnAction(e -> switchToFXActor());
         langChain4jActorItem.setOnAction(e -> switchToLangChain4jActor());
+        scopeAgentItem.setOnAction(e -> switchToScopeActor());
 
         inputField.setOnKeyPressed(e -> {
             if (e.isControlDown() && e.getCode() == KeyCode.ENTER) {
@@ -99,14 +115,22 @@ public class MainAppController {
         return (javafx.scene.Node) inputField.getParent();
     }
 
+    public boolean isScopePhaseActive() {
+        return "ScopeActor".equals(currentActorType);
+    }
+
     public String getCurrentActorType() {
         return currentActorType;
     }
 
     private void updateActorMenuSelection() {
         boolean isFX = "FXActor".equals(currentActorType);
+        boolean isLangChain4j = "LangChain4jActor".equals(currentActorType);
+        boolean isScope = "ScopeActor".equals(currentActorType);
+
         fxActorItem.setSelected(isFX);
-        langChain4jActorItem.setSelected(!isFX);
+        langChain4jActorItem.setSelected(isLangChain4j);
+        scopeAgentItem.setSelected(isScope);
     }
 
     private void switchToFXActor() {
@@ -118,9 +142,10 @@ public class MainAppController {
             this.currentActorType = "FXActor";
             updateActorMenuSelection();
             conversation.render(conversationModel);
+            scopePhaseIndicator.setText("");
 
             if (devModeWindow == null && owner != null && owner.isShowing()) {
-                devModeWindow = new DevModeWindow(fxActor, conversationModel, owner);
+                devModeWindow = new DevModeWindow(fxActor, conversationModel, owner, defaultTools());
                 devModeWindow.show();
             }
         } finally {
@@ -148,6 +173,7 @@ public class MainAppController {
             this.currentActorType = "LangChain4jActor";
             updateActorMenuSelection();
             conversation.render(actor.conversation());
+            scopePhaseIndicator.setText("");
 
             if (devModeWindow != null) {
                 devModeWindow.hide();
@@ -158,9 +184,65 @@ public class MainAppController {
         }
     }
 
-    private java.util.List<Tool> defaultTools() {
+    private void switchToScopeActor() {
+        if (switching) return;
+        switching = true;
         try {
-            return java.util.List.of(new InputTool(), new FileSystemTools(System.getProperty("user.dir")));
+            if (options == null || options.key() == null || options.key().isBlank()) {
+                switchToFXActor();
+                return;
+            }
+
+            StreamingChatModel chatModel = OpenAiStreamingChatModel.builder()
+                .baseUrl(options.endpoint())
+                .apiKey(options.key())
+                .modelName(options.model())
+                .returnThinking(true)
+                .logRequests(true)
+                .logResponses(true)
+                .build();
+
+            AskTools askTools = new ViberGUIAskTools(owner);
+
+            ScopeActor actor = new ScopeActor(chatModel, askTools);
+            this.currentActor = actor;
+            this.currentActorType = "ScopeActor";
+            updateActorMenuSelection();
+            conversation.render(actor.conversation());
+            scopePhaseIndicator.setText("● Scope");
+            scopePhaseIndicator.setStyle("-fx-text-fill: orange; -fx-padding: 0 10px;");
+
+            if (devModeWindow != null) {
+                devModeWindow.hide();
+                devModeWindow = null;
+            }
+        } finally {
+            switching = false;
+        }
+    }
+
+    public ScopeActor createScopeActor() {
+        if (options == null || options.key() == null || options.key().isBlank()) {
+            return null;
+        }
+
+        StreamingChatModel chatModel = OpenAiStreamingChatModel.builder()
+            .baseUrl(options.endpoint())
+            .apiKey(options.key())
+            .modelName(options.model())
+            .returnThinking(true)
+            .logRequests(true)
+            .logResponses(true)
+            .build();
+
+        AskTools askTools = new ViberGUIAskTools(owner);
+
+        return new ScopeActor(chatModel, askTools);
+    }
+
+    public static java.util.List<Tool> defaultTools() {
+        try {
+            return List.of(new ViberGUIAskTools(), new FileSystemTools(System.getProperty("user.dir")));
         } catch (Exception e) {
             throw new RuntimeException("Failed to initialize default tools", e);
         }
@@ -170,6 +252,14 @@ public class MainAppController {
         String text = inputField.getText().trim();
         if (text.isBlank()) {
             return;
+        }
+
+        // Update scope phase indicator
+        if (isScopePhaseActive()) {
+            scopePhaseIndicator.setText("● Scope");
+            scopePhaseIndicator.setStyle("-fx-text-fill: orange; -fx-padding: 0 10px;");
+        } else {
+            scopePhaseIndicator.setText("");
         }
 
         Chat chat = new Chat(new PromptMessage(text));

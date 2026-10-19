@@ -1,5 +1,0 @@
-This is to execute the DummyTool - first round
-
-```tool:dummyTool
-```
-

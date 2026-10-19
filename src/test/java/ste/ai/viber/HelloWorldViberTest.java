@@ -33,7 +33,7 @@ class HelloWorldViberTest {
             "To greet the user, use the InputTool with the prompt 'What is your name?'. execute tool input with arguments: What's your name?\n" +
             "--- Chat 1 ---\n" +
             "  VIBER/PROMPT> greet me by my name\n" +
-            "  ACTOR/TOOL_EXECUTION_REQUEST[TOOL] ask for the name\n" +
+            "  ACTOR/TOOL_EXECUTION_REQUEST[TOOL] {\"arguments\":{\"prompt\":\"What's your name?\"},\"tool\":\"input\"}\n" +
             "  VIBER/TOOL_EXECUTION_RESPONSE[OUT] " + name + "\n" +
             "  ACTOR/REPLY: Hello " + name + "!\n" +
             "\n";

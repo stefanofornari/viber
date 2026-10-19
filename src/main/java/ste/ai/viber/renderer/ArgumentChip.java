@@ -33,7 +33,8 @@ public class ArgumentChip extends HBox implements Initializable {
     @FXML
     private Region ribbon;
 
-    private String value;
+    protected final String name;
+    protected final String value;
 
     public ArgumentChip() {
         this(CHIP_SAMPLE_ARGUMENT_NAME, CHIP_SAMPLE_ARGUMENT_VALUE);
@@ -48,6 +49,7 @@ public class ArgumentChip extends HBox implements Initializable {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+        this.name = name;
         this.value = value;
         argumentLabel.setText(name + ": " + value);
     }
@@ -69,5 +71,14 @@ public class ArgumentChip extends HBox implements Initializable {
             pause.setOnFinished(event -> tooltip.hide());
             pause.play();
         });
+
+    }
+
+    public String name() {
+        return name;
+    }
+
+    public String value() {
+        return value;
     }
 }

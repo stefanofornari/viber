@@ -53,11 +53,9 @@ class MainAppControllerTest extends org.testfx.framework.junit5.ApplicationTest 
             .findFirst()
             .orElseThrow();
 
-        then(actorMenu.getItems()).hasSize(2);
-        CheckMenuItem fxActorItem = (CheckMenuItem) actorMenu.getItems().get(0);
-        CheckMenuItem langChainItem = (CheckMenuItem) actorMenu.getItems().get(1);
-        then(fxActorItem.getText()).isEqualTo("Manual");
-        then(langChainItem.getText()).isEqualTo("LLM");
+        then(actorMenu.getItems().get(0).getText()).isEqualTo("Manual");
+        then(actorMenu.getItems().get(1).getText()).isEqualTo("LLM");
+        then(actorMenu.getItems().get(2).getText()).isEqualTo("Scope");
     }
 
     @Test

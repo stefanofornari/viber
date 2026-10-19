@@ -1,1 +1,0 @@
-use mock 'hello world.2.txt'

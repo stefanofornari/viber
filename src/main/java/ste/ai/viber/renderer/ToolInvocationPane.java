@@ -12,6 +12,8 @@ import javafx.scene.layout.VBox;
 import org.json.JSONObject;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import javafx.fxml.FXMLLoader;
@@ -24,13 +26,13 @@ public class ToolInvocationPane extends VBox implements Initializable, Safe {
     public static final String ARGUMENT_SAMPLE_TOOL_NAME = "toolName";
 
     @FXML
-    private Label nameLabel;
+    protected Label nameLabel;
 
     @FXML
-    private FlowPane argumentsPanel;
+    protected FlowPane argumentsPanel;
 
     @FXML
-    private ScrollPane argumentsScrollPane;
+    protected ScrollPane argumentsScrollPane;
 
     private String toolName = "";
 
@@ -88,8 +90,8 @@ public class ToolInvocationPane extends VBox implements Initializable, Safe {
         nameLabel.setText(toolName);
 
         if (!argsString.isBlank()) {
-            String[] args = argsString.split(",\\s*");
-            for (String arg : args) {
+            List<String> argList = splitArgsPreservingQuotedStrings(argsString);
+            for (String arg : argList) {
                 if (!arg.isBlank()) {
                     int eqIndex = arg.indexOf('=');
                     if (eqIndex < 0) {
@@ -114,6 +116,33 @@ public class ToolInvocationPane extends VBox implements Initializable, Safe {
         updateArgumentsVisibility();
     }
 
+    private List<String> splitArgsPreservingQuotedStrings(String argsString) {
+        List<String> result = new ArrayList<>();
+        StringBuilder current = new StringBuilder();
+        boolean inQuotes = false;
+        char quoteChar = 0;
+        for (int i = 0; i < argsString.length(); i++) {
+            char c = argsString.charAt(i);
+            if (c == '"' || c == '\'') {
+                if (!inQuotes) {
+                    inQuotes = true;
+                    quoteChar = c;
+                } else if (quoteChar == c) {
+                    inQuotes = false;
+                    quoteChar = 0;
+                }
+                current.append(c);
+            } else if (c == ',' && !inQuotes) {
+                result.add(current.toString());
+                current.setLength(0);
+            } else {
+                current.append(c);
+            }
+        }
+        result.add(current.toString());
+        return result;
+    }
+
     public String toolName() {
         return toolName;
     }
@@ -129,7 +158,7 @@ public class ToolInvocationPane extends VBox implements Initializable, Safe {
         updateArgumentsVisibility();
     }
 
-    private void updateArgumentsVisibility() {
+    public void updateArgumentsVisibility() {
         boolean hasArguments = !argumentsPanel.getChildren().isEmpty();
         argumentsScrollPane.setManaged(hasArguments);
         argumentsScrollPane.setVisible(hasArguments);
