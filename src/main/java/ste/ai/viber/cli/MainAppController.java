@@ -21,12 +21,13 @@ import ste.llm.tools.Tool;
 import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
 import java.util.List;
+import ste.ai.viber.renderer.QuestionsPanelManager;
 import ste.uzzo.agent.tools.AskTools;
 import ste.ai.viber.tools.ViberGUIAskTools;
 
 
 
-public class MainAppController {
+public class MainAppController implements Constants {
 
     @FXML
     VBox root;
@@ -202,14 +203,14 @@ public class MainAppController {
                 .logResponses(true)
                 .build();
 
-            AskTools askTools = new ViberGUIAskTools(owner);
+            AskTools askTools = new ViberGUIAskTools(new QuestionsPanelManager());
 
             ScopeActor actor = new ScopeActor(chatModel, askTools);
             this.currentActor = actor;
             this.currentActorType = "ScopeActor";
             updateActorMenuSelection();
             conversation.render(actor.conversation());
-            scopePhaseIndicator.setText("● Scope");
+            scopePhaseIndicator.setText(LABEL_SCOPE_INDICATOR);
             scopePhaseIndicator.setStyle("-fx-text-fill: orange; -fx-padding: 0 10px;");
 
             if (devModeWindow != null) {
@@ -235,14 +236,14 @@ public class MainAppController {
             .logResponses(true)
             .build();
 
-        AskTools askTools = new ViberGUIAskTools(owner);
+        AskTools askTools = new ViberGUIAskTools(new QuestionsPanelManager());
 
         return new ScopeActor(chatModel, askTools);
     }
 
     public static java.util.List<Tool> defaultTools() {
         try {
-            return List.of(new ViberGUIAskTools(), new FileSystemTools(System.getProperty("user.dir")));
+            return List.of(new FileSystemTools("."));
         } catch (Exception e) {
             throw new RuntimeException("Failed to initialize default tools", e);
         }
@@ -256,7 +257,7 @@ public class MainAppController {
 
         // Update scope phase indicator
         if (isScopePhaseActive()) {
-            scopePhaseIndicator.setText("● Scope");
+            scopePhaseIndicator.setText(LABEL_SCOPE_INDICATOR);
             scopePhaseIndicator.setStyle("-fx-text-fill: orange; -fx-padding: 0 10px;");
         } else {
             scopePhaseIndicator.setText("");

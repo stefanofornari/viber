@@ -46,16 +46,32 @@ This index lists the user stories derived from `stories/scope.md`.
 
 ### development
 
-| ID | Title | Status |
-|----|-------|--------|
-| [US-000005](development/US-000005/US-000005.md) | Embeddable JavaFX Component | DONE |
-| [US-000016](development/US-000016/US-000016.md) | Dev Mode Conversation Editor | DONE |
-| [US-000017](development/US-000017/US-000017.md) | Dev Mode CLI Flag | DONE |
-| [US-000023](development/US-000023/US-000023.md) | Embeddable JavaFX Component via FXML | DONE |
+  | ID | Title | Status |
+  |----|-------|--------|
+  | [US-000005](development/US-000005/US-000005.md) | Embeddable JavaFX Component | DONE |
+  | [US-000016](development/US-000016/US-000016.md) | Dev Mode Conversation Editor | DONE |
+  | [US-000017](development/US-000017/US-000017.md) | Dev Mode CLI Flag | DONE |
+  | [US-000023](development/US-000023/US-000023.md) | Embeddable JavaFX Component via FXML | DONE |
+
+### scope
+
+  | ID | Title | Status |
+  |----|-------|--------|
+  | [US-000031](scope/US-000031/US-000031.md) | ScopeActor Implementation | DONE |
+  | [US-000032](scope/US-000032/US-000032.md) | CLI AskTools Implementation | TODO |
+  | [US-000033](scope/US-000033/US-000033.md) | GUI AskTools Implementation | DONE |
+  | [US-000034](scope/US-000034/US-000034.md) | CLI Integration: ScopeAgent Selection | TODO |
+   | [US-000035](scope/US-000035/US-000035.md) | GUI Integration: ScopeAgent Option | DONE |
+  | [US-000036](scope/US-000036/US-000036.md) | Conversation History Maintenance in Scoping Phase | TODO |
+  | [US-000037](scope/US-000037/US-000037.md) | CLI Scoping Phase Indication | TODO |
+  | [US-000038](scope/US-000038/US-000038.md) | Next Steps Suggestion After Scoping Phase | TODO |
+  | [US-000039](scope/US-000039/US-000039.md) | Return to Normal Operation After Scoping Phase | TODO |
 
 ## Scope Reference
 
 - [Scope Overview](scope.md)
+- [Scope Phase Feature](scope-phase-feature.md)
+- [Scope Agent Integration](scope-agent-integration.md)
 - [Coding Standard](project/coding-standard.md)
 - [Development Framework](project/development-framework.md)
 

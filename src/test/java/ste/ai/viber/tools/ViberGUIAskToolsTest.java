@@ -4,23 +4,58 @@ import static org.assertj.core.api.BDDAssertions.then;
 import static org.assertj.core.api.BDDAssertions.thenThrownBy;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 import org.junit.jupiter.api.Test;
 
 import dev.langchain4j.agent.tool.Tool;
 import ste.llm.tools.ToolPolicy;
 import ste.llm.tools.ToolPolicy.Policy;
+import ste.ai.viber.renderer.QuestionsPanelProvider;
 import ste.uzzo.agent.tools.AskTools;
 
 import java.lang.reflect.Method;
+import java.util.Collections;
 
 class ViberGUIAskToolsTest {
 
+    final private QuestionsPanelProvider questionsPanelManager = new QuestionsPanelProvider() {
+    @Override
+    public CompletableFuture<String> askQuestion(String question) {
+        return CompletableFuture.completedFuture("Answer for: " + question);
+    }
+
+    @Override
+    public CompletableFuture<String> askSingleChoice(String question, List<String> options) {
+        return CompletableFuture.completedFuture(
+            (options != null && !options.isEmpty()) ? options.get(0) : "Default Choice"
+        );
+    }
+
+    @Override
+    public CompletableFuture<List<String>> askMultipleChoice(String question, List<String> options) {
+        return CompletableFuture.completedFuture(
+            (options != null && !options.isEmpty())
+            ? Collections.singletonList(options.get(0))
+            : Collections.emptyList()
+        );
+    }
+
+    @Override
+    public CompletableFuture<Boolean> askConfirmation(String question) {
+        return CompletableFuture.completedFuture(true);
+    }
+
+    @Override
+    public void clear() { }
+};
+
     @Test
-    void askQuestion_returns_user_input() {
-        TestableViberGUIAskTools tools = new TestableViberGUIAskTools();
-        tools.questionResponse = Optional.of("My answer");
+    void askQuestion_returns_user_input() throws Exception {
+        QuestionsPanelProvider mockProvider = new MockQuestionsPanelProvider()
+            .withQuestionResponse("My answer");
+
+        ViberGUIAskTools tools = new ViberGUIAskTools(mockProvider);
 
         String result = tools.askQuestion("What is your name?");
 
@@ -28,9 +63,11 @@ class ViberGUIAskToolsTest {
     }
 
     @Test
-    void askQuestion_returns_empty_string_when_cancelled() {
-        TestableViberGUIAskTools tools = new TestableViberGUIAskTools();
-        tools.questionResponse = Optional.empty();
+    void askQuestion_returns_empty_string_when_cancelled() throws Exception {
+        QuestionsPanelProvider mockProvider = new MockQuestionsPanelProvider()
+            .withQuestionResponse(null);
+
+        ViberGUIAskTools tools = new ViberGUIAskTools(mockProvider);
 
         String result = tools.askQuestion("Question?");
 
@@ -39,7 +76,7 @@ class ViberGUIAskToolsTest {
 
     @Test
     void askQuestion_throws_on_null_question() {
-        TestableViberGUIAskTools tools = new TestableViberGUIAskTools();
+        ViberGUIAskTools tools = new ViberGUIAskTools(new MockQuestionsPanelProvider());
 
         thenThrownBy(() -> tools.askQuestion(null))
             .isInstanceOf(IllegalArgumentException.class)
@@ -47,9 +84,11 @@ class ViberGUIAskToolsTest {
     }
 
     @Test
-    void askSingleChoice_returns_selected_option() {
-        TestableViberGUIAskTools tools = new TestableViberGUIAskTools();
-        tools.singleChoiceResponse = Optional.of("Mobile");
+    void askSingleChoice_returns_selected_option() throws Exception {
+        QuestionsPanelProvider mockProvider = new MockQuestionsPanelProvider()
+            .withSingleChoiceResponse("Mobile");
+
+        ViberGUIAskTools tools = new ViberGUIAskTools(mockProvider);
 
         String result = tools.askSingleChoice("Choose a platform", List.of("Web", "Mobile", "Desktop"));
 
@@ -57,9 +96,11 @@ class ViberGUIAskToolsTest {
     }
 
     @Test
-    void askSingleChoice_returns_first_option_when_cancelled() {
-        TestableViberGUIAskTools tools = new TestableViberGUIAskTools();
-        tools.singleChoiceResponse = Optional.empty();
+    void askSingleChoice_returns_first_option_when_cancelled() throws Exception {
+        QuestionsPanelProvider mockProvider = new MockQuestionsPanelProvider()
+            .withSingleChoiceResponse(null);
+
+        ViberGUIAskTools tools = new ViberGUIAskTools(mockProvider);
 
         String result = tools.askSingleChoice("Choose", List.of("Web", "Mobile"));
 
@@ -67,8 +108,8 @@ class ViberGUIAskToolsTest {
     }
 
     @Test
-    void askSingleChoice_returns_empty_string_for_empty_options() {
-        TestableViberGUIAskTools tools = new TestableViberGUIAskTools();
+    void askSingleChoice_returns_empty_string_for_empty_options() throws Exception {
+        ViberGUIAskTools tools = new ViberGUIAskTools(new MockQuestionsPanelProvider());
 
         String result = tools.askSingleChoice("Choose", List.of());
 
@@ -77,7 +118,7 @@ class ViberGUIAskToolsTest {
 
     @Test
     void askSingleChoice_throws_on_null_question() {
-        TestableViberGUIAskTools tools = new TestableViberGUIAskTools();
+        ViberGUIAskTools tools = new ViberGUIAskTools(new MockQuestionsPanelProvider());
 
         thenThrownBy(() -> tools.askSingleChoice(null, List.of("A", "B")))
             .isInstanceOf(IllegalArgumentException.class)
@@ -85,9 +126,11 @@ class ViberGUIAskToolsTest {
     }
 
     @Test
-    void askMultipleChoice_returns_selected_options() {
-        TestableViberGUIAskTools tools = new TestableViberGUIAskTools();
-        tools.multipleChoiceResponse = Optional.of(List.of("Web", "Desktop"));
+    void askMultipleChoice_returns_selected_options() throws Exception {
+        QuestionsPanelProvider mockProvider = new MockQuestionsPanelProvider()
+            .withMultipleChoiceResponse(List.of("Web", "Desktop"));
+
+        ViberGUIAskTools tools = new ViberGUIAskTools(mockProvider);
 
         List<String> result = tools.askMultipleChoice("Choose platforms", List.of("Web", "Mobile", "Desktop"));
 
@@ -95,9 +138,11 @@ class ViberGUIAskToolsTest {
     }
 
     @Test
-    void askMultipleChoice_returns_empty_list_when_cancelled() {
-        TestableViberGUIAskTools tools = new TestableViberGUIAskTools();
-        tools.multipleChoiceResponse = Optional.empty();
+    void askMultipleChoice_returns_empty_list_when_cancelled() throws Exception {
+        QuestionsPanelProvider mockProvider = new MockQuestionsPanelProvider()
+            .withMultipleChoiceResponse(null);
+
+        ViberGUIAskTools tools = new ViberGUIAskTools(mockProvider);
 
         List<String> result = tools.askMultipleChoice("Choose", List.of("A", "B"));
 
@@ -105,8 +150,8 @@ class ViberGUIAskToolsTest {
     }
 
     @Test
-    void askMultipleChoice_returns_empty_list_for_empty_options() {
-        TestableViberGUIAskTools tools = new TestableViberGUIAskTools();
+    void askMultipleChoice_returns_empty_list_for_empty_options() throws Exception {
+        ViberGUIAskTools tools = new ViberGUIAskTools(new MockQuestionsPanelProvider());
 
         List<String> result = tools.askMultipleChoice("Choose", List.of());
 
@@ -114,9 +159,11 @@ class ViberGUIAskToolsTest {
     }
 
     @Test
-    void askConfirmation_returns_true_for_yes() {
-        TestableViberGUIAskTools tools = new TestableViberGUIAskTools();
-        tools.confirmationResponse = Optional.of(javafx.scene.control.ButtonType.YES);
+    void askConfirmation_returns_true_for_yes() throws Exception {
+        QuestionsPanelProvider mockProvider = new MockQuestionsPanelProvider()
+            .withConfirmationResponse(true);
+
+        ViberGUIAskTools tools = new ViberGUIAskTools(mockProvider);
 
         boolean result = tools.askConfirmation("Do you agree?");
 
@@ -124,9 +171,11 @@ class ViberGUIAskToolsTest {
     }
 
     @Test
-    void askConfirmation_returns_false_for_no() {
-        TestableViberGUIAskTools tools = new TestableViberGUIAskTools();
-        tools.confirmationResponse = Optional.of(javafx.scene.control.ButtonType.NO);
+    void askConfirmation_returns_false_for_no() throws Exception {
+        QuestionsPanelProvider mockProvider = new MockQuestionsPanelProvider()
+            .withConfirmationResponse(false);
+
+        ViberGUIAskTools tools = new ViberGUIAskTools(mockProvider);
 
         boolean result = tools.askConfirmation("Do you agree?");
 
@@ -134,9 +183,11 @@ class ViberGUIAskToolsTest {
     }
 
     @Test
-    void askConfirmation_returns_false_when_cancelled() {
-        TestableViberGUIAskTools tools = new TestableViberGUIAskTools();
-        tools.confirmationResponse = Optional.empty();
+    void askConfirmation_returns_false_when_cancelled() throws Exception {
+        QuestionsPanelProvider mockProvider = new MockQuestionsPanelProvider()
+            .withConfirmationResponse(null);
+
+        ViberGUIAskTools tools = new ViberGUIAskTools(mockProvider);
 
         boolean result = tools.askConfirmation("Do you agree?");
 
@@ -145,7 +196,7 @@ class ViberGUIAskToolsTest {
 
     @Test
     void askConfirmation_throws_on_null_question() {
-        TestableViberGUIAskTools tools = new TestableViberGUIAskTools();
+        ViberGUIAskTools tools = new ViberGUIAskTools(new MockQuestionsPanelProvider());
 
         thenThrownBy(() -> tools.askConfirmation(null))
             .isInstanceOf(IllegalArgumentException.class)
@@ -154,7 +205,7 @@ class ViberGUIAskToolsTest {
 
     @Test
     void implements_askTools_interface() {
-        ViberGUIAskTools tools = new ViberGUIAskTools();
+        ViberGUIAskTools tools = new ViberGUIAskTools(questionsPanelManager);
 
         then(tools).isInstanceOf(AskTools.class);
     }
@@ -205,31 +256,68 @@ class ViberGUIAskToolsTest {
         }
     }
 
-    static class TestableViberGUIAskTools extends ViberGUIAskTools {
+    /**
+     * Mock implementation of QuestionsPanelProvider for testing.
+     * Returns pre-configured CompletableFutures for each question type.
+     */
+    static class MockQuestionsPanelProvider implements QuestionsPanelProvider {
 
-        Optional<String> questionResponse = Optional.empty();
-        Optional<String> singleChoiceResponse = Optional.empty();
-        Optional<List<String>> multipleChoiceResponse = Optional.empty();
-        Optional<javafx.scene.control.ButtonType> confirmationResponse = Optional.empty();
+        private String questionResponse;
+        private String singleChoiceResponse;
+        private List<String> multipleChoiceResponse;
+        private Boolean confirmationResponse;
 
-        @Override
-        protected Optional<String> askQuestionDialog(String question) {
-            return questionResponse;
+        MockQuestionsPanelProvider withQuestionResponse(String response) {
+            this.questionResponse = response;
+            return this;
+        }
+
+        MockQuestionsPanelProvider withSingleChoiceResponse(String response) {
+            this.singleChoiceResponse = response;
+            return this;
+        }
+
+        MockQuestionsPanelProvider withMultipleChoiceResponse(List<String> response) {
+            this.multipleChoiceResponse = response;
+            return this;
+        }
+
+        MockQuestionsPanelProvider withConfirmationResponse(Boolean response) {
+            this.confirmationResponse = response;
+            return this;
         }
 
         @Override
-        protected Optional<String> askSingleChoiceDialog(String question, List<String> options) {
-            return singleChoiceResponse;
+        public CompletableFuture<String> askQuestion(String question) {
+            CompletableFuture<String> future = new CompletableFuture<>();
+            future.complete(questionResponse);
+            return future;
         }
 
         @Override
-        protected Optional<List<String>> askMultipleChoiceDialog(String question, List<String> options) {
-            return multipleChoiceResponse;
+        public CompletableFuture<String> askSingleChoice(String question, List<String> options) {
+            CompletableFuture<String> future = new CompletableFuture<>();
+            future.complete(singleChoiceResponse);
+            return future;
         }
 
         @Override
-        protected Optional<javafx.scene.control.ButtonType> askConfirmationDialog(String question) {
-            return confirmationResponse;
+        public CompletableFuture<List<String>> askMultipleChoice(String question, List<String> options) {
+            CompletableFuture<List<String>> future = new CompletableFuture<>();
+            future.complete(multipleChoiceResponse);
+            return future;
+        }
+
+        @Override
+        public CompletableFuture<Boolean> askConfirmation(String question) {
+            CompletableFuture<Boolean> future = new CompletableFuture<>();
+            future.complete(confirmationResponse);
+            return future;
+        }
+
+        @Override
+        public void clear() {
+            // No-op for testing
         }
     }
 }

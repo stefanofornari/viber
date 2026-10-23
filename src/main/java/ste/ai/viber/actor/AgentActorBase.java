@@ -1,7 +1,7 @@
 package ste.ai.viber.actor;
 
-import dev.langchain4j.service.TokenStream;
 import dev.langchain4j.agent.tool.ToolExecutionRequest;
+import dev.langchain4j.service.TokenStream;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;

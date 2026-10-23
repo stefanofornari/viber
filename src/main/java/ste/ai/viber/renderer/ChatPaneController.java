@@ -1,5 +1,6 @@
 package ste.ai.viber.renderer;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
@@ -7,6 +8,8 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 import ste.llm.chat.model.ChatMessage;
 import ste.llm.chat.model.ToolExecutionMessage;
@@ -23,9 +26,18 @@ public class ChatPaneController implements Initializable {
 
     private String lastMessageType = null;
     private Node lastMessagePane = null;
+    private QuestionsPanelManager questionsPanelManager = new QuestionsPanelManager();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        // Set up the QuestionsPanelManager consumer to add panels to this chat
+        questionsPanelManager.panelConsumer(panel -> {
+            Platform.runLater(() -> {
+                addMessage(panel);
+                lastMessagePane = panel;
+                lastMessageType = "QUESTIONS_PANEL";
+            });
+        });
     }
 
     public void addMessage(Node messageNode) {
@@ -36,43 +48,146 @@ public class ChatPaneController implements Initializable {
     }
 
     /**
-     * Appends a message to this chat pane.
+     * Appends a message to this chat pane. This method is called from the LC4J background thread
+     * via the onMessage callback, so all UI updates are wrapped in Platform.runLater.
      *
      * <p>Consecutive messages of the same type are grouped into a single
      * pane. Tool invocation and execution messages are grouped into a
      * {@link ToolMessagePane}: the invocation creates the pane and the
      * execution appends the result below the invocation.</p>
      *
+     * <p>For AskTools (questions), a {@link QuestionsPanel} is used instead
+     * of {@link ToolMessagePane}, allowing users to answer multiple questions
+     * in the chat window with per-question Answer buttons.</p>
+     *
      * @param message the message to append
      */
     public void appendMessage(ChatMessage message) {
+        Platform.runLater(() -> doAppendMessage(message));
+    }
+
+    private void doAppendMessage(ChatMessage message) {
         if (message instanceof ToolInvocationMessage invocation) {
-             ToolMessagePane pane = new ToolMessagePane();
-             pane.invocation(invocation);
+            if (isAskTool(invocation)) {
+                handleAskToolInvocation(invocation);
+            } else {
+                handleRegularToolInvocation(invocation);
+            }
+        } else if (message instanceof ToolExecutionMessage execution) {
+            handleToolExecution(execution);
+        } else {
+            handleRegularMessage(message);
+        }
+    }
+
+    private boolean isAskTool(ToolInvocationMessage invocation) {
+        String toolName = extractToolName(invocation);
+        return toolName != null && toolName.startsWith("Ask");
+    }
+
+    private String extractToolName(ToolInvocationMessage invocation) {
+        try {
+            String content = invocation.content();
+            if (content != null && !content.isBlank()) {
+                org.json.JSONObject json = new org.json.JSONObject(content);
+                return json.optString("tool", null);
+            }
+        } catch (Exception e) {
+            // Ignore parsing errors
+        }
+        return null;
+    }
+
+    private void extractAndAddQuestion(ToolInvocationMessage invocation, QuestionsPanel panel) {
+        try {
+            String content = invocation.content();
+            if (content != null && !content.isBlank()) {
+                org.json.JSONObject json = new org.json.JSONObject(content);
+                org.json.JSONObject args = json.optJSONObject("arguments");
+                if (args != null) {
+                    String toolName = json.optString("tool", "AskQuestion");
+
+                    // Extract question based on tool type
+                    if (args.has("question")) {
+                        String question = args.getString("question");
+                        if (toolName.equals("AskSingleChoice") || toolName.equals("AskMultipleChoice")) {
+                            // Choice questions have options
+                            if (args.has("options")) {
+                                org.json.JSONArray optionsArray = args.getJSONArray("options");
+                                List<String> options = new ArrayList<>();
+                                for (int i = 0; i < optionsArray.length(); i++) {
+                                    options.add(optionsArray.getString(i));
+                                }
+                                if (toolName.equals("AskSingleChoice")) {
+                                    panel.addSingleChoiceQuestion(question, options);
+                                } else {
+                                    panel.addMultipleChoiceQuestion(question, options);
+                                }
+                            } else {
+                                panel.addOpenEndedQuestion(question);
+                            }
+                        } else if (toolName.equals("AskConfirmation")) {
+                            panel.addConfirmationQuestion(question);
+                        } else {
+                            panel.addOpenEndedQuestion(question);
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // Ignore parsing errors
+        }
+    }
+
+    private void handleAskToolInvocation(ToolInvocationMessage invocation) {
+        String toolName = extractToolName(invocation);
+        if (toolName == null) {
+            toolName = "AskQuestion";
+        }
+
+        // Create QuestionsPanel for this tool invocation
+        QuestionsPanel panel = questionsPanelManager.createPanel(toolName);
+
+        // Extract the question from the invocation arguments and add to panel
+        extractAndAddQuestion(invocation, panel);
+
+        lastMessageType = "QUESTIONS_PANEL";
+    }
+
+    private void handleRegularToolInvocation(ToolInvocationMessage invocation) {
+        ToolMessagePane pane = new ToolMessagePane();
+        pane.invocation(invocation);
+        addMessage(pane);
+        lastMessagePane = pane;
+        lastMessageType = "TOOL_INVOCATION";
+    }
+
+    private void handleToolExecution(ToolExecutionMessage execution) {
+        if (lastMessagePane instanceof ToolMessagePane toolPane) {
+            toolPane.appendResult(execution.content());
+        } else if (lastMessagePane instanceof QuestionsPanel questionsPanel) {
+            // For AskTools, mark the panel as answered
+            questionsPanel.getStyleClass().add("questions-panel-answered");
+            questionsPanel.setExpanded(false);
+        } else {
+            ToolMessagePane pane = new ToolMessagePane();
+            pane.appendResult(execution.content());
             addMessage(pane);
             lastMessagePane = pane;
-            lastMessageType = "TOOL_INVOCATION";
-        } else if (message instanceof ToolExecutionMessage execution) {
-            if (lastMessagePane instanceof ToolMessagePane toolPane) {
-                toolPane.appendResult(execution.content());
-            } else {
-                ToolMessagePane pane = new ToolMessagePane();
-                pane.appendResult(execution.content());
-                addMessage(pane);
-                lastMessagePane = pane;
-                lastMessageType = "TOOL_EXECUTION";
-            }
+            lastMessageType = "TOOL_EXECUTION";
+        }
+    }
+
+    private void handleRegularMessage(ChatMessage message) {
+        String type = MessagePane.messageTypeFor(message);
+        if (!type.equals(lastMessageType) || lastMessagePane == null) {
+            MessagePane messagePane = new MessagePane();
+            lastMessagePane = messagePane;
+            messagePane.message(message);
+            addMessage(messagePane);
+            lastMessageType = type;
         } else {
-            String type = MessagePane.messageTypeFor(message);
-            if (!type.equals(lastMessageType) || lastMessagePane == null) {
-                MessagePane messagePane = new MessagePane();
-                lastMessagePane = messagePane;
-                messagePane.message(message);
-                addMessage(messagePane);
-                lastMessageType = type;
-            } else {
-                ((MessagePane) lastMessagePane).appendMessage(message);
-            }
+            ((MessagePane) lastMessagePane).appendMessage(message);
         }
     }
 
@@ -80,5 +195,10 @@ public class ChatPaneController implements Initializable {
         messagesContainer.getChildren().clear();
         lastMessageType = null;
         lastMessagePane = null;
+        questionsPanelManager.clear();
+    }
+
+    public List<Node> messagesContainerChildren() {
+        return new ArrayList<>(messagesContainer.getChildren());
     }
 }

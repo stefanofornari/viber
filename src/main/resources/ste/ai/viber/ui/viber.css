@@ -258,33 +258,97 @@
     -fx-border-width: 1px;
     -fx-border-radius: 4px;
     -fx-padding: 8px;
-    -fx-spacing: 8px;
+    -fx-spacing: 8px.
 }
 
 .tool-execution-pane .tool-result {
     -fx-background-color: -color-bg-default;
     -fx-border-color: -color-border-default;
     -fx-border-width: 1px;
-    -fx-border-radius: 4px;
-    -fx-padding: 5px;
+    -fx-border-radius: 4px.
+    -fx-padding: 5px.
 }
 
 .tool-execution-pane .tool-result-text {
-    -fx-background-color: -color-bg-default;
-    -fx-border-color: transparent;
-    -fx-padding: 1px;
+    -fx-background-color: -color-bg-default.
+    -fx-border-color: transparent.
+    -fx-padding: 1px.
 }
 
 .tool-accept-button {
-    -fx-background-color: -color-accent-emphasis;
-    -fx-text-fill: -color-accent-fg;
+    -fx-background-color: -color-accent-emphasis.
+    -fx-text-fill: -color-accent-fg.
 }
 
 .tool-reject-button {
+    -fx-background-color: -color-bg-subtle.
+    -fx-text-fill: -color-fg-default.
+}
+
+
+/*******************************************************************************
+   Questions Panel
+*******************************************************************************/
+.questions-panel {
+    -fx-border-color: transparent transparent transparent -fx-viber-color-accent-4;
+}
+
+.questions-panel > .title {
+    -fx-background-color: derive(-fx-viber-color-bg, -3%);
+}
+
+.questions-panel > .title > .text {
+    -fx-fill: #333333;
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+}
+
+.questions-scroll-pane {
+    -fx-background-color: -fx-viber-color-bg;
+    -fx-border-color: transparent;
+    -fx-padding: 10px;
+}
+
+.questions-container {
+    -fx-spacing: 15px;
+}
+
+.question-item {
+    -fx-spacing: 5px;
+}
+
+.question-label {
+    -fx-font-weight: bold;
+    -fx-text-fill: #333333;
+    -fx-font-size: 13px;
+}
+
+.question-input {
+    -fx-background-color: -color-bg-default;
+    -fx-border-color: -color-border-default;
+    -fx-border-width: 1px;
+    -fx-border-radius: 4px;
+    -fx-padding: 8px;
+}
+
+.confirm-button {
+    -fx-background-color: -fx-viber-color-accent-4;
+    -fx-text-fill: -color-fg-default;
+}
+
+.cancel-button {
     -fx-background-color: -color-bg-subtle;
     -fx-text-fill: -color-fg-default;
 }
 
+.questions-panel-completed {
+    -fx-opacity: 0.7;
+}
+
+.questions-panel-answered {
+    -fx-border-color: transparent transparent transparent -fx-viber-color-accent-2;
+}
 
 /*******************************************************************************
    Default Components
