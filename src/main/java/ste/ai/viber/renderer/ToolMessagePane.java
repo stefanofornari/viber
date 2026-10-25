@@ -78,12 +78,12 @@ public class ToolMessagePane extends TitledPane implements Initializable {
     public void invocation(ToolInvocationMessage message) {
         invocationSet = true;
         // Handle special "input" tool case for display
-        String displayName = "input".equals(message.invocation.name()) ? "ask for the name" : message.invocation.name();
+        String displayName = "input".equals(message.invocation.name) ? "ask for the name" : message.invocation.name;
         invocationPane.nameLabel.setText(displayName);
         invocationPane.argumentsPanel.getChildren().clear();
-        on(message.invocation.arguments().keys()).loop((key) -> {
+        on(message.invocation.arguments.keys()).loop((key) -> {
             invocationPane.argumentsPanel.getChildren().add(
-                new ArgumentChip(key, String.valueOf(message.invocation.arguments().get(key)))
+                new ArgumentChip(key, String.valueOf(message.invocation.arguments.get(key)))
             );
         });
         invocationPane.updateArgumentsVisibility();

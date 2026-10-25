@@ -258,31 +258,31 @@
     -fx-border-width: 1px;
     -fx-border-radius: 4px;
     -fx-padding: 8px;
-    -fx-spacing: 8px.
+    -fx-spacing: 8px;
 }
 
 .tool-execution-pane .tool-result {
     -fx-background-color: -color-bg-default;
     -fx-border-color: -color-border-default;
     -fx-border-width: 1px;
-    -fx-border-radius: 4px.
-    -fx-padding: 5px.
+    -fx-border-radius: 4px;
+    -fx-padding: 5px;
 }
 
 .tool-execution-pane .tool-result-text {
-    -fx-background-color: -color-bg-default.
-    -fx-border-color: transparent.
-    -fx-padding: 1px.
+    -fx-background-color: -color-bg-default;
+    -fx-border-color: transparent;
+    -fx-padding: 1px;
 }
 
 .tool-accept-button {
-    -fx-background-color: -color-accent-emphasis.
-    -fx-text-fill: -color-accent-fg.
+    -fx-background-color: -color-accent-emphasis;
+    -fx-text-fill: -color-accent-fg;
 }
 
 .tool-reject-button {
-    -fx-background-color: -color-bg-subtle.
-    -fx-text-fill: -color-fg-default.
+    -fx-background-color: -color-bg-subtle;
+    -fx-text-fill: -color-fg-default;
 }
 
 
@@ -314,7 +314,20 @@
     -fx-spacing: 15px;
 }
 
-.question-item {
+.question-row {
+    -fx-alignment: CENTER_LEFT;
+}
+
+.question-row:answered {
+    -fx-opacity: 0.6;
+}
+
+.question-row:answered .answer-button {
+    -fx-opacity: 0.4;
+    -fx-cursor: default;
+}
+
+.question-content {
     -fx-spacing: 5px;
 }
 
@@ -332,14 +345,21 @@
     -fx-padding: 8px;
 }
 
-.confirm-button {
+.answer-button {
     -fx-background-color: -fx-viber-color-accent-4;
     -fx-text-fill: -color-fg-default;
+    -fx-cursor: hand;
 }
 
-.cancel-button {
+.answer-button:hover {
+    -fx-background-color: derive(-fx-viber-color-accent-4, -10%);
+}
+
+.answer-button:disabled {
     -fx-background-color: -color-bg-subtle;
-    -fx-text-fill: -color-fg-default;
+    -fx-text-fill: -color-fg-muted;
+    -fx-opacity: 0.5;
+    -fx-cursor: default;
 }
 
 .questions-panel-completed {

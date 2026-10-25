@@ -26,7 +26,7 @@
             </menus>
         </MenuBar>
         <GUIRenderer fx:id="conversation" />
-        <TextArea fx:id="inputField" promptText="Type a prompt..." prefRowCount="4" wrapText="true" styleClass="text-normal" />
+        <TextArea fx:id="prompt" promptText="Type a prompt..." prefRowCount="4" wrapText="true" styleClass="text-normal" />
         <Label fx:id="scopePhaseIndicator" style="-fx-padding: 0 10px;" />
     </children>
 </VBox>

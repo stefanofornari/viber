@@ -15,6 +15,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import org.json.JSONObject;
 import ste.lazyjava.safe.Safe;
+import ste.lazyjava.annotation.NonBlank;
 import ste.llm.chat.model.Chat;
 import ste.llm.chat.model.ChatMessage;
 import ste.llm.chat.model.Conversation;
@@ -38,14 +39,10 @@ public class LangChain4jActor implements Actor, Safe {
     public LangChain4jActor(
         StreamingChatModel streamingChatModel,
         List<Tool> tools,
-        String systemPrompt
+        @NonBlank String systemPrompt
     ) {
         requireNonNull(streamingChatModel, "streamingChatModel");
         requireFullyNonNull(tools, "tools");
-        requireNonNull(systemPrompt, "systemPrompt");
-        if (systemPrompt.isBlank()) {
-            throw new IllegalArgumentException("systemPrompt must not be blank");
-        }
 
         this.conversation = new Conversation();
 

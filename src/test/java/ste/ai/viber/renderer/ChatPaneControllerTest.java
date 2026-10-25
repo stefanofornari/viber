@@ -11,6 +11,7 @@ import javafx.scene.Parent;
 import ste.llm.chat.model.ToolInvocationMessage;
 import ste.llm.tools.InvocationJSONObject;
 import org.json.JSONObject;
+import static ste.uzzo.agent.tools.AskTools.ASK_QUESTION;
 
 class ChatPaneControllerTest extends ApplicationTest {
 
@@ -21,7 +22,7 @@ class ChatPaneControllerTest extends ApplicationTest {
         ChatPaneController controller = loader.getController();
 
         ToolInvocationMessage invocation = new ToolInvocationMessage(
-            new InvocationJSONObject("AskQuestion", new JSONObject().put("question", "What is your name?"))
+            new InvocationJSONObject(ASK_QUESTION, new JSONObject().put("question", "What is your name?"))
         );
 
         then(controller.messagesContainerChildren()).isEmpty();
@@ -30,7 +31,7 @@ class ChatPaneControllerTest extends ApplicationTest {
         WaitForAsyncUtils.waitForFxEvents();
 
         long questionsPanelCount = controller.messagesContainerChildren().stream()
-            .filter(node -> node instanceof QuestionsPanel)
+            .filter(node -> node instanceof QuestionsPane)
             .count();
 
         then(questionsPanelCount).isEqualTo(1);
@@ -59,15 +60,15 @@ class ChatPaneControllerTest extends ApplicationTest {
 
         // Should reuse the same panel, so only one QuestionsPanel in the chat
         long questionsPanelCount = controller.messagesContainerChildren().stream()
-            .filter(node -> node instanceof QuestionsPanel)
+            .filter(node -> node instanceof QuestionsPane)
             .count();
 
         then(questionsPanelCount).isEqualTo(1);
 
         // But the panel should have both questions
-        QuestionsPanel panel = controller.messagesContainerChildren().stream()
-            .filter(node -> node instanceof QuestionsPanel)
-            .map(node -> (QuestionsPanel) node)
+        QuestionsPane panel = controller.messagesContainerChildren().stream()
+            .filter(node -> node instanceof QuestionsPane)
+            .map(node -> (QuestionsPane) node)
             .findFirst()
             .orElseThrow(() -> new AssertionError("No QuestionsPanel found"));
 
@@ -87,9 +88,9 @@ class ChatPaneControllerTest extends ApplicationTest {
         WaitForAsyncUtils.waitForFxEvents();
 
         // Find the QuestionsPanel and verify it has the question
-        QuestionsPanel panel = controller.messagesContainerChildren().stream()
-            .filter(node -> node instanceof QuestionsPanel)
-            .map(node -> (QuestionsPanel) node)
+        QuestionsPane panel = controller.messagesContainerChildren().stream()
+            .filter(node -> node instanceof QuestionsPane)
+            .map(node -> (QuestionsPane) node)
             .findFirst()
             .orElseThrow(() -> new AssertionError("No QuestionsPanel found"));
 
@@ -112,9 +113,9 @@ class ChatPaneControllerTest extends ApplicationTest {
         interact(() -> controller.appendMessage(invocation));
         WaitForAsyncUtils.waitForFxEvents();
 
-        QuestionsPanel panel = controller.messagesContainerChildren().stream()
-            .filter(node -> node instanceof QuestionsPanel)
-            .map(node -> (QuestionsPanel) node)
+        QuestionsPane panel = controller.messagesContainerChildren().stream()
+            .filter(node -> node instanceof QuestionsPane)
+            .map(node -> (QuestionsPane) node)
             .findFirst()
             .orElseThrow(() -> new AssertionError("No QuestionsPanel found"));
 

@@ -9,6 +9,8 @@ import java.util.List;
 import dev.langchain4j.agent.tool.Tool;
 import ste.llm.tools.ToolPolicy;
 import ste.llm.tools.ToolPolicy.Policy;
+import ste.lazyjava.annotation.NonBlank;
+import ste.lazyjava.annotation.NonEmpty;
 import ste.uzzo.agent.tools.AskTools;
 
 public class ViberCLIAskTools implements AskTools {
@@ -26,7 +28,7 @@ public class ViberCLIAskTools implements AskTools {
     @Override
     @Tool("Ask the user an open-ended question and return their response")
     @ToolPolicy(Policy.INTERACTIVE)
-    public String askQuestion(final String question) {
+    public String askQuestion(@NonBlank final String question) {
         System.out.println(question);
         System.out.flush();
         try {
@@ -40,7 +42,7 @@ public class ViberCLIAskTools implements AskTools {
     @Override
     @Tool("Ask the user to select one option from a list")
     @ToolPolicy(Policy.INTERACTIVE)
-    public String askSingleChoice(final String question, final List<String> options) {
+    public String askSingleChoice(@NonBlank final String question, @NonEmpty final List<String> options) {
         System.out.println(question);
         for (int i = 0; i < options.size(); i++) {
             System.out.println("  " + (i + 1) + ". " + options.get(i));
@@ -65,7 +67,7 @@ public class ViberCLIAskTools implements AskTools {
     @Override
     @Tool("Ask the user to select multiple options from a list")
     @ToolPolicy(Policy.INTERACTIVE)
-    public List<String> askMultipleChoice(final String question, final List<String> options) {
+    public List<String> askMultipleChoice(@NonBlank final String question, @NonEmpty final List<String> options) {
         System.out.println(question);
         for (int i = 0; i < options.size(); i++) {
             System.out.println("  " + (i + 1) + ". " + options.get(i));
@@ -97,7 +99,7 @@ public class ViberCLIAskTools implements AskTools {
     @Override
     @Tool("Ask the user to confirm a decision (yes/no)")
     @ToolPolicy(Policy.INTERACTIVE)
-    public boolean askConfirmation(final String question) {
+    public boolean askConfirmation(@NonBlank final String question) {
         System.out.println(question + " [y/n]");
         System.out.flush();
         try {

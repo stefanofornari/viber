@@ -1,13 +1,13 @@
 package ste.ai.viber.actor;
 
-import dev.langchain4j.agent.tool.ToolExecutionRequest;
 import dev.langchain4j.service.TokenStream;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
-import org.json.JSONObject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import ste.lazyjava.safe.Safe;
 import ste.llm.chat.model.Chat;
 import ste.llm.chat.model.ChatMessage;
@@ -16,11 +16,11 @@ import ste.llm.chat.model.PromptMessage;
 import ste.llm.chat.model.ReplyMessage;
 import ste.llm.chat.model.ThoughtMessage;
 import ste.llm.chat.model.ToolExecutionMessage;
-import ste.llm.chat.model.ToolInvocationMessage;
-import ste.llm.tools.InvocationJSONObject;
 
 
 public abstract class AgentActorBase implements Actor, Safe {
+
+    private static final Logger LOG = Logger.getLogger(AgentActorBase.class.getName());
 
     protected final Conversation conversation;
 
@@ -58,6 +58,7 @@ public abstract class AgentActorBase implements Actor, Safe {
 
         tokenStream
             .onPartialResponse(text -> {
+                LOG.log(Level.FINEST, "onPartialResponse: {0}", text);
                 partialReceived.set(true);
                 replyBuffer.append(text);
 
@@ -73,6 +74,7 @@ public abstract class AgentActorBase implements Actor, Safe {
                 }
             })
             .onPartialThinking(thinking -> {
+                LOG.log(Level.FINEST, "onPartialThinking: {0}", thinking.text());
                 thinkingBuffer.append(thinking.text());
 
                 int newlineIndex;
@@ -87,24 +89,28 @@ public abstract class AgentActorBase implements Actor, Safe {
                 }
             })
             .onIntermediateResponse(response -> {
-                if (response.aiMessage().hasToolExecutionRequests()) {
-                    for (ToolExecutionRequest request : response.aiMessage().toolExecutionRequests()) {
-                        final ToolInvocationMessage toolMsg = new ToolInvocationMessage(
-                            new InvocationJSONObject(request.name(), new JSONObject(request.arguments()))
-                        );
-
-                        chat.addMessage(toolMsg);
-                        onMessage.accept(toolMsg);
-                    }
-                }
+                LOG.log(Level.FINEST, "onIntermediateResponse: hasToolExecutionRequests={0}", response.aiMessage().hasToolExecutionRequests());
+//                if (response.aiMessage().hasToolExecutionRequests()) {
+//                    for (ToolExecutionRequest request : response.aiMessage().toolExecutionRequests()) {
+//                        LOG.log(Level.FINEST, "onIntermediateResponse: toolExecutionRequest name={0}, arguments={1}", new Object[]{request.name(), request.arguments()});
+//                        final ToolInvocationMessage toolMsg = new ToolInvocationMessage(
+//                            new InvocationJSONObject(request.name(), new JSONObject(request.arguments()))
+//                        );
+//
+//                        chat.addMessage(toolMsg);
+//                        onMessage.accept(toolMsg);
+//                    }
+//                }
             })
             .onToolExecuted(execution -> {
+                LOG.log(Level.FINEST, "onToolExecuted: name={0}, result={1}", new Object[]{execution.request().name(), execution.result()});
                 String toolResult = execution.result();
                 ToolExecutionMessage toolResponse = new ToolExecutionMessage(toolResult);
                 chat.addMessage(toolResponse);
                 onMessage.accept(toolResponse);
             })
             .onCompleteResponse(response -> {
+                LOG.log(Level.FINEST, "onCompleteResponse: tokenUsage={0}", response.metadata().tokenUsage());
                 String remainingThinking = thinkingBuffer.toString().trim();
                 if (!remainingThinking.isEmpty()) {
                     ThoughtMessage thought = new ThoughtMessage(remainingThinking);
@@ -134,6 +140,7 @@ public abstract class AgentActorBase implements Actor, Safe {
                 latch.countDown();
             })
             .onError(err -> {
+                LOG.log(Level.FINEST, "onError: {0}", err.getMessage());
                 error.set(err);
                 latch.countDown();
             })

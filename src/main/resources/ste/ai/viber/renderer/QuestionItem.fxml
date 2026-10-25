@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.VBox?>
+
+<HBox fx:id="row" spacing="10" styleClass="question-row" xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <VBox fx:id="questionContent" spacing="5" styleClass="question-content" HBox.hgrow="ALWAYS">
+            <children>
+                <Label fx:id="questionLabel" wrapText="true" styleClass="question-label" />
+                <!-- Open-ended question input -->
+                <TextArea fx:id="textAreaInput" promptText="Type your answer..." prefRowCount="3" wrapText="true" styleClass="question-input" visible="false" managed="false" />
+                <!-- Single choice input -->
+                <ChoiceBox fx:id="choiceBoxInput" styleClass="question-input" visible="false" managed="false" />
+                <!-- Multiple choice input -->
+                <VBox fx:id="multiChoiceBoxInput" spacing="3" styleClass="question-input" visible="false" managed="false" />
+            </children>
+        </VBox>
+        <Button fx:id="answerButton" text="Answer" defaultButton="true" styleClass="answer-button" onAction="#handleAnswer" />
+        <Button fx:id="cancelButton" text="Cancel" defaultButton="false" onAction="#handleCancel" />
+    </children>
+</HBox>

@@ -16,7 +16,7 @@ public class ScopeActor extends AgentActorBase {
         requireNonNull(chatModel, "chatModel");
         requireNonNull(askTools, "askTools");
 
-        this.agent = AiServices.builder(UzzoScopeAgent.class)
+        agent = AiServices.builder(UzzoScopeAgent.class)
             .streamingChatModel(chatModel)
             .chatMemory(MessageWindowChatMemory.withMaxMessages(Integer.MAX_VALUE))
             .tools(askTools)

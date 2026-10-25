@@ -16,14 +16,14 @@ import ste.ai.viber.renderer.GUIRenderer;
 import ste.llm.chat.model.Chat;
 import ste.llm.chat.model.Conversation;
 import ste.llm.chat.model.PromptMessage;
-import ste.llm.tools.FileSystemTools;
-import ste.llm.tools.Tool;
 import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
 import java.util.List;
-import ste.ai.viber.renderer.QuestionsPanelManager;
+import javafx.scene.Node;
 import ste.uzzo.agent.tools.AskTools;
 import ste.ai.viber.tools.ViberGUIAskTools;
+import ste.llm.tools.FileSystemTools;
+import ste.llm.tools.Tool;
 
 
 
@@ -36,7 +36,10 @@ public class MainAppController implements Constants {
     GUIRenderer conversation;
 
     @FXML
-    TextArea inputField;
+    TextArea prompt;
+
+    @FXML
+    VBox inputArea;
 
     @FXML
     CheckMenuItem fxActorItem;
@@ -104,7 +107,7 @@ public class MainAppController implements Constants {
         langChain4jActorItem.setOnAction(e -> switchToLangChain4jActor());
         scopeAgentItem.setOnAction(e -> switchToScopeActor());
 
-        inputField.setOnKeyPressed(e -> {
+        prompt.setOnKeyPressed(e -> {
             if (e.isControlDown() && e.getCode() == KeyCode.ENTER) {
                 handleSend();
                 e.consume();
@@ -113,7 +116,7 @@ public class MainAppController implements Constants {
     }
 
     public javafx.scene.Node getRoot() {
-        return (javafx.scene.Node) inputField.getParent();
+        return (javafx.scene.Node) prompt.getParent();
     }
 
     public boolean isScopePhaseActive() {
@@ -123,6 +126,36 @@ public class MainAppController implements Constants {
     public String getCurrentActorType() {
         return currentActorType;
     }
+
+    public ScopeActor createScopeActor() {
+        if (options == null || options.key() == null || options.key().isBlank()) {
+            return null;
+        }
+
+        StreamingChatModel chatModel = OpenAiStreamingChatModel.builder()
+            .baseUrl(options.endpoint())
+            .apiKey(options.key())
+            .modelName(options.model())
+            .returnThinking(true)
+            .logRequests(true)
+            .logResponses(true)
+            .build();
+
+        AskTools askTools = new ViberGUIAskTools(this::human);
+
+        return new ScopeActor(chatModel, askTools);
+    }
+
+
+    public static java.util.List<Tool> defaultTools() {
+        try {
+            return List.of(new FileSystemTools("."));
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to initialize default tools", e);
+        }
+    }
+
+    // --------------------------------------------------------- private methods
 
     private void updateActorMenuSelection() {
         boolean isFX = "FXActor".equals(currentActorType);
@@ -203,7 +236,7 @@ public class MainAppController implements Constants {
                 .logResponses(true)
                 .build();
 
-            AskTools askTools = new ViberGUIAskTools(new QuestionsPanelManager());
+            AskTools askTools = new ViberGUIAskTools(this::human);
 
             ScopeActor actor = new ScopeActor(chatModel, askTools);
             this.currentActor = actor;
@@ -222,35 +255,8 @@ public class MainAppController implements Constants {
         }
     }
 
-    public ScopeActor createScopeActor() {
-        if (options == null || options.key() == null || options.key().isBlank()) {
-            return null;
-        }
-
-        StreamingChatModel chatModel = OpenAiStreamingChatModel.builder()
-            .baseUrl(options.endpoint())
-            .apiKey(options.key())
-            .modelName(options.model())
-            .returnThinking(true)
-            .logRequests(true)
-            .logResponses(true)
-            .build();
-
-        AskTools askTools = new ViberGUIAskTools(new QuestionsPanelManager());
-
-        return new ScopeActor(chatModel, askTools);
-    }
-
-    public static java.util.List<Tool> defaultTools() {
-        try {
-            return List.of(new FileSystemTools("."));
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to initialize default tools", e);
-        }
-    }
-
     private void handleSend() {
-        String text = inputField.getText().trim();
+        String text = prompt.getText().trim();
         if (text.isBlank()) {
             return;
         }
@@ -268,7 +274,11 @@ public class MainAppController implements Constants {
         Thread chatThread = new Thread(() -> currentActor.chat(chat, msg -> conversation.render(msg)));
         chatThread.setDaemon(true);
         chatThread.start();
-        inputField.clear();
-        inputField.requestFocus();
+        prompt.clear();
+        prompt.requestFocus();
+    }
+
+    private void human(final Node node) {  // TODO refactor into a component in pace of a Node
+        root.getChildren().set(1, node);
     }
 }

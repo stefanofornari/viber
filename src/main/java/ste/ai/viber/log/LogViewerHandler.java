@@ -26,9 +26,7 @@ public class LogViewerHandler extends Handler {
 
     @Override
     public void publish(final LogRecord record) {
-        LOG.info("flter: " + getFilter());
-        LOG.info("level: " + getLevel());
-        LOG.info(() -> "publish log record from %s:%s %s".formatted(record.getLevel().toString(), record.getLoggerName(), record.getMessage()));
+        LOG.finest(() -> "publish log record from %s:%s %s".formatted(record.getLevel().toString(), record.getLoggerName(), record.getMessage()));
         if (!isLoggable(record) || (loggerName != null && !record.getLoggerName().startsWith(loggerName)) ) {
             return;
         }
@@ -36,7 +34,7 @@ public class LogViewerHandler extends Handler {
         try {
             logViewer.log(getFormatter().format(record));
         } catch (Throwable x) {
-            LOG.log(java.util.logging.Level.WARNING, "Failed to render log record: " + record.getMessage(), x);
+            LOG.log(Level.WARNING, "Failed to render log record: " + record.getMessage(), x);
             x.printStackTrace();
         }
     }

@@ -15,13 +15,10 @@ import org.kordamp.ikonli.javafx.FontIcon;
 
 import animatefx.animation.ZoomIn;
 import animatefx.animation.ZoomOut;
-import atlantafx.base.controls.Notification;
-import atlantafx.base.util.Animations;
 import javafx.geometry.Pos;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.StageStyle;
-import org.kordamp.ikonli.material2.Material2OutlinedAL;
 
 public class PromptsPanelController {
     public final TableView<Map.Entry<String, String>> table = new TableView<>();
@@ -252,20 +249,20 @@ public class PromptsPanelController {
 
             ButtonType yesType = new ButtonType("Yes", ButtonBar.ButtonData.OTHER);
             ButtonType noType = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
-            
+
             Alert confirm = new Alert(
-                Alert.AlertType.CONFIRMATION, 
-                "Shall I really delete prompt '%s' ?".formatted(selected.getKey()), 
+                Alert.AlertType.CONFIRMATION,
+                "Shall I really delete prompt '%s' ?".formatted(selected.getKey()),
                 yesType, noType
             );
             final DialogPane dialog = confirm.getDialogPane();
-            
+
             dialog.lookupButton(yesType).getStyleClass().add(Styles.SMALL);
             dialog.lookupButton(noType).getStyleClass().add(Styles.SMALL);
             ((Label)dialog.lookup(".label.content")).setAlignment(Pos.CENTER_LEFT);
-            
+
             confirm.setHeaderText(null);
-            confirm.initStyle(StageStyle.UNDECORATED); 
+            confirm.initStyle(StageStyle.UNDECORATED);
             Optional<ButtonType> res = confirm.showAndWait();
             if (res.isPresent() && res.get() == yesType) {
                 prompts.remove(selected.getKey());
