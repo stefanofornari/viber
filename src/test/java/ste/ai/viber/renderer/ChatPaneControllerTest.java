@@ -3,6 +3,9 @@ package ste.ai.viber.renderer;
 import org.junit.jupiter.api.Test;
 import org.testfx.framework.junit5.ApplicationTest;
 import org.testfx.util.WaitForAsyncUtils;
+import javafx.application.HostServices;
+import javafx.stage.Stage;
+import ste.ai.viber.cli.ViberApplication;
 
 import static org.assertj.core.api.BDDAssertions.then;
 
@@ -12,11 +15,18 @@ import ste.llm.chat.model.ToolInvocationMessage;
 import ste.llm.tools.InvocationJSONObject;
 import org.json.JSONObject;
 import static ste.uzzo.agent.tools.AskTools.ASK_QUESTION;
+import static ste.uzzo.agent.tools.AskTools.ASK_SINGLE_CHOICE;
 
 class ChatPaneControllerTest extends ApplicationTest {
 
+    @Override
+    public void start(Stage stage) {
+        ViberApplication.HOST = new HostServices();
+        stage.show();
+    }
+
     @Test
-    void handle_ask_tool_invocation_adds_panel_only_once() throws Exception {
+    void ask_tool_invocation_does_not_add_to_messages_container() throws Exception {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("ChatPane.fxml"));
         Parent root = loader.load();
         ChatPaneController controller = loader.getController();
@@ -30,15 +40,13 @@ class ChatPaneControllerTest extends ApplicationTest {
         interact(() -> controller.appendMessage(invocation));
         WaitForAsyncUtils.waitForFxEvents();
 
-        long questionsPanelCount = controller.messagesContainerChildren().stream()
-            .filter(node -> node instanceof QuestionsPane)
-            .count();
-
-        then(questionsPanelCount).isEqualTo(1);
+        // AskTools should NOT add anything to the messages container
+        // (they are displayed in a separate QuestionsPane above the prompt)
+        then(controller.messagesContainerChildren()).isEmpty();
     }
 
     @Test
-    void multiple_ask_tool_invocations_reuse_same_panel() throws Exception {
+    void multiple_ask_tool_invocations_do_not_add_to_messages_container() throws Exception {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("ChatPane.fxml"));
         Parent root = loader.load();
         ChatPaneController controller = loader.getController();
@@ -58,48 +66,32 @@ class ChatPaneControllerTest extends ApplicationTest {
         interact(() -> controller.appendMessage(invocation2));
         WaitForAsyncUtils.waitForFxEvents();
 
-        // Should reuse the same panel, so only one QuestionsPanel in the chat
-        long questionsPanelCount = controller.messagesContainerChildren().stream()
-            .filter(node -> node instanceof QuestionsPane)
-            .count();
-
-        then(questionsPanelCount).isEqualTo(1);
-
-        // But the panel should have both questions
-        QuestionsPane panel = controller.messagesContainerChildren().stream()
-            .filter(node -> node instanceof QuestionsPane)
-            .map(node -> (QuestionsPane) node)
-            .findFirst()
-            .orElseThrow(() -> new AssertionError("No QuestionsPanel found"));
-
-        then(panel.questionCount()).isEqualTo(2);
+        // AskTools should NOT add anything to the messages container
+        then(controller.messagesContainerChildren()).isEmpty();
     }
 
     @Test
-    void ask_tool_invocation_adds_question_to_panel() throws Exception {
+    void regular_tool_invocation_adds_tool_message_pane() throws Exception {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("ChatPane.fxml"));
         Parent root = loader.load();
         ChatPaneController controller = loader.getController();
 
         ToolInvocationMessage invocation = new ToolInvocationMessage(
-            new InvocationJSONObject("AskQuestion", new JSONObject().put("question", "What is your name?"))
+            new InvocationJSONObject("SomeOtherTool", new JSONObject().put("param", "value"))
         );
+
+        then(controller.messagesContainerChildren()).isEmpty();
+
         interact(() -> controller.appendMessage(invocation));
         WaitForAsyncUtils.waitForFxEvents();
 
-        // Find the QuestionsPanel and verify it has the question
-        QuestionsPane panel = controller.messagesContainerChildren().stream()
-            .filter(node -> node instanceof QuestionsPane)
-            .map(node -> (QuestionsPane) node)
-            .findFirst()
-            .orElseThrow(() -> new AssertionError("No QuestionsPanel found"));
-
-        // The panel should have at least 1 question
-        then(panel.questionCount()).isEqualTo(1);
+        // Regular tool invocations should add a ToolMessagePane
+        then(controller.messagesContainerChildren()).hasSize(1);
+        then(controller.messagesContainerChildren().get(0)).isInstanceOf(ToolMessagePane.class);
     }
 
     @Test
-    void ask_single_choice_invocation_adds_choice_question_to_panel() throws Exception {
+    void ask_single_choice_invocation_does_not_add_to_messages_container() throws Exception {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("ChatPane.fxml"));
         Parent root = loader.load();
         ChatPaneController controller = loader.getController();
@@ -113,12 +105,7 @@ class ChatPaneControllerTest extends ApplicationTest {
         interact(() -> controller.appendMessage(invocation));
         WaitForAsyncUtils.waitForFxEvents();
 
-        QuestionsPane panel = controller.messagesContainerChildren().stream()
-            .filter(node -> node instanceof QuestionsPane)
-            .map(node -> (QuestionsPane) node)
-            .findFirst()
-            .orElseThrow(() -> new AssertionError("No QuestionsPanel found"));
-
-        then(panel.questionCount()).isEqualTo(1);
+        // AskTools should NOT add anything to the messages container
+        then(controller.messagesContainerChildren()).isEmpty();
     }
 }

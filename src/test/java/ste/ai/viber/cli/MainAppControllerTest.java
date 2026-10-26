@@ -2,14 +2,20 @@ package ste.ai.viber.cli;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.scene.Node;
+import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.CheckMenuItem;
+import javafx.scene.control.TextArea;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.testfx.util.WaitForAsyncUtils;
 import ste.ai.viber.cli.command.CLIOptions;
+import ste.ai.viber.renderer.GUIRenderer;
+import ste.ai.viber.renderer.QuestionsPane;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -156,5 +162,35 @@ class MainAppControllerTest extends org.testfx.framework.junit5.ApplicationTest 
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Test
+    void ask_tools_pane_appears_above_prompt_text_area() {
+        // Given a controller with ScopeActor (which uses AskTools)
+        CLIOptions options = new CLIOptions();
+        options.key("test-key");
+        MainAppController controller = loadController(new Conversation(), options);
+        WaitForAsyncUtils.waitForFxEvents();
+
+        // Verify initial structure: [MenuBar, GUIRenderer, TextArea(prompt), Label]
+        VBox root = (VBox) controller.getRoot();
+        then(root.getChildren()).hasSize(4);
+        then(root.getChildren().get(1)).isInstanceOf(GUIRenderer.class);
+        TextArea prompt = (TextArea) root.getChildren().get(2);
+        then(prompt.getId()).isEqualTo("prompt");
+
+        // When human() is called with a QuestionsPane (simulating AskTool invocation)
+        QuestionsPane questionsPane = new QuestionsPane();
+        questionsPane.setToolName("AskQuestion");
+        interact(() -> controller.human(questionsPane));
+        WaitForAsyncUtils.waitForFxEvents();
+
+        // Then the QuestionsPane should be inserted above the prompt TextArea
+        // New structure: [MenuBar, GUIRenderer, QuestionsPane, TextArea(prompt), Label]
+        then(root.getChildren()).hasSize(5);
+        then(root.getChildren().get(1)).isInstanceOf(GUIRenderer.class);
+        then(root.getChildren().get(2)).isSameAs(questionsPane);
+        then(root.getChildren().get(3)).isSameAs(prompt);
+        then(root.getChildren().get(4)).isInstanceOf(Label.class);
     }
 }

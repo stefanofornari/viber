@@ -314,20 +314,20 @@
     -fx-spacing: 15px;
 }
 
-.question-row {
+.question-box {
     -fx-alignment: CENTER_LEFT;
 }
 
-.question-row:answered {
+.question-box:answered {
     -fx-opacity: 0.6;
 }
 
-.question-row:answered .answer-button {
+.question-box:answered .answer-button {
     -fx-opacity: 0.4;
     -fx-cursor: default;
 }
 
-.question-content {
+.question-input-box {
     -fx-spacing: 5px;
 }
 

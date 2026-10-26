@@ -9,9 +9,9 @@
 <?import javafx.scene.layout.Priority?>
 <?import javafx.scene.layout.VBox?>
 
-<HBox fx:id="row" spacing="10" styleClass="question-row" xmlns:fx="http://javafx.com/fxml/1">
+<HBox fx:id="questionBox" styleClass="question-row" alignment="TOP_LEFT" xmlns:fx="http://javafx.com/fxml/1">
     <children>
-        <VBox fx:id="questionContent" spacing="5" styleClass="question-content" HBox.hgrow="ALWAYS">
+        <VBox fx:id="inputBox" styleClass="question-input-box" HBox.hgrow="ALWAYS">
             <children>
                 <Label fx:id="questionLabel" wrapText="true" styleClass="question-label" />
                 <!-- Open-ended question input -->
@@ -22,7 +22,9 @@
                 <VBox fx:id="multiChoiceBoxInput" spacing="3" styleClass="question-input" visible="false" managed="false" />
             </children>
         </VBox>
-        <Button fx:id="answerButton" text="Answer" defaultButton="true" styleClass="answer-button" onAction="#handleAnswer" />
-        <Button fx:id="cancelButton" text="Cancel" defaultButton="false" onAction="#handleCancel" />
+        <VBox fx:id="actionBox" styleClass="action-box" HBox.hgrow="NEVER">
+            <Button fx:id="answerButton" text="Answer" defaultButton="true" styleClass="answer-button" onAction="#handleAnswer" />
+            <Button fx:id="cancelButton" text="Cancel" defaultButton="false" onAction="#handleCancel" />
+        </VBox>
     </children>
 </HBox>

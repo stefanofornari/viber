@@ -11,6 +11,10 @@ import java.util.List;
 import ste.llm.chat.model.ChatMessage;
 import ste.llm.chat.model.ToolExecutionMessage;
 import ste.llm.chat.model.ToolInvocationMessage;
+import static ste.uzzo.agent.tools.AskTools.ASK_QUESTION;
+import static ste.uzzo.agent.tools.AskTools.ASK_SINGLE_CHOICE;
+import static ste.uzzo.agent.tools.AskTools.ASK_MULTIPLE_CHOICE;
+import static ste.uzzo.agent.tools.AskTools.ASK_CONFIRMATION;
 
 
 public class ChatPaneController {
@@ -23,13 +27,6 @@ public class ChatPaneController {
 
     private String lastMessageType = null;
     private Node lastMessagePane = null;
-    private final QuestionsPaneManager questionsPanelManager = new QuestionsPaneManager((panel) -> {
-        Platform.runLater(() -> {
-            addMessage(panel);
-            lastMessagePane = panel;
-            lastMessageType = "QUESTIONS_PANEL";
-        });
-    });
 
     public void addMessage(Node messageNode) {
         if (messageNode instanceof javafx.scene.layout.Region region) {
@@ -47,9 +44,8 @@ public class ChatPaneController {
      * {@link ToolMessagePane}: the invocation creates the pane and the
      * execution appends the result below the invocation.</p>
      *
-     * <p>For AskTools (questions), a {@link QuestionsPane} is used instead
-     * of {@link ToolMessagePane}, allowing users to answer multiple questions
-     * in the chat window with per-question Answer buttons.</p>
+     * <p>AskTools (questions) are handled separately and displayed in a
+     * {@link QuestionsPane} above the prompt TextArea, not in the chat pane.</p>
      *
      * @param message the message to append
      */
@@ -68,6 +64,10 @@ public class ChatPaneController {
     }
 
     private void handleToolInvocation(ToolInvocationMessage invocation) {
+        // Skip AskTools invocations - they are handled by the separate UI path (QuestionsPane above prompt)
+        if (isAskTool(invocation.invocation.name)) {
+            return;
+        }
         ToolMessagePane pane = new ToolMessagePane();
         pane.invocation(invocation);
         addMessage(pane);
@@ -75,13 +75,16 @@ public class ChatPaneController {
         lastMessageType = "TOOL_INVOCATION";
     }
 
+    private boolean isAskTool(String toolName) {
+        return ASK_QUESTION.equals(toolName)
+            || ASK_SINGLE_CHOICE.equals(toolName)
+            || ASK_MULTIPLE_CHOICE.equals(toolName)
+            || ASK_CONFIRMATION.equals(toolName);
+    }
+
     private void handleToolExecution(ToolExecutionMessage execution) {
         if (lastMessagePane instanceof ToolMessagePane toolPane) {
             toolPane.appendResult(execution.content());
-        } else if (lastMessagePane instanceof QuestionsPane questionsPanel) {
-            // For AskTools, mark the panel as answered
-            questionsPanel.getStyleClass().add("questions-panel-answered");
-            questionsPanel.setExpanded(false);
         } else {
             ToolMessagePane pane = new ToolMessagePane();
             pane.appendResult(execution.content());
@@ -108,7 +111,6 @@ public class ChatPaneController {
         messagesContainer.getChildren().clear();
         lastMessageType = null;
         lastMessagePane = null;
-        questionsPanelManager.clear();
     }
 
     public List<Node> messagesContainerChildren() {

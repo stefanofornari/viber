@@ -13,6 +13,7 @@ import ste.ai.viber.actor.LangChain4jActor;
 import ste.ai.viber.actor.ScopeActor;
 import ste.ai.viber.cli.command.CLIOptions;
 import ste.ai.viber.renderer.GUIRenderer;
+import ste.ai.viber.renderer.QuestionsPane;
 import ste.llm.chat.model.Chat;
 import ste.llm.chat.model.Conversation;
 import ste.llm.chat.model.PromptMessage;
@@ -278,7 +279,13 @@ public class MainAppController implements Constants {
         prompt.requestFocus();
     }
 
-    private void human(final Node node) {  // TODO refactor into a component in pace of a Node
-        root.getChildren().set(1, node);
+    void human(final Node node) {  // TODO refactor into a component in pace of a Node
+        // Insert the questions pane just above the prompt TextArea (index 2)
+        // If there's already a questions pane at that position, replace it
+        if (root.getChildren().size() > 2 && root.getChildren().get(2) instanceof QuestionsPane) {
+            root.getChildren().set(2, node);
+        } else {
+            root.getChildren().add(2, node);
+        }
     }
 }

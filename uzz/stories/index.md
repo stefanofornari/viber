@@ -52,6 +52,8 @@ This index lists the user stories derived from `stories/scope.md`.
   | [US-000016](development/US-000016/US-000016.md) | Dev Mode Conversation Editor | DONE |
   | [US-000017](development/US-000017/US-000017.md) | Dev Mode CLI Flag | DONE |
   | [US-000023](development/US-000023/US-000023.md) | Embeddable JavaFX Component via FXML | DONE |
+  | [US-000040](development/US-000040/US-000040.md) | Dev Mode AskTools Menu Button | TODO |
+  | [US-000041](development/US-000041/US-000041.md) | Dev Mode AskTools JSON Validation and Error Handling | TODO |
 
 ### scope
 
@@ -59,7 +61,7 @@ This index lists the user stories derived from `stories/scope.md`.
   |----|-------|--------|
   | [US-000031](scope/US-000031/US-000031.md) | ScopeActor Implementation | DONE |
   | [US-000032](scope/US-000032/US-000032.md) | CLI AskTools Implementation | TODO |
-  | [US-000033](scope/US-000033/US-000033.md) | GUI AskTools Implementation | DONE |
+  | [US-000033](scope/US-000033/US-000033.md) | GUI AskTools Implementation | WIP |
   | [US-000034](scope/US-000034/US-000034.md) | CLI Integration: ScopeAgent Selection | TODO |
    | [US-000035](scope/US-000035/US-000035.md) | GUI Integration: ScopeAgent Option | DONE |
   | [US-000036](scope/US-000036/US-000036.md) | Conversation History Maintenance in Scoping Phase | TODO |

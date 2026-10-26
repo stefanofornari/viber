@@ -114,7 +114,7 @@ public class QuestionsPane extends TitledPane implements Safe {
     private void addQuestion(final Question question) {
         QuestionController controller = new QuestionController(question);
         questionControllers.put(question, controller);
-        questionsContainer.getChildren().add(controller.row);
+        questionsContainer.getChildren().add(controller.questionBox);
     }
 
     private final PseudoClass ANSWERED_PSEUDO_CLASS = PseudoClass.getPseudoClass("answered");
@@ -148,7 +148,7 @@ public class QuestionsPane extends TitledPane implements Safe {
         question.future.complete(answer);
 
         // Disable this question's UI - CSS will handle styling via pseudo-class
-        controller.row.pseudoClassStateChanged(ANSWERED_PSEUDO_CLASS, true);
+        controller.questionBox.pseudoClassStateChanged(ANSWERED_PSEUDO_CLASS, true);
         controller.answerButton.setDisable(true);
     }
 
@@ -164,7 +164,7 @@ public class QuestionsPane extends TitledPane implements Safe {
         final Question question;
 
         @FXML
-        private HBox row;
+        private HBox questionBox;
 
         @FXML
         private Label questionLabel;
@@ -173,7 +173,7 @@ public class QuestionsPane extends TitledPane implements Safe {
         private Button answerButton;
 
         @FXML
-        private VBox questionContent;
+        private VBox inputBox;
 
         @FXML
         private TextArea textAreaInput;
@@ -191,7 +191,7 @@ public class QuestionsPane extends TitledPane implements Safe {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("QuestionItem.fxml"));
             loader.setController(this);
             try {
-                this.row = loader.load();
+                this.questionBox = loader.load();
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
