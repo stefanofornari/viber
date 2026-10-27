@@ -50,6 +50,9 @@ Implementation complete. Questions are now displayed in a QuestionsPanel within 
 ## Key Design Decisions
 - **No timeout**: Answers are delivered by a user-initiated message, so tool methods wait indefinitely without resource waste.
 - **No question limit**: All questions from a single LLM response are displayed in the panel. The LLM is instructed to limit questions per turn, but the UI handles any number.
+- **Cancel handling**: When the user cancels a question, the tool informs the LLM that no answer was provided by throwing `dev.langchain4j.exception.ToolErrorVisibleToLlm`.
+- **Pane removal**: Answering or cancelling a question removes that question row; the whole pane is removed from its container when no questions remain.
+- **Chat display**: AskTools tool execution results (answer or "No answer provided") are shown in the chat as a ToolExecutionMessage.
 
 ## Testing
 - All 158 tests pass (including 20 ViberGUIAskToolsTest)

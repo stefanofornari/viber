@@ -149,10 +149,35 @@ public class QuestionsPane extends TitledPane implements Safe {
         // Disable this question's UI - CSS will handle styling via pseudo-class
         controller.questionBox.pseudoClassStateChanged(ANSWERED_PSEUDO_CLASS, true);
         controller.answerButton.setDisable(true);
+
+        // Remove the answered question from the pane
+        questionControllers.remove(question);
+        questionsContainer.getChildren().remove(controller.questionBox);
+
+        // Close the pane when no questions remain
+        if (questionsContainer.getChildren().isEmpty()) {
+            setDisable(true);
+            if (getParent() instanceof javafx.scene.layout.Pane parent) {
+                parent.getChildren().remove(this);
+            }
+        }
     }
 
     private void handleQuestionCancel(final Question question) {
         question.future.completeExceptionally(new NoAnswerException());
+
+        QuestionController controller = questionControllers.remove(question);
+        if (controller != null) {
+            questionsContainer.getChildren().remove(controller.questionBox);
+        }
+
+        // Close the pane when no questions remain
+        if (questionsContainer.getChildren().isEmpty()) {
+            setDisable(true);
+            if (getParent() instanceof javafx.scene.layout.Pane parent) {
+                parent.getChildren().remove(this);
+            }
+        }
     }
 
     /**

@@ -61,7 +61,7 @@ This index lists the user stories derived from `stories/scope.md`.
   |----|-------|--------|
   | [US-000031](scope/US-000031/US-000031.md) | ScopeActor Implementation | DONE |
   | [US-000032](scope/US-000032/US-000032.md) | CLI AskTools Implementation | TODO |
-  | [US-000033](scope/US-000033/US-000033.md) | GUI AskTools Implementation | WIP |
+  | [US-000033](scope/US-000033/US-000033.md) | GUI AskTools Implementation | DONE |
   | [US-000034](scope/US-000034/US-000034.md) | CLI Integration: ScopeAgent Selection | TODO |
    | [US-000035](scope/US-000035/US-000035.md) | GUI Integration: ScopeAgent Option | DONE |
   | [US-000036](scope/US-000036/US-000036.md) | Conversation History Maintenance in Scoping Phase | TODO |

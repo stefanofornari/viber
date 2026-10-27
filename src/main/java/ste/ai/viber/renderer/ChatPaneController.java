@@ -27,6 +27,7 @@ public class ChatPaneController {
 
     private String lastMessageType = null;
     private Node lastMessagePane = null;
+    private boolean pendingAskTool = false;
 
     public void addMessage(Node messageNode) {
         if (messageNode instanceof javafx.scene.layout.Region region) {
@@ -66,6 +67,7 @@ public class ChatPaneController {
     private void handleToolInvocation(ToolInvocationMessage invocation) {
         // Skip AskTools invocations - they are handled by the separate UI path (QuestionsPane above prompt)
         if (isAskTool(invocation.invocation.name)) {
+            pendingAskTool = true;
             return;
         }
         ToolMessagePane pane = new ToolMessagePane();
@@ -83,6 +85,15 @@ public class ChatPaneController {
     }
 
     private void handleToolExecution(ToolExecutionMessage execution) {
+        if (pendingAskTool) {
+            ToolMessagePane pane = new ToolMessagePane();
+            pane.appendResult(execution.content());
+            addMessage(pane);
+            lastMessagePane = pane;
+            lastMessageType = "TOOL_EXECUTION";
+            pendingAskTool = false;
+            return;
+        }
         if (lastMessagePane instanceof ToolMessagePane toolPane) {
             toolPane.appendResult(execution.content());
         } else {
@@ -111,6 +122,7 @@ public class ChatPaneController {
         messagesContainer.getChildren().clear();
         lastMessageType = null;
         lastMessagePane = null;
+        pendingAskTool = false;
     }
 
     public List<Node> messagesContainerChildren() {

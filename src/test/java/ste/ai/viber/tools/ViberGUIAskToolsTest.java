@@ -121,6 +121,8 @@ class ViberGUIAskToolsTest extends ApplicationTest {
 
         WaitForAsyncUtils.waitForFxEvents();
 
+        Thread.sleep(200);
+
         clickOn("Web");
         clickOn("Desktop");
         clickOn(".button:default");
