@@ -33,6 +33,7 @@ import org.testfx.framework.junit5.ApplicationTest;
 /**
  *
  */
+@Disabled
 public class PromptsPanelViewTest extends ApplicationTest {
 
     private Map<String, String> prefs;

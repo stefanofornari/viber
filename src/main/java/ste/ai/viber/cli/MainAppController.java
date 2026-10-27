@@ -67,7 +67,9 @@ public class MainAppController implements Constants {
         this.options = options;
 
         if (options == null || options.key() == null || options.key().isBlank()) {
-            this.currentActor = new FXActor(conversationModel, this.conversation);
+            FXActor fxActor = new FXActor(conversationModel, this.conversation);
+            fxActor.askToolConsumer(this::human);
+            this.currentActor = fxActor;
             this.currentActorType = "FXActor";
         } else {
             this.currentActor = new LangChain4jActor(
@@ -173,6 +175,7 @@ public class MainAppController implements Constants {
         switching = true;
         try {
             FXActor fxActor = new FXActor(conversationModel, conversation);
+            fxActor.askToolConsumer(this::human);
             this.currentActor = fxActor;
             this.currentActorType = "FXActor";
             updateActorMenuSelection();

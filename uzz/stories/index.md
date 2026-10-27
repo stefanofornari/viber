@@ -52,8 +52,8 @@ This index lists the user stories derived from `stories/scope.md`.
   | [US-000016](development/US-000016/US-000016.md) | Dev Mode Conversation Editor | DONE |
   | [US-000017](development/US-000017/US-000017.md) | Dev Mode CLI Flag | DONE |
   | [US-000023](development/US-000023/US-000023.md) | Embeddable JavaFX Component via FXML | DONE |
-  | [US-000040](development/US-000040/US-000040.md) | Dev Mode AskTools Menu Button | TODO |
-  | [US-000041](development/US-000041/US-000041.md) | Dev Mode AskTools JSON Validation and Error Handling | TODO |
+  | [US-000040](development/US-000040/US-000040.md) | Dev Mode AskTools Menu Button | DONE |
+  | [US-000041](development/US-000041/US-000041.md) | Dev Mode AskTools JSON Validation and Error Handling | DONE |
 
 ### scope
 

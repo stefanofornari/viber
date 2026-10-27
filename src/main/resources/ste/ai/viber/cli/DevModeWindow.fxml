@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.SplitMenuButton?>
+<?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.HBox?>
@@ -23,6 +26,14 @@
             <Button fx:id="addToolExecutionButton" text="Add Tool Execution" />
             <Button fx:id="addToolReplyButton" text="Add Tool Reply" />
             <Button fx:id="addErrorButton" text="Add Error" />
+            <SplitMenuButton fx:id="addAskToolMenuButton" text="Add AskTool">
+               <items>
+                  <MenuItem fx:id="askQuestionMenuItem" text="AskQuestion" onAction="#handleAddAskQuestion" />
+                  <MenuItem fx:id="askSingleChoiceMenuItem" text="AskSingleChoice" onAction="#handleAddAskSingleChoice" />
+                  <MenuItem fx:id="askMultipleChoiceMenuItem" text="AskMultipleChoice" onAction="#handleAddAskMultipleChoice" />
+                  <MenuItem fx:id="askConfirmationMenuItem" text="AskConfirmation" onAction="#handleAddAskConfirmation" />
+               </items>
+            </SplitMenuButton>
          </children>
       </HBox>
    </children>

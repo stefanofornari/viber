@@ -287,7 +287,7 @@
 
 
 /*******************************************************************************
-   Questions Panel
+   Questions Pane
 *******************************************************************************/
 .questions-panel {
     -fx-border-color: transparent transparent transparent -fx-viber-color-accent-4;
@@ -314,20 +314,20 @@
     -fx-spacing: 15px;
 }
 
-.question-box {
+.question-pane {
     -fx-alignment: CENTER_LEFT;
 }
 
-.question-box:answered {
+.question-pane:answered {
     -fx-opacity: 0.6;
 }
 
-.question-box:answered .answer-button {
+.question-pane:answered .answer-button {
     -fx-opacity: 0.4;
     -fx-cursor: default;
 }
 
-.question-input-box {
+.question-input-pane {
     -fx-spacing: 5px;
 }
 
@@ -341,7 +341,7 @@
     -fx-background-color: -color-bg-default;
     -fx-border-color: -color-border-default;
     -fx-border-width: 1px;
-    -fx-border-radius: 4px;
+    /*-fx-border-radius: 4px;*/
     -fx-padding: 8px;
 }
 

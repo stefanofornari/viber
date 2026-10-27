@@ -9,7 +9,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TitledPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 import java.io.IOException;
@@ -164,7 +163,7 @@ public class QuestionsPane extends TitledPane implements Safe {
         final Question question;
 
         @FXML
-        private HBox questionBox;
+        private VBox questionBox;
 
         @FXML
         private Label questionLabel;

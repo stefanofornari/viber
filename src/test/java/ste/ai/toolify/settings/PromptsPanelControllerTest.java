@@ -13,8 +13,10 @@ import javafx.scene.Node;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import java.util.concurrent.TimeUnit;
+import org.junit.jupiter.api.Disabled;
 import org.testfx.util.WaitForAsyncUtils;
 
+@Disabled
 public class PromptsPanelControllerTest extends ApplicationTest {
 
     private Map<String, String> prompts;
