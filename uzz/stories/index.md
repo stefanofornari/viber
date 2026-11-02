@@ -27,6 +27,8 @@ This index lists the user stories derived from `stories/scope.md`.
 | [US-000021](ui/US-000021/US-000021.md) | Actor Selection Menu | DONE |
 | [US-000022](ui/US-000022/US-000022.md) | Actor Settings Configuration | TODO |
 | [US-000030](ui/US-000030/US-000030.md) | Tool Invocation and Execution Result Rendering | DONE |
+| [UI/US-000042](ui/US-000042/US-000042.md) | Scroll Chat Content with the Mouse Wheel | DONE |
+| [UI/US-000043](ui/US-000043/US-000043.md) | Scroll Focused Chat Content with the Keyboard | TODO |
 
 ### actor
 
@@ -72,6 +74,7 @@ This index lists the user stories derived from `stories/scope.md`.
 ## Scope Reference
 
 - [Scope Overview](scope.md)
+- [Chat Window Scrolling Feature Scope](ui/scope.md)
 - [Scope Phase Feature](scope-phase-feature.md)
 - [Scope Agent Integration](scope-agent-integration.md)
 - [Coding Standard](project/coding-standard.md)

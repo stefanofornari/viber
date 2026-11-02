@@ -4,6 +4,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.VBox;
 
 import java.util.ArrayList;
@@ -28,6 +29,66 @@ public class ChatPaneController {
     private String lastMessageType = null;
     private Node lastMessagePane = null;
     private boolean pendingAskTool = false;
+
+    @FXML
+    private void initialize() {
+        root.addEventFilter(ScrollEvent.SCROLL, this::handleScroll);
+    }
+
+    private void handleScroll(ScrollEvent event) {
+        Node target = event.getTarget() instanceof Node node ? node : root;
+        if (event.getDeltaY() != 0) {
+            scrollAxis(target, event.getDeltaY(), false);
+        }
+        if (event.getDeltaX() != 0) {
+            scrollAxis(target, event.getDeltaX(), true);
+        }
+        event.consume();
+    }
+
+    private void scrollAxis(Node target, double delta, boolean horizontal) {
+        Node current = target;
+        while (current != null) {
+            if (current instanceof ScrollPane scrollPane && scrollBy(scrollPane, delta, horizontal)) {
+                return;
+            }
+            current = current.getParent();
+        }
+    }
+
+    private boolean scrollBy(ScrollPane scrollPane, double delta, boolean horizontal) {
+        Node content = scrollPane.getContent();
+        if (content == null) {
+            return false;
+        }
+
+        double contentSize = horizontal
+            ? content.getLayoutBounds().getWidth()
+            : content.getLayoutBounds().getHeight();
+        double viewportSize = horizontal
+            ? scrollPane.getViewportBounds().getWidth()
+            : scrollPane.getViewportBounds().getHeight();
+        double overflow = contentSize - viewportSize;
+        if (overflow <= 0) {
+            return false;
+        }
+
+        double min = horizontal ? scrollPane.getHmin() : scrollPane.getVmin();
+        double max = horizontal ? scrollPane.getHmax() : scrollPane.getVmax();
+        double current = horizontal ? scrollPane.getHvalue() : scrollPane.getVvalue();
+        double direction = horizontal ? 1 : -1;
+        double next = Math.max(min, Math.min(max, current + direction * delta / overflow * (max - min)));
+        if (next == current) {
+            return false;
+        }
+
+        if (horizontal) {
+            scrollPane.setHvalue(next);
+        } else {
+            scrollPane.setVvalue(next);
+        }
+        return true;
+    }
 
     public void addMessage(Node messageNode) {
         if (messageNode instanceof javafx.scene.layout.Region region) {
