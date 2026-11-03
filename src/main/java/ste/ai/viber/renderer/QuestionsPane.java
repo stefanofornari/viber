@@ -79,7 +79,6 @@ public class QuestionsPane extends TitledPane implements Safe {
     public QuestionsPane() {
         loadFxml();
         getStyleClass().addAll("message", "message-questions");
-        setMaxWidth(Double.MAX_VALUE);
         setExpanded(true);
         setAnimated(false);
 

@@ -10,7 +10,6 @@ import static org.assertj.core.api.BDDAssertions.then;
 import static org.assertj.core.api.BDDAssertions.thenThrownBy;
 
 import javafx.scene.control.TabPane;
-import javafx.scene.control.ScrollPane;
 import javafx.stage.Stage;
 import org.json.JSONObject;
 import ste.llm.chat.model.Chat;
@@ -44,10 +43,8 @@ class GUIRendererTest extends org.testfx.framework.junit5.ApplicationTest {
         WaitForAsyncUtils.waitForFxEvents();
 
         then(renderer).isNotNull();
-        ScrollPane scrollPane = (ScrollPane) renderer;
-        TabPane tabPane = (TabPane) scrollPane.getContent();
-        then(tabPane).isNotNull();
-        then(tabPane.getTabs()).hasSize(1);
+        then(renderer).isInstanceOf(TabPane.class);
+        then(renderer.getTabs()).hasSize(1);
     }
 
     @Test
@@ -65,10 +62,8 @@ class GUIRendererTest extends org.testfx.framework.junit5.ApplicationTest {
         WaitForAsyncUtils.waitForFxEvents();
 
         then(renderer).isNotNull();
-        ScrollPane scrollPane = (ScrollPane) renderer;
-        TabPane tabPane = (TabPane) scrollPane.getContent();
-        then(tabPane).isNotNull();
-        then(tabPane.getTabs()).hasSize(2);
+        then(renderer).isInstanceOf(TabPane.class);
+        then(renderer.getTabs()).hasSize(2);
     }
 
     @Test

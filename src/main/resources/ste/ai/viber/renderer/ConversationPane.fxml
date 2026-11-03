@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TabPane?>
 
 
-<fx:root type="javafx.scene.control.ScrollPane" id="conversation" prefHeight="400.0" prefWidth="600.0" styleClass="conversation" fitToWidth="true" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ste.ai.viber.renderer.ConversationPaneController">
-   <content>
-      <TabPane fx:id="chatsContainer" styleClass="chats-container" tabClosingPolicy="UNAVAILABLE" />
-   </content>
+<fx:root type="javafx.scene.control.TabPane" fx:id="chatsContainer" id="conversation" prefHeight="400.0" prefWidth="600.0" styleClass="conversation" tabClosingPolicy="UNAVAILABLE" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ste.ai.viber.renderer.ConversationPaneController">
 </fx:root>

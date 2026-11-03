@@ -1,6 +1,7 @@
 package ste.ai.viber.cli;
 
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.Parent;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -8,27 +9,37 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.SplitPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.testfx.util.WaitForAsyncUtils;
 import ste.ai.viber.cli.command.CLIOptions;
 import ste.ai.viber.renderer.GUIRenderer;
 import ste.ai.viber.renderer.QuestionsPane;
-
-import java.util.concurrent.atomic.AtomicReference;
-
-import static org.assertj.core.api.BDDAssertions.then;
+import ste.ai.viber.renderer.QuestionsPane.Question;
 import ste.llm.chat.model.Chat;
 import ste.llm.chat.model.Conversation;
 import ste.llm.chat.model.PromptMessage;
+import ste.llm.chat.model.ToolInvocationMessage;
+import ste.llm.tools.InvocationJSONObject;
+
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
+
+import static org.assertj.core.api.BDDAssertions.then;
 
 @ExtendWith(TestNameLogger.class)
 class MainAppControllerTest extends org.testfx.framework.junit5.ApplicationTest {
 
+    private Stage stage;
+
     @Override
     public void start(Stage stage) {
+        this.stage = stage;
         ViberApplication.HOST = new javafx.application.HostServices();
         stage.show();
     }
@@ -120,7 +131,8 @@ class MainAppControllerTest extends org.testfx.framework.junit5.ApplicationTest 
         MainAppController controller = loadController(null);
         WaitForAsyncUtils.waitForFxEvents();
 
-        then(controller.getRoot().lookup(".conversation")).isNotNull();
+        SplitPane splitPane = (SplitPane) ((VBox) controller.getRoot()).getChildren().get(1);
+        then(splitPane.getItems().get(0)).isInstanceOf(GUIRenderer.class);
     }
 
     @Test
@@ -129,7 +141,34 @@ class MainAppControllerTest extends org.testfx.framework.junit5.ApplicationTest 
         MainAppController controller = loadController(conversation, null);
         WaitForAsyncUtils.waitForFxEvents();
 
-        then(controller.getRoot().lookup(".conversation")).isNotNull();
+        SplitPane splitPane = (SplitPane) ((VBox) controller.getRoot()).getChildren().get(1);
+        then(splitPane.getItems().get(0)).isInstanceOf(GUIRenderer.class);
+    }
+
+    @Test
+    void main_window_splits_output_and_bottom_input_sections() {
+        MainAppController controller = loadController(null);
+        VBox root = (VBox) controller.getRoot();
+        SplitPane splitPane = (SplitPane) root.getChildren().get(1);
+
+        then(root.getChildren()).hasSize(2);
+        then(splitPane.getItems()).hasSize(2);
+        then(splitPane.getItems().get(0)).isInstanceOf(GUIRenderer.class);
+        then(splitPane.getItems().get(1)).isInstanceOf(VBox.class);
+        then(splitPane.getDividerPositions()[0]).isEqualTo(0.75);
+    }
+
+    @Test
+    void main_window_starts_centered_with_top_and_bottom_margins() {
+        double[][] bounds = new double[1][];
+        interact(() -> {
+            Stage testStage = new Stage();
+            ViberApplication.configureMainWindow(testStage, new javafx.geometry.Rectangle2D(100, 50, 1200, 900));
+            bounds[0] = new double[]{testStage.getWidth(), testStage.getHeight(), testStage.getX(), testStage.getY()};
+            testStage.close();
+        });
+
+        then(bounds[0]).containsExactly(800, 850, 300, 75);
     }
 
     private javafx.scene.control.MenuItem getActorMenuItem(MainAppController controller, int index) {
@@ -172,11 +211,13 @@ class MainAppControllerTest extends org.testfx.framework.junit5.ApplicationTest 
         MainAppController controller = loadController(new Conversation(), options);
         WaitForAsyncUtils.waitForFxEvents();
 
-        // Verify initial structure: [MenuBar, GUIRenderer, TextArea(prompt), Label]
+        // Verify initial structure: [MenuBar, SplitPane]
         VBox root = (VBox) controller.getRoot();
-        then(root.getChildren()).hasSize(4);
-        then(root.getChildren().get(1)).isInstanceOf(GUIRenderer.class);
-        TextArea prompt = (TextArea) root.getChildren().get(2);
+        then(root.getChildren()).hasSize(2);
+        SplitPane splitPane = (SplitPane) root.getChildren().get(1);
+        then(splitPane.getItems().get(0)).isInstanceOf(GUIRenderer.class);
+        VBox inputArea = (VBox) splitPane.getItems().get(1);
+        TextArea prompt = (TextArea) inputArea.getChildren().get(0);
         then(prompt.getId()).isEqualTo("prompt");
 
         // When human() is called with a QuestionsPane (simulating AskTool invocation)
@@ -185,12 +226,32 @@ class MainAppControllerTest extends org.testfx.framework.junit5.ApplicationTest 
         interact(() -> controller.human(questionsPane));
         WaitForAsyncUtils.waitForFxEvents();
 
-        // Then the QuestionsPane should be inserted above the prompt TextArea
-        // New structure: [MenuBar, GUIRenderer, QuestionsPane, TextArea(prompt), Label]
-        then(root.getChildren()).hasSize(5);
-        then(root.getChildren().get(1)).isInstanceOf(GUIRenderer.class);
-        then(root.getChildren().get(2)).isSameAs(questionsPane);
-        then(root.getChildren().get(3)).isSameAs(prompt);
-        then(root.getChildren().get(4)).isInstanceOf(Label.class);
+        // Then the QuestionsPane should be inserted above the prompt within the input section
+        then(inputArea.getChildren()).hasSize(3);
+        then(inputArea.getChildren().get(0)).isSameAs(questionsPane);
+        then(inputArea.getChildren().get(1)).isSameAs(prompt);
+        then(inputArea.getChildren().get(2)).isInstanceOf(Label.class);
+    }
+
+    @Test
+    void multiple_choice_question_uses_content_height_when_window_has_space() {
+        MainAppController controller = loadController(new Conversation(), null);
+        VBox root = (VBox) controller.getRoot();
+        QuestionsPane pane = new QuestionsPane();
+        pane.questions.add(new Question(new ToolInvocationMessage(
+            new InvocationJSONObject("AskMultipleChoice", new JSONObject(Map.of(
+                "question", "Choose all applicable options",
+                "options", List.of("Web", "Mobile", "Desktop")
+            )))
+        )));
+
+        interact(() -> {
+            controller.human(pane);
+            stage.setScene(new Scene(root, 700, 800));
+            root.applyCss();
+            root.layout();
+        });
+
+        then(pane.getHeight()).isLessThan(500);
     }
 }

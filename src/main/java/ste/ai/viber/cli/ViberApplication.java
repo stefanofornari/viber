@@ -4,8 +4,10 @@ import java.util.List;
 import java.util.logging.Logger;
 import javafx.application.HostServices;
 import javafx.application.Application;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import ste.ai.viber.actor.Actor;
 import ste.ai.viber.actor.LangChain4jActor;
@@ -64,6 +66,7 @@ public class ViberApplication extends Application {
 
             MainAppWindow window = new MainAppWindow(conversation, options, primaryStage);
             primaryStage.setScene(newScene(window.getRoot()));
+            configureMainWindow(primaryStage, Screen.getPrimary().getVisualBounds());
             primaryStage.show();
 
             if (options.isShowLog()) {
@@ -143,5 +146,14 @@ public class ViberApplication extends Application {
         );
 
         return scene;
+    }
+
+    static void configureMainWindow(Stage stage, Rectangle2D screenBounds) {
+        double width = 800;
+        double height = screenBounds.getHeight() - 50;
+        stage.setWidth(width);
+        stage.setHeight(height);
+        stage.setX(screenBounds.getMinX() + (screenBounds.getWidth() - width) / 2);
+        stage.setY(screenBounds.getMinY() + 25);
     }
 }
