@@ -186,6 +186,19 @@
     -fx-border-color: transparent transparent transparent -fx-viber-color-accent-4;
 }
 
+.message.message-tool-response {
+    -fx-border-width: 0 0 0 3px;
+    -fx-border-color: transparent transparent transparent -fx-viber-color-accent-4;
+    -fx-background-color: transparent;
+    -fx-background-radius: 0;
+}
+
+.message.message-tool-response > .title,
+.message.message-tool-response > .content {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
 .message-error {
     -fx-border-color: transparent transparent transparent #cc0000;
 }

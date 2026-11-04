@@ -19,10 +19,10 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Region;
 import javafx.event.Event;
 import ste.llm.chat.model.ToolInvocationMessage;
+import ste.llm.chat.model.ToolExecutionMessage;
 import ste.llm.tools.InvocationJSONObject;
 import org.json.JSONObject;
 import static ste.uzzo.agent.tools.AskTools.ASK_QUESTION;
-import static ste.uzzo.agent.tools.AskTools.ASK_SINGLE_CHOICE;
 
 class ChatPaneControllerTest extends ApplicationTest {
 
@@ -186,7 +186,7 @@ class ChatPaneControllerTest extends ApplicationTest {
     }
 
     @Test
-    void ask_tool_invocation_does_not_add_to_messages_container() throws Exception {
+    void ask_tool_invocation_is_not_shown_in_chat_pane() throws Exception {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("ChatPane.fxml"));
         Parent root = loader.load();
         ChatPaneController controller = loader.getController();
@@ -200,34 +200,38 @@ class ChatPaneControllerTest extends ApplicationTest {
         interact(() -> controller.appendMessage(invocation));
         WaitForAsyncUtils.waitForFxEvents();
 
-        // AskTools should NOT add anything to the messages container
-        // (they are displayed in a separate QuestionsPane above the prompt)
         then(controller.messagesContainerChildren()).isEmpty();
     }
 
     @Test
-    void multiple_ask_tool_invocations_do_not_add_to_messages_container() throws Exception {
+    void ask_tool_execution_result_uses_tool_response_pane_and_consecutive_responses_append() throws Exception {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("ChatPane.fxml"));
         Parent root = loader.load();
         ChatPaneController controller = loader.getController();
 
-        ToolInvocationMessage invocation1 = new ToolInvocationMessage(
-            new InvocationJSONObject("AskQuestion", new JSONObject().put("question", "Q1?"))
+        ToolInvocationMessage invocation = new ToolInvocationMessage(
+            new InvocationJSONObject(ASK_QUESTION, new JSONObject().put("question", "Q1?"))
         );
-        interact(() -> controller.appendMessage(invocation1));
+        ToolInvocationMessage secondInvocation = new ToolInvocationMessage(
+            new InvocationJSONObject(ASK_QUESTION, new JSONObject().put("question", "Q2?"))
+        );
+        interact(() -> {
+            controller.appendMessage(invocation);
+            controller.appendMessage(new ToolExecutionMessage("answer"));
+            controller.appendMessage(secondInvocation);
+            controller.appendMessage(new ToolExecutionMessage("second answer"));
+        });
         WaitForAsyncUtils.waitForFxEvents();
 
-        ToolInvocationMessage invocation2 = new ToolInvocationMessage(
-            new InvocationJSONObject("AskSingleChoice", new JSONObject()
-                .put("question", "Q2?")
-                .put("options", new String[]{"A", "B"})
-            )
+        then(controller.messagesContainerChildren()).hasSize(1);
+        then(controller.messagesContainerChildren().getFirst()).isInstanceOf(MessagePane.class);
+        MessagePane pane = (MessagePane) controller.messagesContainerChildren().getFirst();
+        then(pane.getText()).isEqualTo("VIBER / TOOL_EXECUTION_RESPONSE");
+        then(pane.getStyleClass()).contains("message-tool-response").doesNotContain("message-tool");
+        then(pane.content()).isEqualTo(
+            "▷ *Q1?*\n\n&nbsp;&nbsp;&nbsp;&nbsp;answer"
+                + "\n\n▷ *Q2?*\n\n&nbsp;&nbsp;&nbsp;&nbsp;second answer"
         );
-        interact(() -> controller.appendMessage(invocation2));
-        WaitForAsyncUtils.waitForFxEvents();
-
-        // AskTools should NOT add anything to the messages container
-        then(controller.messagesContainerChildren()).isEmpty();
     }
 
     @Test
@@ -251,7 +255,7 @@ class ChatPaneControllerTest extends ApplicationTest {
     }
 
     @Test
-    void ask_single_choice_invocation_does_not_add_to_messages_container() throws Exception {
+    void ask_single_choice_invocation_is_not_shown_in_chat_pane() throws Exception {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("ChatPane.fxml"));
         Parent root = loader.load();
         ChatPaneController controller = loader.getController();
@@ -265,7 +269,6 @@ class ChatPaneControllerTest extends ApplicationTest {
         interact(() -> controller.appendMessage(invocation));
         WaitForAsyncUtils.waitForFxEvents();
 
-        // AskTools should NOT add anything to the messages container
         then(controller.messagesContainerChildren()).isEmpty();
     }
 }

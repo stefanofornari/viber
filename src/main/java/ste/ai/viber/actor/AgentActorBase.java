@@ -1,6 +1,8 @@
 package ste.ai.viber.actor;
 
 import dev.langchain4j.service.TokenStream;
+import dev.langchain4j.agent.tool.ToolExecutionRequest;
+import org.json.JSONObject;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -16,6 +18,8 @@ import ste.llm.chat.model.PromptMessage;
 import ste.llm.chat.model.ReplyMessage;
 import ste.llm.chat.model.ThoughtMessage;
 import ste.llm.chat.model.ToolExecutionMessage;
+import ste.llm.chat.model.ToolInvocationMessage;
+import ste.llm.tools.InvocationJSONObject;
 
 
 public abstract class AgentActorBase implements Actor, Safe {
@@ -90,17 +94,14 @@ public abstract class AgentActorBase implements Actor, Safe {
             })
             .onIntermediateResponse(response -> {
                 LOG.log(Level.FINEST, "onIntermediateResponse: hasToolExecutionRequests={0}", response.aiMessage().hasToolExecutionRequests());
-//                if (response.aiMessage().hasToolExecutionRequests()) {
-//                    for (ToolExecutionRequest request : response.aiMessage().toolExecutionRequests()) {
-//                        LOG.log(Level.FINEST, "onIntermediateResponse: toolExecutionRequest name={0}, arguments={1}", new Object[]{request.name(), request.arguments()});
-//                        final ToolInvocationMessage toolMsg = new ToolInvocationMessage(
-//                            new InvocationJSONObject(request.name(), new JSONObject(request.arguments()))
-//                        );
-//
-//                        chat.addMessage(toolMsg);
-//                        onMessage.accept(toolMsg);
-//                    }
-//                }
+                if (response.aiMessage().hasToolExecutionRequests()) {
+                    for (ToolExecutionRequest request : response.aiMessage().toolExecutionRequests()) {
+                        ToolInvocationMessage toolMsg = new ToolInvocationMessage(
+                            new InvocationJSONObject(request.name(), new JSONObject(request.arguments())));
+                        chat.addMessage(toolMsg);
+                        onMessage.accept(toolMsg);
+                    }
+                }
             })
             .onToolExecuted(execution -> {
                 LOG.log(Level.FINEST, "onToolExecuted: name={0}, result={1}", new Object[]{execution.request().name(), execution.result()});

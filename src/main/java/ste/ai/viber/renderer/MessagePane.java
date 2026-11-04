@@ -80,14 +80,50 @@ public class MessagePane extends TitledPane implements Initializable {
     }
 
     public void appendMessage(ChatMessage message) {
-        String current = markdownPreview.getContent();
-        String newContent;
-        if (current == null || current.isEmpty()) {
-            newContent = message.content();
-        } else {
-            newContent = current + "\n\n" + message.content();
+        appendContent(message.content());
+    }
+
+    public void askToolResponse(String question, ToolExecutionMessage response) {
+        message(response);
+        applyAskToolResponseStyle();
+        markdownPreview.setContent(formatAskToolResponse(question, response.content()));
+    }
+
+    public void appendAskToolResponse(String question, ToolExecutionMessage response) {
+        applyAskToolResponseStyle();
+        appendContent(formatAskToolResponse(question, response.content()));
+    }
+
+    private void applyAskToolResponseStyle() {
+        getStyleClass().remove("message-tool");
+        if (!getStyleClass().contains("message-tool-response")) {
+            getStyleClass().add("message-tool-response");
         }
+    }
+
+    private void appendContent(String content) {
+        String current = markdownPreview.getContent();
+        String newContent = current == null || current.isEmpty()
+            ? content
+            : current + "\n\n" + content;
         markdownPreview.setContent(newContent);
+    }
+
+    private String formatAskToolResponse(String question, String response) {
+        String quotedQuestion = question
+            .replace("\\", "\\\\")
+            .replace("*", "\\*")
+            .replace("\r\n", " ")
+            .replace('\n', ' ')
+            .replace('\r', ' ');
+        String indentedResponse = java.util.Arrays.stream(response.split("\\R", -1))
+            .map(line -> "&nbsp;&nbsp;&nbsp;&nbsp;" + line)
+            .collect(java.util.stream.Collectors.joining("\n"));
+        return "▷ *" + quotedQuestion + "*\n\n" + indentedResponse;
+    }
+
+    String content() {
+        return markdownPreview.getContent();
     }
 
     public static String messageTypeFor(ChatMessage message) {

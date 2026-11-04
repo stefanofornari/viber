@@ -100,4 +100,8 @@ public class ToolMessagePane extends TitledPane implements Initializable {
         String newContent = current == null || current.isEmpty() ? result : current + "\n\n" + result;
         markdownPreview.setContent(newContent);
     }
+
+    String resultContent() {
+        return markdownPreview.getContent();
+    }
 }

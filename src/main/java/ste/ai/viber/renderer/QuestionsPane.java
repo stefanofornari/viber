@@ -63,6 +63,10 @@ public class QuestionsPane extends TitledPane implements Safe {
             this.question = askInvocation.question();
             this.options = askInvocation.choices();
         }
+
+        public CompletableFuture<Object> answerFuture() {
+            return future;
+        }
     }
 
     @FXML

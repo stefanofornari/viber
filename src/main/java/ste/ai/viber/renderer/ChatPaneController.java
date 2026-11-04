@@ -7,15 +7,13 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.VBox;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 import ste.llm.chat.model.ChatMessage;
 import ste.llm.chat.model.ToolExecutionMessage;
 import ste.llm.chat.model.ToolInvocationMessage;
-import static ste.uzzo.agent.tools.AskTools.ASK_QUESTION;
-import static ste.uzzo.agent.tools.AskTools.ASK_SINGLE_CHOICE;
-import static ste.uzzo.agent.tools.AskTools.ASK_MULTIPLE_CHOICE;
-import static ste.uzzo.agent.tools.AskTools.ASK_CONFIRMATION;
 
 
 public class ChatPaneController {
@@ -28,7 +26,7 @@ public class ChatPaneController {
 
     private String lastMessageType = null;
     private Node lastMessagePane = null;
-    private boolean pendingAskTool = false;
+    private final Deque<PendingToolResult> pendingToolResults = new ArrayDeque<>();
 
     @FXML
     private void initialize() {
@@ -102,12 +100,12 @@ public class ChatPaneController {
      * via the onMessage callback, so all UI updates are wrapped in Platform.runLater.
      *
      * <p>Consecutive messages of the same type are grouped into a single
-     * pane. Tool invocation and execution messages are grouped into a
-     * {@link ToolMessagePane}: the invocation creates the pane and the
-     * execution appends the result below the invocation.</p>
+     * pane. Regular tool invocations and their results are grouped into a
+     * {@link ToolMessagePane}.</p>
      *
-     * <p>AskTools (questions) are handled separately and displayed in a
-     * {@link QuestionsPane} above the prompt TextArea, not in the chat pane.</p>
+     * <p>AskTools questions are displayed separately in a {@link QuestionsPane}
+     * above the prompt. Their execution results are displayed as tool response
+     * messages in the chat, without a tool invocation pane.</p>
      *
      * @param message the message to append
      */
@@ -126,33 +124,32 @@ public class ChatPaneController {
     }
 
     private void handleToolInvocation(ToolInvocationMessage invocation) {
-        // Skip AskTools invocations - they are handled by the separate UI path (QuestionsPane above prompt)
         if (isAskTool(invocation.invocation.name)) {
-            pendingAskTool = true;
+            String question = invocation.invocation.arguments.optString("question", "");
+            pendingToolResults.addLast(new PendingToolResult(question, null));
             return;
         }
+
         ToolMessagePane pane = new ToolMessagePane();
         pane.invocation(invocation);
         addMessage(pane);
         lastMessagePane = pane;
         lastMessageType = "TOOL_INVOCATION";
-    }
-
-    private boolean isAskTool(String toolName) {
-        return ASK_QUESTION.equals(toolName)
-            || ASK_SINGLE_CHOICE.equals(toolName)
-            || ASK_MULTIPLE_CHOICE.equals(toolName)
-            || ASK_CONFIRMATION.equals(toolName);
+        pendingToolResults.addLast(new PendingToolResult(null, pane));
     }
 
     private void handleToolExecution(ToolExecutionMessage execution) {
-        if (pendingAskTool) {
-            ToolMessagePane pane = new ToolMessagePane();
-            pane.appendResult(execution.content());
-            addMessage(pane);
-            lastMessagePane = pane;
-            lastMessageType = "TOOL_EXECUTION";
-            pendingAskTool = false;
+        PendingToolResult pending = pendingToolResults.pollFirst();
+        if (pending != null && pending.isAskTool()) {
+            handleAskToolResponse(pending.question(), execution);
+            return;
+        }
+        if (pending != null && pending.pane() != null) {
+            pending.pane().appendResult(execution.content());
+            return;
+        }
+        if ("TOOL_EXECUTION_RESPONSE".equals(lastMessageType)) {
+            handleRegularMessage(execution);
             return;
         }
         if (lastMessagePane instanceof ToolMessagePane toolPane) {
@@ -164,6 +161,27 @@ public class ChatPaneController {
             lastMessagePane = pane;
             lastMessageType = "TOOL_EXECUTION";
         }
+    }
+
+    private void handleAskToolResponse(String question, ToolExecutionMessage response) {
+        if (lastMessagePane instanceof MessagePane pane
+            && "TOOL_EXECUTION_RESPONSE".equals(lastMessageType)) {
+            pane.appendAskToolResponse(question, response);
+            return;
+        }
+
+        MessagePane pane = new MessagePane();
+        pane.askToolResponse(question, response);
+        addMessage(pane);
+        lastMessagePane = pane;
+        lastMessageType = "TOOL_EXECUTION_RESPONSE";
+    }
+
+    private boolean isAskTool(String toolName) {
+        return "AskQuestion".equals(toolName)
+            || "AskSingleChoice".equals(toolName)
+            || "AskMultipleChoice".equals(toolName)
+            || "AskConfirmation".equals(toolName);
     }
 
     private void handleRegularMessage(ChatMessage message) {
@@ -183,10 +201,16 @@ public class ChatPaneController {
         messagesContainer.getChildren().clear();
         lastMessageType = null;
         lastMessagePane = null;
-        pendingAskTool = false;
+        pendingToolResults.clear();
     }
 
     public List<Node> messagesContainerChildren() {
         return new ArrayList<>(messagesContainer.getChildren());
+    }
+
+    private record PendingToolResult(String question, ToolMessagePane pane) {
+        boolean isAskTool() {
+            return question != null;
+        }
     }
 }

@@ -5,6 +5,7 @@ import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyCode;
+import javafx.scene.Node;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import ste.ai.viber.actor.Actor;
@@ -20,7 +21,6 @@ import ste.llm.chat.model.PromptMessage;
 import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
 import java.util.List;
-import javafx.scene.Node;
 import ste.uzzo.agent.tools.AskTools;
 import ste.ai.viber.tools.ViberGUIAskTools;
 import ste.llm.tools.FileSystemTools;
@@ -119,7 +119,7 @@ public class MainAppController implements Constants {
     }
 
     public javafx.scene.Node getRoot() {
-        return (javafx.scene.Node) prompt.getParent();
+        return root;
     }
 
     public boolean isScopePhaseActive() {
@@ -283,12 +283,11 @@ public class MainAppController implements Constants {
     }
 
     void human(final Node node) {  // TODO refactor into a component in pace of a Node
-        // Insert the questions pane just above the prompt TextArea (index 2)
-        // If there's already a questions pane at that position, replace it
-        if (root.getChildren().size() > 2 && root.getChildren().get(2) instanceof QuestionsPane) {
-            root.getChildren().set(2, node);
+        // Insert the tool pane above the prompt; replace any pane already shown.
+        if (inputArea.getChildren().size() > 1 && inputArea.getChildren().get(0) instanceof QuestionsPane) {
+            inputArea.getChildren().set(0, node);
         } else {
-            root.getChildren().add(2, node);
+            inputArea.getChildren().add(0, node);
         }
     }
 }

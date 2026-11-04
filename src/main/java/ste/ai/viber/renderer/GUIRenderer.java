@@ -5,7 +5,7 @@ import java.io.UncheckedIOException;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TabPane;
 
 
 import ste.lazyjava.safe.Safe;
@@ -34,7 +34,7 @@ import static ste.lloop.Loop.on;
  *         a different type starts a new pane.</li>
  * </ul>
  */
-public class GUIRenderer extends ScrollPane implements Renderer, Safe {
+public class GUIRenderer extends TabPane implements Renderer, Safe {
 
     private final ConversationPaneController conversationPaneController;
 

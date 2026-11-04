@@ -2,27 +2,39 @@ package ste.ai.viber.cli;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.MenuButton;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.TextArea;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.Test;
 import org.testfx.util.WaitForAsyncUtils;
 import ste.ai.viber.actor.FXActor;
-
 import ste.ai.viber.renderer.GUIRenderer;
-
-import static org.assertj.core.api.BDDAssertions.then;
+import ste.ai.viber.renderer.QuestionsPane;
+import ste.llm.chat.model.Chat;
 import ste.llm.chat.model.Conversation;
 import ste.llm.chat.model.ErrorMessage;
+import ste.llm.chat.model.PromptMessage;
 import ste.llm.chat.model.ReplyMessage;
-import javafx.scene.control.MenuButton;
-import javafx.scene.control.MenuItem;
+import ste.llm.chat.model.ToolExecutionMessage;
 
 import java.util.Collections;
 import java.util.List;
 
+import static org.assertj.core.api.BDDAssertions.then;
+
 class DevModeControllerTest extends org.testfx.framework.junit5.ApplicationTest {
+
+    private Stage stage;
 
     @Override
     public void start(Stage stage) {
+        this.stage = stage;
         ViberApplication.HOST = new javafx.application.HostServices();
         stage.show();
     }
@@ -173,7 +185,7 @@ class DevModeControllerTest extends org.testfx.framework.junit5.ApplicationTest 
     void valid_ask_question_json_passes_validation() {
         Conversation conversation = new Conversation();
         GUIRenderer renderer = new GUIRenderer();
-        FXActor fxActor = new FXActor(conversation, renderer);
+        FXActor fxActor = new FXActor(conversation, new GUIRenderer());
 
         DevModeController controller = loadController(fxActor, conversation, renderer, Collections.emptyList());
         WaitForAsyncUtils.waitForFxEvents();
@@ -479,6 +491,118 @@ class DevModeControllerTest extends org.testfx.framework.junit5.ApplicationTest 
         then(conversation.chats().getFirst().messages().getFirst().content()).isEqualTo("chat text");
         then(conversation.chats().getFirst().messages().getLast()).isInstanceOf(ReplyMessage.class);
         then(conversation.chats().getFirst().messages().getLast().content()).isEqualTo("reply text");
+    }
+
+    @Test
+    void manual_and_normal_actor_render_ask_tool_responses_in_the_main_conversation() {
+        Conversation conversation = new Conversation();
+        GUIRenderer mainRenderer = new GUIRenderer();
+        GUIRenderer devModeRenderer = new GUIRenderer();
+        FXActor fxActor = new FXActor(conversation, mainRenderer);
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("DevModeWindow.fxml"));
+        Parent root;
+        DevModeController controller;
+        try {
+            root = loader.load();
+            controller = loader.getController();
+            controller.initialize(fxActor, conversation, devModeRenderer, Collections.emptyList());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        QuestionsPane[] shownPane = new QuestionsPane[1];
+
+        fxActor.askToolConsumer(node -> {
+            shownPane[0] = (QuestionsPane) node;
+            controller.conversationContainer.getChildren().add(node);
+        });
+
+        interact(() -> stage.setScene(new Scene(new VBox(mainRenderer, root))));
+        WaitForAsyncUtils.waitForFxEvents();
+
+        Chat[] chat = new Chat[1];
+        interact(() -> {
+            chat[0] = new Chat(new PromptMessage("chat text"));
+            fxActor.chat(chat[0], message -> {});
+        });
+        WaitForAsyncUtils.waitForFxEvents();
+
+        List<AskToolAnswer> cases = List.of(
+            new AskToolAnswer(
+                "{\"tool\":\"AskQuestion\",\"arguments\":{\"question\":\"What is your name?\"}}",
+                "My name",
+                "My name"
+            ),
+            new AskToolAnswer(
+                "{\"tool\":\"AskSingleChoice\",\"arguments\":{\"question\":\"Choose one\",\"options\":[\"Alpha\",\"Beta\"]}}",
+                "Beta",
+                "Beta"
+            ),
+            new AskToolAnswer(
+                "{\"tool\":\"AskMultipleChoice\",\"arguments\":{\"question\":\"Choose all\",\"options\":[\"Alpha\",\"Beta\"]}}",
+                "Alpha",
+                "[Alpha]"
+            ),
+            new AskToolAnswer(
+                "{\"tool\":\"AskConfirmation\",\"arguments\":{\"question\":\"Continue?\"}}",
+                "No",
+                "false"
+            )
+        );
+
+        for (int i = 0; i < cases.size(); i++) {
+            AskToolAnswer testCase = cases.get(i);
+            interact(() -> {
+                controller.inputText.setText(testCase.invocation());
+                controller.addToolExecutionButton.fire();
+            });
+            WaitForAsyncUtils.waitForFxEvents();
+
+            QuestionsPane pane = shownPane[0];
+            then(pane).as("AskTool panel for %s; messages: %s", testCase.invocation(), chat[0].messages()).isNotNull();
+            interact(() -> {
+                if (testCase.invocation().contains("\"AskQuestion\"")) {
+                    pane.lookupAll(".question-input").stream()
+                        .filter(TextArea.class::isInstance)
+                        .map(TextArea.class::cast)
+                        .findFirst()
+                        .orElseThrow()
+                        .setText(testCase.answer());
+                } else if (testCase.invocation().contains("\"AskMultipleChoice\"")) {
+                    pane.lookupAll(".question-input").stream()
+                        .filter(VBox.class::isInstance)
+                        .map(VBox.class::cast)
+                        .findFirst()
+                        .orElseThrow()
+                        .lookupAll(".check-box").stream()
+                        .filter(CheckBox.class::isInstance)
+                        .map(CheckBox.class::cast)
+                        .findFirst()
+                        .orElseThrow()
+                        .setSelected(true);
+                } else {
+                    pane.lookupAll(".question-input").stream()
+                        .filter(ChoiceBox.class::isInstance)
+                        .map(ChoiceBox.class::cast)
+                        .findFirst()
+                        .orElseThrow()
+                        .getSelectionModel()
+                        .select(testCase.answer());
+                }
+                ((Button) pane.lookup(".answer-button")).fire();
+            });
+            WaitForAsyncUtils.waitForFxEvents();
+
+            then(pane.getParent()).isNull();
+            then(chat[0].messages().getLast()).isInstanceOf(ToolExecutionMessage.class);
+            then(chat[0].messages().getLast().content()).isEqualTo(testCase.expectedResult());
+            Parent renderedMainChat = (Parent) mainRenderer.getTabs().getFirst().getContent();
+            then(renderedMainChat.lookupAll(".message-tool-response")).hasSize(1);
+            then(renderedMainChat.lookupAll(".message-tool")).isEmpty();
+            then(devModeRenderer.lookupAll(".message-tool-response")).isEmpty();
+        }
+    }
+
+    private record AskToolAnswer(String invocation, String answer, String expectedResult) {
     }
 
     private DevModeController loadController() {

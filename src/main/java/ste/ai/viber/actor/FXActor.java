@@ -5,6 +5,7 @@ import ste.ai.viber.renderer.Renderer;
 import ste.ai.viber.tools.QuestionJSONObject;
 import ste.llm.chat.model.ToolInvocationMessage;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import javafx.scene.Node;
 import org.json.JSONObject;
@@ -106,6 +107,7 @@ public class FXActor implements Actor, Safe {
 
         QuestionJSONObject askInv = new QuestionJSONObject(toolName, arguments);
         ToolInvocationMessage toolMsg = new ToolInvocationMessage(askInv);
+        addMessage(toolMsg);
 
         // Render synchronously when on the JavaFX thread so the pane appears immediately
         // (dev-mode button press); otherwise delegate to the manager which schedules
@@ -116,6 +118,7 @@ public class FXActor implements Actor, Safe {
             askToolConsumer.accept(pane);
             ste.ai.viber.renderer.QuestionsPane.Question q =
                 new ste.ai.viber.renderer.QuestionsPane.Question(toolMsg);
+            q.answerFuture().thenAccept(answer -> addAskToolAnswer(toolName, answer));
             ((ste.ai.viber.renderer.QuestionsPane) pane).questions.add(q);
             return;
         }
@@ -123,12 +126,23 @@ public class FXActor implements Actor, Safe {
         ste.ai.viber.renderer.QuestionsPaneManager manager =
             new ste.ai.viber.renderer.QuestionsPaneManager(askToolConsumer);
 
-        switch (toolName) {
+        CompletableFuture<?> answer = switch (toolName) {
             case "AskQuestion" -> manager.askQuestion(toolMsg);
             case "AskSingleChoice" -> manager.askSingleChoice(toolMsg);
             case "AskMultipleChoice" -> manager.askMultipleChoice(toolMsg);
             case "AskConfirmation" -> manager.askConfirmation(toolMsg);
-        }
+            default -> throw new IllegalArgumentException("Unknown AskTools tool: " + toolName);
+        };
+        answer.thenAccept(result -> addAskToolAnswer(toolName, result));
+    }
+
+    private void addAskToolAnswer(String toolName, Object answer) {
+        String result = "AskConfirmation".equals(toolName)
+            ? Boolean.toString(answer instanceof Boolean confirmation
+                ? confirmation
+                : "Yes".equals(answer))
+            : String.valueOf(answer);
+        addToolReply(result);
     }
 
     public void addToolReply(final String text) {

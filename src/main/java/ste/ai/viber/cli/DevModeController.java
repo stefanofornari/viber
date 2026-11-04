@@ -274,6 +274,7 @@ public class DevModeController {
             }
             
             // Otherwise execute as a regular tool via reflection
+            fxActor.addToolInvocation(text);
             System.out.println("executing " + text);
             JSONObject argumentsJson = json.getJSONObject("arguments");
             // Convert JSONObject to Map<String, Object> for the tool execution
