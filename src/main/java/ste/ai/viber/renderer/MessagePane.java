@@ -119,7 +119,7 @@ public class MessagePane extends TitledPane implements Initializable {
         String indentedResponse = java.util.Arrays.stream(response.split("\\R", -1))
             .map(line -> "&nbsp;&nbsp;&nbsp;&nbsp;" + line)
             .collect(java.util.stream.Collectors.joining("\n"));
-        return "▷ *" + quotedQuestion + "*\n\n" + indentedResponse;
+        return "▷ *" + quotedQuestion + "*  \n" + indentedResponse;
     }
 
     String content() {

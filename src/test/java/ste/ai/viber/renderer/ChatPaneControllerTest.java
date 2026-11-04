@@ -229,8 +229,8 @@ class ChatPaneControllerTest extends ApplicationTest {
         then(pane.getText()).isEqualTo("VIBER / TOOL_EXECUTION_RESPONSE");
         then(pane.getStyleClass()).contains("message-tool-response").doesNotContain("message-tool");
         then(pane.content()).isEqualTo(
-            "▷ *Q1?*\n\n&nbsp;&nbsp;&nbsp;&nbsp;answer"
-                + "\n\n▷ *Q2?*\n\n&nbsp;&nbsp;&nbsp;&nbsp;second answer"
+            "▷ *Q1?*  \n&nbsp;&nbsp;&nbsp;&nbsp;answer"
+                + "\n\n▷ *Q2?*  \n&nbsp;&nbsp;&nbsp;&nbsp;second answer"
         );
     }
 
