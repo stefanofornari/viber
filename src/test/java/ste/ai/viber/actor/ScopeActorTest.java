@@ -2,12 +2,17 @@ package ste.ai.viber.actor;
 
 import dev.langchain4j.model.chat.request.ToolChoice;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import ste.llm.chat.model.Chat;
 import ste.llm.chat.model.ChatMessage;
 import ste.llm.chat.model.PromptMessage;
 import ste.llm.chat.model.ReplyMessage;
+import ste.llm.chat.model.ToolInvocationMessage;
+import ste.llm.tools.FileSystemTools;
 import ste.uzzo.agent.tools.AskTools;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -107,6 +112,21 @@ class ScopeActorTest {
         actor.chat(chat, msg -> {});
 
         then(actor.conversation().chats()).containsExactly(chat);
+    }
+
+    @Test
+    void scope_actor_with_fileSystemTools_exposes_readFile_tool(@TempDir Path tempDir) throws Exception {
+        DummyStreamingChatModel model = new DummyStreamingChatModel();
+        model.toolChoice = ToolChoice.REQUIRED;
+
+        FileSystemTools fsTools = new FileSystemTools(tempDir.toString());
+        ScopeActor actor = new ScopeActor(model, new DummyAskTools(), fsTools);
+
+        Chat chat = new Chat(new PromptMessage("execute tool ReadFile"));
+        List<ChatMessage> emitted = new ArrayList<>();
+        actor.chat(chat, emitted::add);
+
+        then(emitted).anySatisfy(msg -> then(msg).isInstanceOf(ToolInvocationMessage.class));
     }
 
     static class DummyAskTools implements AskTools {

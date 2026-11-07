@@ -146,7 +146,14 @@ public class MainAppController implements Constants {
 
         AskTools askTools = new ViberGUIAskTools(this::human);
 
-        return new ScopeActor(chatModel, askTools);
+        FileSystemTools fileSystemTools;
+        try {
+            fileSystemTools = new FileSystemTools(".");
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to initialize FileSystemTools", e);
+        }
+
+        return new ScopeActor(chatModel, askTools, fileSystemTools);
     }
 
 
@@ -242,7 +249,14 @@ public class MainAppController implements Constants {
 
             AskTools askTools = new ViberGUIAskTools(this::human);
 
-            ScopeActor actor = new ScopeActor(chatModel, askTools);
+            FileSystemTools fileSystemTools;
+            try {
+                fileSystemTools = new FileSystemTools(".");
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to initialize FileSystemTools", e);
+            }
+
+            ScopeActor actor = new ScopeActor(chatModel, askTools, fileSystemTools);
             this.currentActor = actor;
             this.currentActorType = "ScopeActor";
             updateActorMenuSelection();
