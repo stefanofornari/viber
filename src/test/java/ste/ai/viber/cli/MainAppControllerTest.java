@@ -73,6 +73,7 @@ class MainAppControllerTest extends org.testfx.framework.junit5.ApplicationTest 
         then(actorMenu.getItems().get(0).getText()).isEqualTo("Manual");
         then(actorMenu.getItems().get(1).getText()).isEqualTo("LLM");
         then(actorMenu.getItems().get(2).getText()).isEqualTo("Scope");
+        then(actorMenu.getItems().get(3).getText()).isEqualTo("Story");
     }
 
     @Test
@@ -124,6 +125,79 @@ class MainAppControllerTest extends org.testfx.framework.junit5.ApplicationTest 
         WaitForAsyncUtils.waitForFxEvents();
 
         then(controller.getCurrentActorType()).isEqualTo("LangChain4jActor");
+    }
+
+    @Test
+    void controller_storyactor_switches_when_key_is_provided() {
+        CLIOptions options = new CLIOptions();
+        options.key("test-key");
+
+        MainAppController controller = loadController(options);
+        WaitForAsyncUtils.waitForFxEvents();
+
+        CheckMenuItem storyItem = (CheckMenuItem) getActorMenuItem(controller, 3);
+        interact(() -> {
+            storyItem.setSelected(true);
+            storyItem.fire();
+        });
+        WaitForAsyncUtils.waitForFxEvents();
+
+        then(controller.getCurrentActorType()).isEqualTo("StoryActor");
+        then(controller.isStoryPhaseActive()).isTrue();
+        then(controller.isScopePhaseActive()).isFalse();
+    }
+
+    @Test
+    void controller_storyactor_shows_phase_indicator() {
+        CLIOptions options = new CLIOptions();
+        options.key("test-key");
+
+        MainAppController controller = loadController(options);
+        WaitForAsyncUtils.waitForFxEvents();
+
+        CheckMenuItem storyItem = (CheckMenuItem) getActorMenuItem(controller, 3);
+        interact(() -> {
+            storyItem.setSelected(true);
+            storyItem.fire();
+        });
+        WaitForAsyncUtils.waitForFxEvents();
+
+        VBox inputArea = (VBox) ((SplitPane) ((VBox) controller.getRoot()).getChildren().get(1)).getItems().get(1);
+        Label indicator = (Label) inputArea.getChildren().get(1);
+        then(indicator.getText()).isEqualTo(Constants.LABEL_STORY_INDICATOR);
+        then(indicator.getStyle()).contains("green");
+    }
+
+    @Test
+    void controller_ask_tools_pane_appears_for_storyactor() {
+        CLIOptions options = new CLIOptions();
+        options.key("test-key");
+        MainAppController controller = loadController(new Conversation(), options);
+        WaitForAsyncUtils.waitForFxEvents();
+
+        CheckMenuItem storyItem = (CheckMenuItem) getActorMenuItem(controller, 3);
+        interact(() -> {
+            storyItem.setSelected(true);
+            storyItem.fire();
+        });
+        WaitForAsyncUtils.waitForFxEvents();
+
+        // Verify StoryActor is active
+        then(controller.getCurrentActorType()).isEqualTo("StoryActor");
+
+        // When human() is called with a QuestionsPane (simulating AskTool invocation)
+        VBox inputArea = (VBox) ((SplitPane) ((VBox) controller.getRoot()).getChildren().get(1)).getItems().get(1);
+        TextArea prompt = (TextArea) inputArea.getChildren().get(0);
+        
+        QuestionsPane questionsPane = new QuestionsPane();
+        questionsPane.setToolName("AskQuestion");
+        interact(() -> controller.human(questionsPane));
+        WaitForAsyncUtils.waitForFxEvents();
+
+        // Then the QuestionsPane should be inserted above the prompt
+        then(inputArea.getChildren()).hasSize(3);
+        then(inputArea.getChildren().get(0)).isSameAs(questionsPane);
+        then(inputArea.getChildren().get(1)).isSameAs(prompt);
     }
 
     @Test

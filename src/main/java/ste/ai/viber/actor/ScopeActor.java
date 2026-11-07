@@ -2,9 +2,9 @@ package ste.ai.viber.actor;
 
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.chat.StreamingChatModel;
-import dev.langchain4j.service.AiServices;
 import dev.langchain4j.service.TokenStream;
 import ste.llm.tools.FileSystemTools;
+import ste.uzzo.agent.UzzoAgentBuilder;
 import ste.uzzo.agent.scope.UzzoScopeAgent;
 import ste.uzzo.agent.tools.AskTools;
 
@@ -29,7 +29,7 @@ public class ScopeActor extends AgentActorBase {
 
         this.fileSystemTools = fileSystemTools;
 
-        agent = AiServices.builder(UzzoScopeAgent.class)
+        agent = UzzoAgentBuilder.ScopeAgentBuilder()
             .streamingChatModel(chatModel)
             .chatMemory(MessageWindowChatMemory.withMaxMessages(Integer.MAX_VALUE))
             .tools(askTools, fileSystemTools)

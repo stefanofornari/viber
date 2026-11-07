@@ -41,4 +41,4 @@ Feature to enable a dedicated "Scoping Phase" in Viber where a specialized scopi
   - Development Framework: `uzz/project/development-framework.md`
 
 ## 🔗 Related Stories
-* [Scope Agent Integration](scope-agent-integration.md) - Technical implementation of integrating the Uzzo ScopeAgent into Viber
+* [Scope Agent Integration](../scope-agent-integration.md) - Technical implementation of integrating the Uzzo ScopeAgent into Viber

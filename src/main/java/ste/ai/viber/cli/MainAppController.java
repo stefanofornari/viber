@@ -12,6 +12,7 @@ import ste.ai.viber.actor.Actor;
 import ste.ai.viber.actor.FXActor;
 import ste.ai.viber.actor.LangChain4jActor;
 import ste.ai.viber.actor.ScopeActor;
+import ste.ai.viber.actor.StoryActor;
 import ste.ai.viber.cli.command.CLIOptions;
 import ste.ai.viber.renderer.GUIRenderer;
 import ste.ai.viber.renderer.QuestionsPane;
@@ -50,6 +51,9 @@ public class MainAppController implements Constants {
 
     @FXML
     CheckMenuItem scopeAgentItem;
+
+    @FXML
+    CheckMenuItem storyAgentItem;
 
     @FXML
     Label scopePhaseIndicator;
@@ -109,6 +113,7 @@ public class MainAppController implements Constants {
         fxActorItem.setOnAction(e -> switchToFXActor());
         langChain4jActorItem.setOnAction(e -> switchToLangChain4jActor());
         scopeAgentItem.setOnAction(e -> switchToScopeActor());
+        storyAgentItem.setOnAction(e -> switchToStoryActor());
 
         prompt.setOnKeyPressed(e -> {
             if (e.isControlDown() && e.getCode() == KeyCode.ENTER) {
@@ -171,10 +176,12 @@ public class MainAppController implements Constants {
         boolean isFX = "FXActor".equals(currentActorType);
         boolean isLangChain4j = "LangChain4jActor".equals(currentActorType);
         boolean isScope = "ScopeActor".equals(currentActorType);
+        boolean isStory = "StoryActor".equals(currentActorType);
 
         fxActorItem.setSelected(isFX);
         langChain4jActorItem.setSelected(isLangChain4j);
         scopeAgentItem.setSelected(isScope);
+        storyAgentItem.setSelected(isStory);
     }
 
     private void switchToFXActor() {
@@ -273,16 +280,63 @@ public class MainAppController implements Constants {
         }
     }
 
+    private void switchToStoryActor() {
+        if (switching) return;
+        switching = true;
+        try {
+            if (options == null || options.key() == null || options.key().isBlank()) {
+                switchToFXActor();
+                return;
+            }
+
+            StreamingChatModel chatModel = OpenAiStreamingChatModel.builder()
+                .baseUrl(options.endpoint())
+                .apiKey(options.key())
+                .modelName(options.model())
+                .returnThinking(true)
+                .logRequests(true)
+                .logResponses(true)
+                .build();
+
+            AskTools askTools = new ViberGUIAskTools(this::human);
+
+            FileSystemTools fileSystemTools;
+            try {
+                fileSystemTools = new FileSystemTools(".");
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to initialize FileSystemTools", e);
+            }
+
+            StoryActor actor = new StoryActor(chatModel, askTools, fileSystemTools);
+            this.currentActor = actor;
+            this.currentActorType = "StoryActor";
+            updateActorMenuSelection();
+            conversation.render(actor.conversation());
+            scopePhaseIndicator.setText(LABEL_STORY_INDICATOR);
+            scopePhaseIndicator.setStyle("-fx-text-fill: green; -fx-padding: 0 10px;");
+
+            if (devModeWindow != null) {
+                devModeWindow.hide();
+                devModeWindow = null;
+            }
+        } finally {
+            switching = false;
+        }
+    }
+
     private void handleSend() {
         String text = prompt.getText().trim();
         if (text.isBlank()) {
             return;
         }
 
-        // Update scope phase indicator
+        // Update phase indicator
         if (isScopePhaseActive()) {
             scopePhaseIndicator.setText(LABEL_SCOPE_INDICATOR);
             scopePhaseIndicator.setStyle("-fx-text-fill: orange; -fx-padding: 0 10px;");
+        } else if (isStoryPhaseActive()) {
+            scopePhaseIndicator.setText(LABEL_STORY_INDICATOR);
+            scopePhaseIndicator.setStyle("-fx-text-fill: green; -fx-padding: 0 10px;");
         } else {
             scopePhaseIndicator.setText("");
         }
@@ -294,6 +348,10 @@ public class MainAppController implements Constants {
         chatThread.start();
         prompt.clear();
         prompt.requestFocus();
+    }
+
+    public boolean isStoryPhaseActive() {
+        return "StoryActor".equals(currentActorType);
     }
 
     void human(final Node node) {  // TODO refactor into a component in pace of a Node

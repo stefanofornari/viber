@@ -1,11 +1,11 @@
-# Notes for US-000031 — ScopeActor Implementation
+# Notes for US-000031 — ScopeActor
 
 ## Status
 Implementation complete. ScopeActor class exists at `src/main/java/ste/ai/viber/actor/ScopeActor.java` and serves as a drop-in replacement for the Actor role during scoping phase.
 
 ## Implementation Details
 - `ScopeActor` extends `AgentActorBase` and wraps `UzzoScopeAgent` (from uzzo-workflow dependency)
-- Uses LangChain4j's `AiServices` to build the agent with streaming chat model, chat memory, and AskTools
+- Uses LangChain4j's `AiServices` to build the agent with streaming chat model, chat memory, AskTools, and FileSystemTools
 - Implements `createTokenStream(String userMessage)` delegating to `agent.scope(userMessage)`
 
 ## Testing

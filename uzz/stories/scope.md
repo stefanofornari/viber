@@ -54,6 +54,8 @@ A message is any exchange between the two actors chatting. It can be of differen
 - Model persistence
 - UI to represent a conversation as text and in a JavaFX control
 - [Chat window scrolling feature scope](ui/scope.md)
+- [Scoping phase feature scope](scope/scope.md)
+- [Story generation phase feature scope](story/scope.md)
 - JavaFX component for embedding Viber in host JavaFX applications
 - Standalone ViberFX desktop GUI application for LLM interaction (defaults to FXActor, menu-selectable LangChain4jActor)
   - Standalone application entry point with visible main window
