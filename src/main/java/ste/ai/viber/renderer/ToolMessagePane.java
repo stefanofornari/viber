@@ -72,7 +72,7 @@ public class ToolMessagePane extends TitledPane implements Initializable {
         invocationSet = true;
         invocationPane.rawContent(content);
         invocationPane.hideName();
-        setText("ACTOR / " + invocationPane.toolName());
+        setText(invocationPane.toolName());
     }
 
     public void invocation(ToolInvocationMessage message) {
@@ -88,7 +88,7 @@ public class ToolMessagePane extends TitledPane implements Initializable {
         });
         invocationPane.updateArgumentsVisibility();
         invocationPane.hideName();
-        setText("ACTOR / " + displayName);
+        setText(displayName);
     }
 
     public void appendResult(String result) {
@@ -99,6 +99,22 @@ public class ToolMessagePane extends TitledPane implements Initializable {
         String current = markdownPreview.getContent();
         String newContent = current == null || current.isEmpty() ? result : current + "\n\n" + result;
         markdownPreview.setContent(newContent);
+    }
+
+    public void executionSucceeded() {
+        markExecution("✔");
+    }
+
+    public void executionFailed() {
+        markExecution("✘");
+    }
+
+    private void markExecution(String marker) {
+        String title = getText();
+        if (!title.endsWith(marker)) {
+            setText(title + " " + marker);
+        }
+        setExpanded(false);
     }
 
     String resultContent() {

@@ -2,6 +2,7 @@ package ste.ai.viber.actor;
 
 import dev.langchain4j.service.TokenStream;
 import dev.langchain4j.agent.tool.ToolExecutionRequest;
+import dev.langchain4j.exception.ToolExecutionException;
 import org.json.JSONObject;
 
 import java.util.concurrent.CountDownLatch;
@@ -14,6 +15,7 @@ import ste.lazyjava.safe.Safe;
 import ste.llm.chat.model.Chat;
 import ste.llm.chat.model.ChatMessage;
 import ste.llm.chat.model.Conversation;
+import ste.llm.chat.model.ErrorMessage;
 import ste.llm.chat.model.PromptMessage;
 import ste.llm.chat.model.ReplyMessage;
 import ste.llm.chat.model.ThoughtMessage;
@@ -106,9 +108,15 @@ public abstract class AgentActorBase implements Actor, Safe {
             .onToolExecuted(execution -> {
                 LOG.log(Level.FINEST, "onToolExecuted: name={0}, result={1}", new Object[]{execution.request().name(), execution.result()});
                 String toolResult = execution.result();
-                ToolExecutionMessage toolResponse = new ToolExecutionMessage(toolResult);
-                chat.addMessage(toolResponse);
-                onMessage.accept(toolResponse);
+                if (execution.hasFailed()) {
+                    ErrorMessage errorMessage = new ErrorMessage(toolResult, null);
+                    chat.addMessage(errorMessage);
+                    onMessage.accept(errorMessage);
+                } else {
+                    ToolExecutionMessage toolResponse = new ToolExecutionMessage(toolResult);
+                    chat.addMessage(toolResponse);
+                    onMessage.accept(toolResponse);
+                }
             })
             .onCompleteResponse(response -> {
                 LOG.log(Level.FINEST, "onCompleteResponse: tokenUsage={0}", response.metadata().tokenUsage());
@@ -143,6 +151,11 @@ public abstract class AgentActorBase implements Actor, Safe {
             .onError(err -> {
                 LOG.log(Level.FINEST, "onError: {0}", err.getMessage());
                 error.set(err);
+                if (causedByToolExecutionException(err)) {
+                    ErrorMessage errorMessage = new ErrorMessage(err.getMessage(), err);
+                    chat.addMessage(errorMessage);
+                    onMessage.accept(errorMessage);
+                }
                 latch.countDown();
             })
             .start();
@@ -157,5 +170,14 @@ public abstract class AgentActorBase implements Actor, Safe {
         ifNotNull(error.get(), () -> {
             throw new RuntimeException("Streaming chat failed", error.get());
         });
+    }
+
+    private static boolean causedByToolExecutionException(Throwable error) {
+        for (Throwable cause = error; cause != null; cause = cause.getCause()) {
+            if (cause instanceof ToolExecutionException) {
+                return true;
+            }
+        }
+        return false;
     }
 }

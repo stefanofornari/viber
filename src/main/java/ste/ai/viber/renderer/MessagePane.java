@@ -59,6 +59,10 @@ public class MessagePane extends TitledPane implements Initializable {
 
         markdownPreview.setContent(content);
 
+        if ("TOOL_EXECUTION_RESPONSE".equals(type)) {
+            setExpanded(false);
+        }
+
         WebEngine engine = webView.getEngine();
         if (documentListener != null) {
             engine.documentProperty().removeListener(documentListener);

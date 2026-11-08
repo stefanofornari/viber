@@ -307,6 +307,30 @@ class DevModeControllerTest extends org.testfx.framework.junit5.ApplicationTest 
         then(conversation.chats().getFirst().messages()).hasSize(2);
         then(conversation.chats().getFirst().messages().getLast()).isInstanceOf(ErrorMessage.class);
         then(conversation.chats().getFirst().messages().getLast().content()).contains("Invalid JSON syntax");
+        then(controller.inputText.getText()).isEqualTo("{invalid json}");
+    }
+
+    @Test
+    void missing_tool_reports_error_instead_of_successful_tool_reply() {
+        Conversation conversation = new Conversation();
+        GUIRenderer renderer = new GUIRenderer();
+        FXActor fxActor = new FXActor(conversation, renderer);
+        DevModeController controller = loadController(fxActor, conversation, renderer, Collections.emptyList());
+
+        interact(() -> {
+            controller.inputText.setText("chat text");
+            controller.addChatButton.fire();
+        });
+        WaitForAsyncUtils.waitForFxEvents();
+
+        interact(() -> {
+            controller.inputText.setText("{\"tool\":\"MissingTool\",\"arguments\":{}}");
+            controller.addToolExecutionButton.fire();
+        });
+        WaitForAsyncUtils.waitForFxEvents();
+
+        then(conversation.chats().getFirst().messages().getLast()).isInstanceOf(ErrorMessage.class);
+        then(conversation.chats().getFirst().messages().getLast().content()).isEqualTo("Tool MissingTool not found");
     }
 
     @Test
@@ -491,6 +515,7 @@ class DevModeControllerTest extends org.testfx.framework.junit5.ApplicationTest 
         then(conversation.chats().getFirst().messages().getFirst().content()).isEqualTo("chat text");
         then(conversation.chats().getFirst().messages().getLast()).isInstanceOf(ReplyMessage.class);
         then(conversation.chats().getFirst().messages().getLast().content()).isEqualTo("reply text");
+        then(controller.inputText.getText()).isEqualTo("reply text");
     }
 
     @Test

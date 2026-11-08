@@ -223,7 +223,6 @@ public class DevModeController {
         // Add Chat creates a new chat, so no validation needed for AskTools JSON
         fxActor.chat(new Chat(new PromptMessage(text)), msg -> {
         });
-        inputText.clear();
     }
 
     private void handleAddReply() {
@@ -232,11 +231,9 @@ public class DevModeController {
             return;
         }
         if (!validateAskToolsJson(text)) {
-            inputText.clear();
             return;
         }
         fxActor.addReply(text);
-        inputText.clear();
     }
 
     private void handleAddThought() {
@@ -245,11 +242,9 @@ public class DevModeController {
             return;
         }
         if (!validateAskToolsJson(text)) {
-            inputText.clear();
             return;
         }
         fxActor.addThought(text);
-        inputText.clear();
     }
 
     private void handleAddToolInvocation() {
@@ -258,7 +253,6 @@ public class DevModeController {
             return;
         }
         if (!validateAskToolsJson(text)) {
-            inputText.clear();
             return;
         }
         
@@ -269,7 +263,6 @@ public class DevModeController {
             // If it's an AskTools tool, delegate to FXActor which will render it in the main chat window
             if (isAskToolsTool(toolName)) {
                 fxActor.addToolInvocation(text);
-                inputText.clear();
                 return;
             }
             
@@ -296,7 +289,6 @@ public class DevModeController {
                                 Object result =  m.invoke(t, values.toArray());
                                 String resultString = result == null ? "" : result.toString();
                                 fxActor.addToolReply(resultString);
-                                inputText.clear();
                                 return;
                             }
                         }
@@ -304,11 +296,9 @@ public class DevModeController {
                 }
             }
 
-            fxActor.addToolReply("Tool %s not found".formatted(toolName));
-            inputText.clear();
+            fxActor.addError("Tool %s not found".formatted(toolName));
         } catch (Exception e) {
             fxActor.addError("Error executing tool: " + e.getMessage());
-            inputText.clear();
         }
     }
 
@@ -318,11 +308,9 @@ public class DevModeController {
             return;
         }
         if (!validateAskToolsJson(text)) {
-            inputText.clear();
             return;
         }
         fxActor.addToolReply(text);
-        inputText.clear();
     }
 
     private void handleAddError() {
@@ -331,11 +319,9 @@ public class DevModeController {
             return;
         }
         if (!validateAskToolsJson(text)) {
-            inputText.clear();
             return;
         }
         fxActor.addError(text);
-        inputText.clear();
     }
 
     @FXML

@@ -18,6 +18,8 @@ import javafx.scene.layout.VBox;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Region;
 import javafx.event.Event;
+import ste.llm.chat.model.ErrorMessage;
+import ste.llm.chat.model.ReplyMessage;
 import ste.llm.chat.model.ToolInvocationMessage;
 import ste.llm.chat.model.ToolExecutionMessage;
 import ste.llm.tools.InvocationJSONObject;
@@ -227,6 +229,7 @@ class ChatPaneControllerTest extends ApplicationTest {
         then(controller.messagesContainerChildren().getFirst()).isInstanceOf(MessagePane.class);
         MessagePane pane = (MessagePane) controller.messagesContainerChildren().getFirst();
         then(pane.getText()).isEqualTo("VIBER / TOOL_EXECUTION_RESPONSE");
+        then(pane.isExpanded()).isFalse();
         then(pane.getStyleClass()).contains("message-tool-response").doesNotContain("message-tool");
         then(pane.content()).isEqualTo(
             "▷ *Q1?*  \n&nbsp;&nbsp;&nbsp;&nbsp;answer"
@@ -252,6 +255,52 @@ class ChatPaneControllerTest extends ApplicationTest {
         // Regular tool invocations should add a ToolMessagePane
         then(controller.messagesContainerChildren()).hasSize(1);
         then(controller.messagesContainerChildren().get(0)).isInstanceOf(ToolMessagePane.class);
+        then(((ToolMessagePane) controller.messagesContainerChildren().get(0)).getText()).isEqualTo("SomeOtherTool");
+    }
+
+    @Test
+    void regular_tool_execution_collapses_tool_message_pane() throws Exception {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("ChatPane.fxml"));
+        Parent root = loader.load();
+        ChatPaneController controller = loader.getController();
+        ToolInvocationMessage invocation = new ToolInvocationMessage(
+            new InvocationJSONObject("SomeOtherTool", new JSONObject().put("param", "value"))
+        );
+
+        interact(() -> {
+            controller.appendMessage(invocation);
+            controller.appendMessage(new ToolExecutionMessage("result"));
+        });
+        WaitForAsyncUtils.waitForFxEvents();
+
+        ToolMessagePane pane = (ToolMessagePane) controller.messagesContainerChildren().getFirst();
+        then(pane.isExpanded()).isFalse();
+        then(pane.getText()).isEqualTo("SomeOtherTool ✔");
+    }
+
+    @Test
+    void regular_tool_execution_error_collapses_tool_message_pane_and_marks_failure() throws Exception {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("ChatPane.fxml"));
+        Parent root = loader.load();
+        ChatPaneController controller = loader.getController();
+        interact(() -> stage.setScene(new Scene(root)));
+        WaitForAsyncUtils.waitForFxEvents();
+        ToolInvocationMessage invocation = new ToolInvocationMessage(
+            new InvocationJSONObject("SomeOtherTool", new JSONObject().put("param", "value"))
+        );
+
+        interact(() -> {
+            controller.appendMessage(invocation);
+            controller.appendMessage(new ReplyMessage("intermediate response"));
+            controller.appendMessage(new ErrorMessage("execution failed", null));
+        });
+        WaitForAsyncUtils.waitForFxEvents();
+
+        ToolMessagePane pane = (ToolMessagePane) controller.messagesContainerChildren().getFirst();
+        then(pane.isExpanded()).isFalse();
+        then(pane.getText()).isEqualTo("SomeOtherTool ✘");
+        then(pane.resultContent()).isEqualTo("execution failed");
+        then(controller.messagesContainerChildren()).hasSize(2);
     }
 
     @Test

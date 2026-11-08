@@ -5,6 +5,7 @@ import dev.langchain4j.service.AiServices;
 import dev.langchain4j.service.TokenStream;
 import dev.langchain4j.service.UserMessage;
 import dev.langchain4j.agent.tool.ToolExecutionRequest;
+import dev.langchain4j.exception.ToolExecutionException;
 import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
 
 
@@ -19,6 +20,7 @@ import ste.lazyjava.annotation.NonBlank;
 import ste.llm.chat.model.Chat;
 import ste.llm.chat.model.ChatMessage;
 import ste.llm.chat.model.Conversation;
+import ste.llm.chat.model.ErrorMessage;
 import ste.llm.chat.model.PromptMessage;
 import ste.llm.chat.model.ReplyMessage;
 import ste.llm.chat.model.SystemMessage;
@@ -141,9 +143,15 @@ public class LangChain4jActor implements Actor, Safe {
             })
             .onToolExecuted(execution -> {
                 String toolResult = execution.result();
-                ToolExecutionMessage toolResponse = new ToolExecutionMessage(toolResult);
-                chat.addMessage(toolResponse);
-                onMessage.accept(toolResponse);
+                if (execution.hasFailed()) {
+                    ErrorMessage errorMessage = new ErrorMessage(toolResult, null);
+                    chat.addMessage(errorMessage);
+                    onMessage.accept(errorMessage);
+                } else {
+                    ToolExecutionMessage toolResponse = new ToolExecutionMessage(toolResult);
+                    chat.addMessage(toolResponse);
+                    onMessage.accept(toolResponse);
+                }
             })
             .onCompleteResponse(response -> {
                 String remainingThinking = thinkingBuffer.toString().trim();
@@ -176,6 +184,11 @@ public class LangChain4jActor implements Actor, Safe {
             })
             .onError(err -> {
                 error.set(err);
+                if (causedByToolExecutionException(err)) {
+                    ErrorMessage errorMessage = new ErrorMessage(err.getMessage(), err);
+                    chat.addMessage(errorMessage);
+                    onMessage.accept(errorMessage);
+                }
                 latch.countDown();
             })
             .start();
@@ -190,5 +203,14 @@ public class LangChain4jActor implements Actor, Safe {
         ifNotNull(error.get(), () -> {
             throw new RuntimeException("Streaming chat failed", error.get());
         });
+    }
+
+    private static boolean causedByToolExecutionException(Throwable error) {
+        for (Throwable cause = error; cause != null; cause = cause.getCause()) {
+            if (cause instanceof ToolExecutionException) {
+                return true;
+            }
+        }
+        return false;
     }
 }

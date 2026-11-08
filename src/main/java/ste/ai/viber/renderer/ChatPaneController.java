@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 import ste.llm.chat.model.ChatMessage;
+import ste.llm.chat.model.ErrorMessage;
 import ste.llm.chat.model.ToolExecutionMessage;
 import ste.llm.chat.model.ToolInvocationMessage;
 
@@ -119,6 +120,7 @@ public class ChatPaneController {
                 handleToolInvocation(invocation);
             }
             case ToolExecutionMessage execution -> handleToolExecution(execution);
+            case ErrorMessage error -> handleToolExecutionError(error);
             default -> handleRegularMessage(message);
         }
     }
@@ -145,7 +147,7 @@ public class ChatPaneController {
             return;
         }
         if (pending != null && pending.pane() != null) {
-            pending.pane().appendResult(execution.content());
+            appendToolExecutionResult(pending.pane(), execution);
             return;
         }
         if ("TOOL_EXECUTION_RESPONSE".equals(lastMessageType)) {
@@ -153,14 +155,32 @@ public class ChatPaneController {
             return;
         }
         if (lastMessagePane instanceof ToolMessagePane toolPane) {
-            toolPane.appendResult(execution.content());
+            appendToolExecutionResult(toolPane, execution);
         } else {
             ToolMessagePane pane = new ToolMessagePane();
-            pane.appendResult(execution.content());
+            appendToolExecutionResult(pane, execution);
             addMessage(pane);
             lastMessagePane = pane;
             lastMessageType = "TOOL_EXECUTION";
         }
+    }
+
+    private void appendToolExecutionResult(ToolMessagePane pane, ToolExecutionMessage execution) {
+        pane.appendResult(execution.content());
+        if ("TOOL_EXECUTION_RESPONSE".equals(MessagePane.messageTypeFor(execution))) {
+            pane.executionSucceeded();
+        }
+    }
+
+    private void handleToolExecutionError(ErrorMessage error) {
+        PendingToolResult pending = pendingToolResults.pollFirst();
+        if (pending != null && pending.pane() != null) {
+            ToolMessagePane failedPane = pending.pane();
+            failedPane.appendResult(error.content());
+            failedPane.executionFailed();
+            return;
+        }
+        handleRegularMessage(error);
     }
 
     private void handleAskToolResponse(String question, ToolExecutionMessage response) {

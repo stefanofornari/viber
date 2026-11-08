@@ -13,6 +13,8 @@ import dev.langchain4j.model.chat.response.PartialThinkingContext;
 import dev.langchain4j.model.chat.response.StreamingChatResponseHandler;
 import dev.langchain4j.model.chat.response.StreamingHandle;
 import dev.langchain4j.data.message.AiMessage;
+import dev.langchain4j.agent.tool.ToolExecutionRequest;
+import dev.langchain4j.exception.ToolExecutionException;
 import dev.langchain4j.model.chat.Capability;
 import dev.langchain4j.model.output.TokenUsage;
 import org.junit.jupiter.api.Test;
@@ -27,6 +29,7 @@ import static com.github.stefanbirkner.systemlambda.SystemLambda.withTextFromSys
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.assertj.core.api.BDDAssertions.thenThrownBy;
 import ste.llm.chat.model.Chat;
+import ste.llm.chat.model.ErrorMessage;
 import ste.llm.chat.model.PromptMessage;
 import ste.llm.chat.model.ReplyMessage;
 import ste.llm.chat.model.ThoughtMessage;
@@ -190,6 +193,30 @@ class LangChain4jActorTest {
             then(msg).isInstanceOf(ReplyMessage.class);
             then(((ReplyMessage) msg).content().trim()).isEqualTo("Hello Alice!");
         });
+    }
+
+    @Test
+    void chat_emits_error_message_when_tool_execution_fails() {
+        ToolExecutionRequest toolRequest = ToolExecutionRequest.builder()
+            .id("tool-call-1")
+            .name("fail")
+            .arguments("{}")
+            .build();
+        LangChain4jActor actor = new LangChain4jActor(
+            new ToolExecutionFailureStreamingChatModel(toolRequest),
+            List.of(new FailingTool()),
+            "system"
+        );
+
+        Chat chat = new Chat(new PromptMessage("run the failing tool"));
+        List<ste.llm.chat.model.ChatMessage> emitted = new ArrayList<>();
+        actor.chat(chat, emitted::add);
+
+        then(emitted).anySatisfy(message -> {
+            then(message).isInstanceOf(ErrorMessage.class);
+            then(message.content()).contains("tool failed");
+        });
+        then(emitted).noneMatch(ToolExecutionMessage.class::isInstance);
     }
 
     @Test
@@ -416,6 +443,31 @@ class LangChain4jActorTest {
         @Override
         public ModelProvider provider() {
             return StreamingChatModel.super.provider();
+        }
+    }
+
+    private static class ToolExecutionFailureStreamingChatModel extends ControlledStreamingChatModel {
+        private final ToolExecutionRequest toolRequest;
+        private int requestCount;
+
+        ToolExecutionFailureStreamingChatModel(ToolExecutionRequest toolRequest) {
+            super(List.of(), "");
+            this.toolRequest = toolRequest;
+        }
+
+        @Override
+        public void chat(ChatRequest chatRequest, StreamingChatResponseHandler handler) {
+            AiMessage response = requestCount++ == 0
+                ? AiMessage.from(toolRequest)
+                : AiMessage.from("tool failed");
+            handler.onCompleteResponse(ChatResponse.builder().aiMessage(response).build());
+        }
+    }
+
+    public static class FailingTool implements ste.llm.tools.Tool {
+        @dev.langchain4j.agent.tool.Tool("Always fails")
+        public String fail() {
+            throw new ToolExecutionException("tool failed");
         }
     }
 
