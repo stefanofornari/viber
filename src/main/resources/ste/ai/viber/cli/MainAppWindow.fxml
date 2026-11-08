@@ -21,6 +21,8 @@
                         <CheckMenuItem fx:id="fxActorItem" text="Manual" selected="true" />
                         <CheckMenuItem fx:id="langChain4jActorItem" text="LLM" />
                         <CheckMenuItem fx:id="scopeAgentItem" text="Scope" />
+                        <CheckMenuItem fx:id="storyAgentItem" text="Story" />
+                        <CheckMenuItem fx:id="codingActorItem" text="Coding" />
                         <SeparatorMenuItem />
                     </items>
                 </Menu>

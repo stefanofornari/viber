@@ -1,14 +1,18 @@
 package ste.ai.viber.cli;
 
+import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyCode;
 import javafx.scene.Node;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import ste.ai.viber.actor.Actor;
+import ste.ai.viber.actor.CodingActor;
 import ste.ai.viber.actor.FXActor;
 import ste.ai.viber.actor.LangChain4jActor;
 import ste.ai.viber.actor.ScopeActor;
@@ -26,10 +30,15 @@ import ste.uzzo.agent.tools.AskTools;
 import ste.ai.viber.tools.ViberGUIAskTools;
 import ste.llm.tools.FileSystemTools;
 import ste.llm.tools.Tool;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 
 public class MainAppController implements Constants {
+
+    private static final Logger LOG = Logger.getLogger(MainAppController.class.getName());
+    private static final double ASK_TOOL_PROMPT_HEIGHT = 75;
 
     @FXML
     VBox root;
@@ -56,6 +65,9 @@ public class MainAppController implements Constants {
     CheckMenuItem storyAgentItem;
 
     @FXML
+    CheckMenuItem codingActorItem;
+
+    @FXML
     Label scopePhaseIndicator;
 
     private Conversation conversationModel;
@@ -69,6 +81,7 @@ public class MainAppController implements Constants {
     public void initialize(Conversation conversation, CLIOptions options, Stage owner) {
         this.conversationModel = conversation;
         this.options = options;
+        inputArea.getChildren().addListener((ListChangeListener<Node>) change -> updateAskToolLayout());
 
         if (options == null || options.key() == null || options.key().isBlank()) {
             FXActor fxActor = new FXActor(conversationModel, this.conversation);
@@ -114,6 +127,7 @@ public class MainAppController implements Constants {
         langChain4jActorItem.setOnAction(e -> switchToLangChain4jActor());
         scopeAgentItem.setOnAction(e -> switchToScopeActor());
         storyAgentItem.setOnAction(e -> switchToStoryActor());
+        codingActorItem.setOnAction(e -> switchToCodingActor());
 
         prompt.setOnKeyPressed(e -> {
             if (e.isControlDown() && e.getCode() == KeyCode.ENTER) {
@@ -161,6 +175,36 @@ public class MainAppController implements Constants {
         return new ScopeActor(chatModel, askTools, fileSystemTools);
     }
 
+    /**
+     * Creates a coding actor using the configured LLM connection and project tools.
+     *
+     * @return the configured coding actor
+     * @throws IllegalStateException if no API key is configured
+     */
+    public CodingActor createCodingActor() {
+        if (options == null || options.key() == null || options.key().isBlank()) {
+            throw new IllegalStateException("An API key is required to initialize CodingActor");
+        }
+
+        StreamingChatModel chatModel = OpenAiStreamingChatModel.builder()
+            .baseUrl(options.endpoint())
+            .apiKey(options.key())
+            .modelName(options.model())
+            .returnThinking(true)
+            .logRequests(true)
+            .logResponses(true)
+            .build();
+
+        FileSystemTools fileSystemTools;
+        try {
+            fileSystemTools = new FileSystemTools(".");
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to initialize FileSystemTools", e);
+        }
+
+        return new CodingActor(chatModel, fileSystemTools);
+    }
+
 
     public static java.util.List<Tool> defaultTools() {
         try {
@@ -177,11 +221,13 @@ public class MainAppController implements Constants {
         boolean isLangChain4j = "LangChain4jActor".equals(currentActorType);
         boolean isScope = "ScopeActor".equals(currentActorType);
         boolean isStory = "StoryActor".equals(currentActorType);
+        boolean isCoding = "CodingActor".equals(currentActorType);
 
         fxActorItem.setSelected(isFX);
         langChain4jActorItem.setSelected(isLangChain4j);
         scopeAgentItem.setSelected(isScope);
         storyAgentItem.setSelected(isStory);
+        codingActorItem.setSelected(isCoding);
     }
 
     private void switchToFXActor() {
@@ -324,6 +370,37 @@ public class MainAppController implements Constants {
         }
     }
 
+    private void switchToCodingActor() {
+        if (switching) return;
+        switching = true;
+        try {
+            CodingActor actor;
+            try {
+                actor = createCodingActor();
+                conversation.render(actor.conversation());
+            } catch (RuntimeException e) {
+                LOG.log(Level.SEVERE, "Failed to initialize CodingActor", e);
+                scopePhaseIndicator.setText("Coding phase unavailable: " + e.getMessage());
+                scopePhaseIndicator.setStyle("-fx-text-fill: red; -fx-padding: 0 10px;");
+                updateActorMenuSelection();
+                return;
+            }
+
+            this.currentActor = actor;
+            this.currentActorType = "CodingActor";
+            updateActorMenuSelection();
+            scopePhaseIndicator.setText(LABEL_CODING_INDICATOR);
+            scopePhaseIndicator.setStyle("-fx-text-fill: blue; -fx-padding: 0 10px;");
+
+            if (devModeWindow != null) {
+                devModeWindow.hide();
+                devModeWindow = null;
+            }
+        } finally {
+            switching = false;
+        }
+    }
+
     private void handleSend() {
         String text = prompt.getText().trim();
         if (text.isBlank()) {
@@ -337,6 +414,9 @@ public class MainAppController implements Constants {
         } else if (isStoryPhaseActive()) {
             scopePhaseIndicator.setText(LABEL_STORY_INDICATOR);
             scopePhaseIndicator.setStyle("-fx-text-fill: green; -fx-padding: 0 10px;");
+        } else if (isCodingPhaseActive()) {
+            scopePhaseIndicator.setText(LABEL_CODING_INDICATOR);
+            scopePhaseIndicator.setStyle("-fx-text-fill: blue; -fx-padding: 0 10px;");
         } else {
             scopePhaseIndicator.setText("");
         }
@@ -354,6 +434,15 @@ public class MainAppController implements Constants {
         return "StoryActor".equals(currentActorType);
     }
 
+    /**
+     * Returns whether CodingActor is the active actor.
+     *
+     * @return true when the coding phase is active
+     */
+    public boolean isCodingPhaseActive() {
+        return "CodingActor".equals(currentActorType);
+    }
+
     void human(final Node node) {  // TODO refactor into a component in pace of a Node
         // Insert the tool pane above the prompt; replace any pane already shown.
         if (inputArea.getChildren().size() > 1 && inputArea.getChildren().get(0) instanceof QuestionsPane) {
@@ -361,5 +450,25 @@ public class MainAppController implements Constants {
         } else {
             inputArea.getChildren().add(0, node);
         }
+    }
+
+    private void updateAskToolLayout() {
+        QuestionsPane questionsPane = inputArea.getChildren().stream()
+            .filter(QuestionsPane.class::isInstance)
+            .map(QuestionsPane.class::cast)
+            .findFirst()
+            .orElse(null);
+
+        if (questionsPane == null) {
+            VBox.setVgrow(prompt, Priority.ALWAYS);
+            prompt.setMinHeight(Region.USE_COMPUTED_SIZE);
+            prompt.setPrefHeight(Region.USE_COMPUTED_SIZE);
+            return;
+        }
+
+        VBox.setVgrow(prompt, Priority.NEVER);
+        prompt.setMinHeight(ASK_TOOL_PROMPT_HEIGHT);
+        prompt.setPrefHeight(ASK_TOOL_PROMPT_HEIGHT);
+        VBox.setVgrow(questionsPane, Priority.ALWAYS);
     }
 }

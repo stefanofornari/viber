@@ -10,6 +10,8 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.SplitPane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.json.JSONObject;
@@ -74,6 +76,7 @@ class MainAppControllerTest extends org.testfx.framework.junit5.ApplicationTest 
         then(actorMenu.getItems().get(1).getText()).isEqualTo("LLM");
         then(actorMenu.getItems().get(2).getText()).isEqualTo("Scope");
         then(actorMenu.getItems().get(3).getText()).isEqualTo("Story");
+        then(actorMenu.getItems().get(4).getText()).isEqualTo("Coding");
     }
 
     @Test
@@ -166,6 +169,43 @@ class MainAppControllerTest extends org.testfx.framework.junit5.ApplicationTest 
         Label indicator = (Label) inputArea.getChildren().get(1);
         then(indicator.getText()).isEqualTo(Constants.LABEL_STORY_INDICATOR);
         then(indicator.getStyle()).contains("green");
+    }
+
+    @Test
+    void controller_coding_actor_switches_and_shows_phase_indicator() {
+        CLIOptions options = new CLIOptions();
+        options.key("test-key");
+        MainAppController controller = loadController(options);
+        WaitForAsyncUtils.waitForFxEvents();
+
+        CheckMenuItem codingItem = (CheckMenuItem) getActorMenuItem(controller, 4);
+        interact(() -> {
+            codingItem.setSelected(true);
+            codingItem.fire();
+        });
+        WaitForAsyncUtils.waitForFxEvents();
+
+        then(controller.getCurrentActorType()).isEqualTo("CodingActor");
+        then(controller.isCodingPhaseActive()).isTrue();
+        then(codingItem.isSelected()).isTrue();
+        then(controller.scopePhaseIndicator.getText()).isEqualTo(Constants.LABEL_CODING_INDICATOR);
+        then(controller.scopePhaseIndicator.getStyle()).contains("blue");
+    }
+
+    @Test
+    void controller_keeps_previous_actor_selected_and_reports_coding_initialization_failure() {
+        MainAppController controller = loadController(null);
+        CheckMenuItem codingItem = (CheckMenuItem) getActorMenuItem(controller, 4);
+
+        interact(() -> {
+            codingItem.setSelected(true);
+            codingItem.fire();
+        });
+
+        then(controller.getCurrentActorType()).isEqualTo("FXActor");
+        then(((CheckMenuItem) getActorMenuItem(controller, 0)).isSelected()).isTrue();
+        then(codingItem.isSelected()).isFalse();
+        then(controller.scopePhaseIndicator.getText()).contains("API key");
     }
 
     @Test
@@ -327,5 +367,41 @@ class MainAppControllerTest extends org.testfx.framework.junit5.ApplicationTest 
         });
 
         then(pane.getHeight()).isLessThan(500);
+    }
+
+    @Test
+    void ask_tools_pane_expands_when_input_section_is_resized() {
+        MainAppController controller = loadController(new Conversation(), null);
+        VBox root = (VBox) controller.getRoot();
+        SplitPane splitPane = (SplitPane) root.getChildren().get(1);
+        VBox inputArea = (VBox) splitPane.getItems().get(1);
+        TextArea prompt = (TextArea) inputArea.getChildren().get(0);
+        QuestionsPane pane = new QuestionsPane();
+        pane.questions.add(new Question(new ToolInvocationMessage(
+            new InvocationJSONObject("AskQuestion", new JSONObject(Map.of(
+                "question", "What should the application do?"
+            )))
+        )));
+        double[] paneHeights = new double[2];
+
+        interact(() -> {
+            controller.human(pane);
+            stage.setScene(new Scene(root, 700, 900));
+            root.applyCss();
+            root.layout();
+            paneHeights[0] = pane.getHeight();
+
+            splitPane.setDividerPositions(0.55);
+            root.layout();
+            paneHeights[1] = pane.getHeight();
+        });
+
+        then(prompt.getHeight()).isEqualTo(75);
+        then(paneHeights[1]).isGreaterThan(paneHeights[0]);
+
+        interact(() -> inputArea.getChildren().remove(pane));
+
+        then(VBox.getVgrow(prompt)).isEqualTo(Priority.ALWAYS);
+        then(prompt.getPrefHeight()).isEqualTo(Region.USE_COMPUTED_SIZE);
     }
 }

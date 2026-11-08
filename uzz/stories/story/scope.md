@@ -1,5 +1,4 @@
-# Project Name: Viber StoryActor Feature
-**Version:** 0.1.0-SNAPSHOT
+# Domain Name: Viber StoryActor Feature
 
 ## Overall Description
 Feature to implement a dedicated "Story Generation Phase" in Viber where a specialized StoryActor replaces the generic Actor to interact with users for generating INVEST-compliant user stories from scope documents. During this phase, the agent uses UzzoStoryAgent (from uzzo-workflow) to read scope documents, engage in iterative clarification with the user via AskTools, and output individual user story files following the kb-man standard. This implements the second phase of the Scope → Story → Code workflow.

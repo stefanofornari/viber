@@ -1,4 +1,4 @@
-# Notes for US-000033 — GUI AskTools Implementation
+# Notes for US-000033 — GUI AskTools
 
 ## Status
 Implementation complete. Questions are now displayed in a QuestionsPanel within the chat window instead of modal dialogs.

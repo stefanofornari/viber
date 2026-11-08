@@ -69,7 +69,6 @@ This index lists the user stories derived from `stories/scope.md`.
   | [US-000036](scope/US-000036/US-000036.md) | Conversation History Maintenance in Scoping Phase | TODO |
   | [US-000037](scope/US-000037/US-000037.md) | CLI Scoping Phase Indication | TODO |
   | [US-000038](scope/US-000038/US-000038.md) | Next Steps Suggestion After Scoping Phase | TODO |
-  | [US-000039](scope/US-000039/US-000039.md) | Return to Normal Operation After Scoping Phase | TODO |
 
 ### story
 
@@ -79,9 +78,17 @@ This index lists the user stories derived from `stories/scope.md`.
   | [US-000047](story/US-000047/US-000047.md) | CLI Integration: StoryActor Selection | TODO |
   | [US-000048](story/US-000048/US-000048.md) | GUI Integration: StoryActor Option | DONE |
   | [US-000049](story/US-000049/US-000049.md) | Conversation History Maintenance in Story Generation Phase | TODO |
-  | [US-000050](story/US-000050/US-000050.md) | CLI Story Generation Phase Indication | TODO |
-  | [US-000051](story/US-000051/US-000051.md) | Next Steps Suggestion After Story Generation Phase | BLOCKED |
-  | [US-000052](story/US-000052/US-000052.md) | Return to Normal Operation After Story Generation Phase | TODO |
+  | [US-000050](story/US-000050/US-000050.md) | CLI Story Generation Phase Indication | TODO ||
+
+### code
+
+| ID | Title | Status |
+|----|-------|--------|
+| [US-000053](code/US-000053/US-000053.md) | CodingActor | DONE |
+| [US-000054](code/US-000054/US-000054.md) | GUI Integration: CodingActor Option | DONE |
+| [US-000055](code/US-000055/US-000055.md) | CLI Integration: CodingActor Selection | TODO |
+| [US-000058](code/US-000058/US-000058.md) | CLI Coding Phase Indication | TODO |
+| [US-000059](code/US-000059/US-000059.md) | Conversation History Maintenance in Coding Phase | TODO |
 
 ## Scope Reference
 
@@ -89,6 +96,7 @@ This index lists the user stories derived from `stories/scope.md`.
 - [Chat Window Scrolling Feature Scope](ui/scope.md)
 - [Scope Phase Feature](scope/scope.md)
 - [Story Phase Feature](story/scope.md)
+- [Coding Phase Feature](code/scope.md)
 - [Scope Agent Integration](scope-agent-integration.md)
 - [Coding Standard](project/coding-standard.md)
 - [Development Framework](project/development-framework.md)

@@ -1,5 +1,4 @@
-# Project Name: Viber Scoping Phase Feature
-**Version:** 0.1.0-SNAPSHOT
+# Domain Name: Viber Scoping Phase Feature
 
 ## 📝 Overall Description
 Feature to enable a dedicated "Scoping Phase" in Viber where a specialized scoping agent replaces the generic LangChain4jActor to interact with users for feature scoping. During this phase, the agent engages in iterative clarification with the user to define feature boundaries, then outputs a structured scope document. This implements the first phase of a potential workflow (Scope → Story → Code).
