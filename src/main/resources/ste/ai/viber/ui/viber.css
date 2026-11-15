@@ -84,12 +84,11 @@
     -color-button-fg-hover: -color-fg-default;
     -color-button-fg-focused: -color-fg-default;
     -color-button-fg-pressed: -color-fg-default;
-}
 
-/* Focused accented buttons keep the accent background (no bluish focus color) */
-.button.accent:focused,
-.button:default:focused {
-    -color-button-bg-focused: -color-button-bg;
+    /* Same background whether idle or focused (no bluish focus color) */
+    -color-button-bg: -color-bg-default;
+    -color-button-bg-focused: -color-bg-default;
+    -color-button-bg-pressed: -color-bg-subtle;
 }
 
 /*******************************************************************************
