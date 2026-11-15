@@ -34,7 +34,7 @@ class MainAppScopeActorTest extends ApplicationTest {
         // Now you can safely check the menu item directly from the injected controller field
         then(controller.scopeAgentItem).isNotNull();
         then(controller.scopeAgentItem.getText()).isEqualTo("Scope");
-        then(controller.scopePhaseIndicator).isNotNull();
+        then(controller.radialSlot).isNotNull();
     }
 
     @Test
@@ -71,11 +71,12 @@ class MainAppScopeActorTest extends ApplicationTest {
     }
 
     @Test
-    void scope_phase_indicator_field_exists() throws Exception {
+    void radial_selector_fields_exist() throws Exception {
         List<Field> fields = List.of(MainAppController.class.getDeclaredFields());
 
         then(fields).anyMatch(f -> f.getName().equals("scopeAgentItem"));
-        then(fields).anyMatch(f -> f.getName().equals("scopePhaseIndicator"));
+        then(fields).anyMatch(f -> f.getName().equals("radialSlot"));
+        then(fields).anyMatch(f -> f.getName().equals("radialHub"));
     }
 
     private void setField(Object target, String fieldName, Object value) throws Exception {

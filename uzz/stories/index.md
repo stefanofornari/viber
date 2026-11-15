@@ -29,6 +29,7 @@ This index lists the user stories derived from `stories/scope.md`.
 | [US-000030](ui/US-000030/US-000030.md) | Tool Invocation and Execution Result Rendering | DONE |
 | [UI/US-000042](ui/US-000042/US-000042.md) | Scroll Chat Content with the Mouse Wheel | DONE |
 | [UI/US-000043](ui/US-000043/US-000043.md) | Scroll Focused Chat Content with the Keyboard | TODO |
+| [US-000060](ui/US-000060/US-000060.md) | Radial Workflow Mode Selector | DONE |
 
 ### actor
 
@@ -93,7 +94,7 @@ This index lists the user stories derived from `stories/scope.md`.
 ## Scope Reference
 
 - [Scope Overview](scope.md)
-- [Chat Window Scrolling Feature Scope](ui/scope.md)
+- [Chat UI Feature Scope: Scrolling and Radial Phase Selector](ui/scope.md)
 - [Scope Phase Feature](scope/scope.md)
 - [Story Phase Feature](story/scope.md)
 - [Coding Phase Feature](code/scope.md)

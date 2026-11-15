@@ -1,14 +1,19 @@
 package ste.ai.viber.cli;
 
+import javafx.beans.binding.Bindings;
+
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyCode;
 import javafx.scene.Node;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import ste.ai.viber.actor.Actor;
@@ -20,6 +25,8 @@ import ste.ai.viber.actor.StoryActor;
 import ste.ai.viber.cli.command.CLIOptions;
 import ste.ai.viber.renderer.GUIRenderer;
 import ste.ai.viber.renderer.QuestionsPane;
+import ste.fx.control.radialmenu.MenuItem;
+import ste.fx.control.radialmenu.RadialMenu;
 import ste.llm.chat.model.Chat;
 import ste.llm.chat.model.Conversation;
 import ste.llm.chat.model.PromptMessage;
@@ -39,6 +46,8 @@ public class MainAppController implements Constants {
 
     private static final Logger LOG = Logger.getLogger(MainAppController.class.getName());
     private static final double ASK_TOOL_PROMPT_HEIGHT = 75;
+    private static final double RADIAL_SIZE = 125;
+    private static final double HUB_SIZE = 15;
 
     @FXML
     VBox root;
@@ -48,6 +57,12 @@ public class MainAppController implements Constants {
 
     @FXML
     TextArea prompt;
+
+    @FXML
+    HBox promptRow;
+
+    @FXML
+    StackPane radialSlot;
 
     @FXML
     VBox inputArea;
@@ -67,9 +82,6 @@ public class MainAppController implements Constants {
     @FXML
     CheckMenuItem codingActorItem;
 
-    @FXML
-    Label scopePhaseIndicator;
-
     private Conversation conversationModel;
     private Actor currentActor;
     private CLIOptions options;
@@ -77,6 +89,10 @@ public class MainAppController implements Constants {
     private boolean switching = false;
     private DevModeWindow devModeWindow;
     private Stage owner;
+    private RadialMenu radialMenu;
+    private Label radialHub;
+    private RadialMode radialMode;
+    private String radialError;
 
     public void initialize(Conversation conversation, CLIOptions options, Stage owner) {
         this.conversationModel = conversation;
@@ -120,14 +136,28 @@ public class MainAppController implements Constants {
 
         updateActorMenuSelection();
 
-        // Initialize scope phase indicator
-        scopePhaseIndicator.setText("");
+        initializeRadialSelector();
 
-        fxActorItem.setOnAction(e -> switchToFXActor());
-        langChain4jActorItem.setOnAction(e -> switchToLangChain4jActor());
-        scopeAgentItem.setOnAction(e -> switchToScopeActor());
-        storyAgentItem.setOnAction(e -> switchToStoryActor());
-        codingActorItem.setOnAction(e -> switchToCodingActor());
+        fxActorItem.setOnAction(e -> {
+            switchToFXActor();
+            onMenuActorSwitch();
+        });
+        langChain4jActorItem.setOnAction(e -> {
+            switchToLangChain4jActor();
+            onMenuActorSwitch();
+        });
+        scopeAgentItem.setOnAction(e -> {
+            switchToScopeActor();
+            onMenuActorSwitch();
+        });
+        storyAgentItem.setOnAction(e -> {
+            switchToStoryActor();
+            onMenuActorSwitch();
+        });
+        codingActorItem.setOnAction(e -> {
+            switchToCodingActor();
+            onMenuActorSwitch();
+        });
 
         prompt.setOnKeyPressed(e -> {
             if (e.isControlDown() && e.getCode() == KeyCode.ENTER) {
@@ -139,6 +169,10 @@ public class MainAppController implements Constants {
 
     public javafx.scene.Node getRoot() {
         return root;
+    }
+
+    Label radialHub() {
+        return radialHub;
     }
 
     public boolean isScopePhaseActive() {
@@ -216,6 +250,114 @@ public class MainAppController implements Constants {
 
     // --------------------------------------------------------- private methods
 
+    private void initializeRadialSelector() {
+        radialHub = new Label(LABEL_HUB_NEUTRAL);
+        radialHub.setId("radialHub");
+        radialHub.getStyleClass().add("radial-hub");
+        radialHub.setMouseTransparent(true);
+
+        radialSlot.setPrefSize(RADIAL_SIZE, RADIAL_SIZE);
+        radialSlot.setMinSize(RADIAL_SIZE, RADIAL_SIZE);
+        radialSlot.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
+
+        radialMenu = createRadialMenu();
+        radialSlot.getChildren().setAll(radialMenu, radialHub);
+        preselectExploreMode();
+        updateHub();
+    }
+
+    private void preselectExploreMode() {
+        radialMenu.items().stream()
+            .filter(item -> item.actionPayload() == RadialMode.EXPLORE)
+            .findFirst()
+            .ifPresent(radialMenu::select);
+        radialMode = RadialMode.EXPLORE;
+    }
+
+    private RadialMenu createRadialMenu() {
+        final List<MenuItem<RadialMode>> items = List.of(
+            new MenuItem<>("Scope", RadialMode.SCOPE),
+            new MenuItem<>("Story", RadialMode.STORY),
+            new MenuItem<>("Code", RadialMode.CODE),
+            new MenuItem<>("Explore", RadialMode.EXPLORE)
+        );
+        RadialMenu menu = new RadialMenu(items,
+            selected -> handleRadialSelection((RadialMode) selected.actionPayload()));
+        menu.setId("radialMenu");
+        menu.innerRadiusRatioProperty().bind(Bindings.createDoubleBinding(
+            () -> menu.diameter() <= HUB_SIZE ? 0.0 : HUB_SIZE / menu.diameter(),
+            menu.diameterProperty()));
+        menu.getStylesheets().add(
+            MainAppController.class.getResource("/ste/ai/viber/ui/viber.css").toExternalForm());
+        menu.diameterProperty().bind(radialSlot.widthProperty());
+        return menu;
+    }
+
+    private void handleRadialSelection(RadialMode mode) {
+        radialMode = mode;
+        switch (mode) {
+            case SCOPE -> switchToScopeActor();
+            case STORY -> switchToStoryActor();
+            case CODE -> switchToCodingActor();
+            case EXPLORE -> switchToLangChain4jActor();
+        }
+
+        if (matchesActiveActor(mode)) {
+            updateHub();
+        } else {
+            javafx.application.Platform.runLater(() -> {
+                resetRadialHighlight();
+                updateHub();
+            });
+        }
+    }
+
+    private void onMenuActorSwitch() {
+        resetRadialHighlight();
+        updateHub();
+    }
+
+    private void resetRadialHighlight() {
+        radialMode = null;
+        if (radialMenu != null) {
+            radialMenu.diameterProperty().unbind();
+        }
+        radialMenu = createRadialMenu();
+        radialSlot.getChildren().setAll(radialMenu, radialHub);
+    }
+
+    private void showRadialError(String message) {
+        radialError = message;
+        updateHub();
+    }
+
+    private void updateHub() {
+        if (radialError != null) {
+            radialHub.setText("!");
+            if (!radialHub.getStyleClass().contains("radial-hub-error")) {
+                radialHub.getStyleClass().add("radial-hub-error");
+            }
+            Tooltip tooltip = radialHub.getTooltip();
+            if (tooltip == null) {
+                radialHub.setTooltip(new Tooltip(radialError));
+            } else {
+                tooltip.setText(radialError);
+            }
+            return;
+        }
+        radialHub.getStyleClass().remove("radial-hub-error");
+        radialHub.setTooltip(null);
+    }
+
+    private boolean matchesActiveActor(RadialMode mode) {
+        return switch (mode) {
+            case SCOPE -> "ScopeActor".equals(currentActorType);
+            case STORY -> "StoryActor".equals(currentActorType);
+            case CODE -> "CodingActor".equals(currentActorType);
+            case EXPLORE -> "LangChain4jActor".equals(currentActorType);
+        };
+    }
+
     private void updateActorMenuSelection() {
         boolean isFX = "FXActor".equals(currentActorType);
         boolean isLangChain4j = "LangChain4jActor".equals(currentActorType);
@@ -240,7 +382,7 @@ public class MainAppController implements Constants {
             this.currentActorType = "FXActor";
             updateActorMenuSelection();
             conversation.render(conversationModel);
-            scopePhaseIndicator.setText("");
+            radialError = null;
 
             if (devModeWindow == null && owner != null && owner.isShowing()) {
                 devModeWindow = new DevModeWindow(fxActor, conversationModel, owner, defaultTools());
@@ -271,7 +413,7 @@ public class MainAppController implements Constants {
             this.currentActorType = "LangChain4jActor";
             updateActorMenuSelection();
             conversation.render(actor.conversation());
-            scopePhaseIndicator.setText("");
+            radialError = null;
 
             if (devModeWindow != null) {
                 devModeWindow.hide();
@@ -314,8 +456,7 @@ public class MainAppController implements Constants {
             this.currentActorType = "ScopeActor";
             updateActorMenuSelection();
             conversation.render(actor.conversation());
-            scopePhaseIndicator.setText(LABEL_SCOPE_INDICATOR);
-            scopePhaseIndicator.setStyle("-fx-text-fill: orange; -fx-padding: 0 10px;");
+            radialError = null;
 
             if (devModeWindow != null) {
                 devModeWindow.hide();
@@ -358,8 +499,7 @@ public class MainAppController implements Constants {
             this.currentActorType = "StoryActor";
             updateActorMenuSelection();
             conversation.render(actor.conversation());
-            scopePhaseIndicator.setText(LABEL_STORY_INDICATOR);
-            scopePhaseIndicator.setStyle("-fx-text-fill: green; -fx-padding: 0 10px;");
+            radialError = null;
 
             if (devModeWindow != null) {
                 devModeWindow.hide();
@@ -380,17 +520,15 @@ public class MainAppController implements Constants {
                 conversation.render(actor.conversation());
             } catch (RuntimeException e) {
                 LOG.log(Level.SEVERE, "Failed to initialize CodingActor", e);
-                scopePhaseIndicator.setText("Coding phase unavailable: " + e.getMessage());
-                scopePhaseIndicator.setStyle("-fx-text-fill: red; -fx-padding: 0 10px;");
+                showRadialError("Coding phase unavailable: " + e.getMessage());
                 updateActorMenuSelection();
                 return;
             }
 
             this.currentActor = actor;
             this.currentActorType = "CodingActor";
+            radialError = null;
             updateActorMenuSelection();
-            scopePhaseIndicator.setText(LABEL_CODING_INDICATOR);
-            scopePhaseIndicator.setStyle("-fx-text-fill: blue; -fx-padding: 0 10px;");
 
             if (devModeWindow != null) {
                 devModeWindow.hide();
@@ -405,20 +543,6 @@ public class MainAppController implements Constants {
         String text = prompt.getText().trim();
         if (text.isBlank()) {
             return;
-        }
-
-        // Update phase indicator
-        if (isScopePhaseActive()) {
-            scopePhaseIndicator.setText(LABEL_SCOPE_INDICATOR);
-            scopePhaseIndicator.setStyle("-fx-text-fill: orange; -fx-padding: 0 10px;");
-        } else if (isStoryPhaseActive()) {
-            scopePhaseIndicator.setText(LABEL_STORY_INDICATOR);
-            scopePhaseIndicator.setStyle("-fx-text-fill: green; -fx-padding: 0 10px;");
-        } else if (isCodingPhaseActive()) {
-            scopePhaseIndicator.setText(LABEL_CODING_INDICATOR);
-            scopePhaseIndicator.setStyle("-fx-text-fill: blue; -fx-padding: 0 10px;");
-        } else {
-            scopePhaseIndicator.setText("");
         }
 
         Chat chat = new Chat(new PromptMessage(text));
@@ -460,15 +584,30 @@ public class MainAppController implements Constants {
             .orElse(null);
 
         if (questionsPane == null) {
-            VBox.setVgrow(prompt, Priority.ALWAYS);
+            VBox.setVgrow(promptRow, Priority.ALWAYS);
             prompt.setMinHeight(Region.USE_COMPUTED_SIZE);
             prompt.setPrefHeight(Region.USE_COMPUTED_SIZE);
+            prompt.setMaxHeight(Double.MAX_VALUE);
             return;
         }
 
-        VBox.setVgrow(prompt, Priority.NEVER);
+        VBox.setVgrow(promptRow, Priority.NEVER);
         prompt.setMinHeight(ASK_TOOL_PROMPT_HEIGHT);
         prompt.setPrefHeight(ASK_TOOL_PROMPT_HEIGHT);
+        prompt.setMaxHeight(ASK_TOOL_PROMPT_HEIGHT);
         VBox.setVgrow(questionsPane, Priority.ALWAYS);
+    }
+
+    private enum RadialMode {
+        SCOPE("Scope"),
+        STORY("Story"),
+        CODE("Code"),
+        EXPLORE("Explore");
+
+        private final String label;
+
+        RadialMode(String label) {
+            this.label = label;
+        }
     }
 }

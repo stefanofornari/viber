@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.TextArea?>
-<?import javafx.scene.control.SplitPane?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ButtonBar?>
 <?import javafx.scene.control.CheckMenuItem?>
-<?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
-<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
 <?import ste.ai.viber.renderer.GUIRenderer?>
 
 <VBox fx:id="root" spacing="10" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ste.ai.viber.cli.MainAppController">
@@ -31,10 +33,21 @@
         <SplitPane dividerPositions="0.75" orientation="VERTICAL" VBox.vgrow="ALWAYS">
             <items>
                 <GUIRenderer fx:id="conversation" />
-                <VBox fx:id="inputArea" spacing="5">
+                <VBox fx:id="inputArea">
                     <children>
-                        <TextArea fx:id="prompt" promptText="Type a prompt..." prefRowCount="4" wrapText="true" styleClass="text-normal" VBox.vgrow="ALWAYS" />
-                        <Label fx:id="scopePhaseIndicator" style="-fx-padding: 0 10px;" />
+                        <HBox fx:id="interactionActionBar" alignment="CENTER" spacing="10.0" styleClass="action-bar-box">
+                            <children>
+                                <Button fx:id="doneAction" text="Done" styleClass="small" />
+                                <Button fx:id="discardAction" text="Trash" styleClass="small" />
+                                <Button fx:id="sendAction" text="Send" styleClass="small" defaultButton="true" />
+                            </children>
+                        </HBox>
+                        <HBox fx:id="promptRow" spacing="10.0" styleClass="prompt-row" alignment="TOP_LEFT" VBox.vgrow="ALWAYS">
+                            <children>
+                                <StackPane fx:id="radialSlot" styleClass="radial-slot" />
+                                <TextArea fx:id="prompt" promptText="Type a prompt..." prefRowCount="4" wrapText="true" styleClass="text-normal" HBox.hgrow="ALWAYS" />
+                            </children>
+                        </HBox>
                     </children>
                 </VBox>
             </items>

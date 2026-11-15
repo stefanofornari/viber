@@ -53,7 +53,7 @@ A message is any exchange between the two actors chatting. It can be of differen
 - Conversation / Chat / Message model implementation
 - Model persistence
 - UI to represent a conversation as text and in a JavaFX control
-- [Chat window scrolling feature scope](ui/scope.md)
+- [Chat UI feature scope: scrolling and radial phase selector](ui/scope.md)
 - [Scoping phase feature scope](scope/scope.md)
 - [Story generation phase feature scope](story/scope.md)
 - JavaFX component for embedding Viber in host JavaFX applications

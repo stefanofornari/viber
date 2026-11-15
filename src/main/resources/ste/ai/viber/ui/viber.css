@@ -16,30 +16,48 @@
        AtlantaFX colors
     **/
 
-    /* Primary color for text and icons. It should be used for body content, titles and labels. */
+    /*
+      Primary color for text and icons. It should be used for body content,
+      titles and labels.
+    */
     -color-fg-default: #271e1c;
-    /* For content that is secondary or that provides additional context but is not critical to understanding the flow of an interface. */
+
+    /*
+      For content that is secondary or that provides additional context but is
+      not critical to understanding the flow of an interface.
+    */
     -color-fg-muted: derive(-color-fg-default, +7%);
+
     /* For placeholders or decorative foregrounds. */
     -color-fg-subtle: derive(-color-fg-default, -7%);
-    /* The text color designed to combine with *-emphasis backgrounds for optimal contrast. */
+
+    /*
+      The text color designed to combine with *-emphasis backgrounds for optimal
+      contrast.
+    */
     -color-fg-emphasis: derive(-color-fg-default, -14%);
 
     /* Primary background color. */
     -color-bg-default: -fx-viber-color-bg;
+
     /* Background color for popup controls such as popovers and tooltips. */
     -color-bg-overlay: #dcd9d1;
+
     /* Provides visual rest and contrast against the default background. */
     -color-bg-subtle: derive(-color-bg-default, -7%);
+
     /* For a focal point, such as in conversations or activity feeds. */
     -color-bg-inset: #fcfbf8;
 
     /* Color for creating shadow effects around controls. */
     -color-shadow-default: derive(-color-bg-default, -50%);
+
     /* Default color to create bounds around content. */
     -color-border-default: #e5e4e2;
+
     /* For dividers to emphasize the separation between items, columns or sections. */
     -color-border-muted: #d2cabc;
+
     /* Faint border color. */
     -color-border-subtle: #d9d2c4;
 
@@ -75,7 +93,7 @@
    Conversation
 *******************************************************************************/
  .conversation {
-    -fx-background-color: #f9f6f1;
+    -fx-background-color: -fx-viber-color-bg;
     -fx-padding: 10px;
 }
 
@@ -85,10 +103,15 @@
 
 .empty-state {
     -fx-font-size: 16px;
-    -fx-text-fill: #888888;
+    -fx-text-fill: -color-fg-muted;
     -fx-padding: 20px;
 }
 
+
+.action-bar-box {
+    -fx-border-color: transparent transparent -color-border-default transparent;
+    -fx-border-width: 0 0 1px 0;
+}
 
 /*******************************************************************************
    Chat
@@ -107,7 +130,7 @@
 }
 
 .chat > .title > .text {
-    -fx-fill: #333333;
+    -fx-fill: -color-fg-default;
     -fx-font-family: "Segoe UI", sans-serif;
     -fx-font-weight: bold;
     -fx-font-size: 13px;
@@ -146,7 +169,7 @@
 }
 
 .message > .title > .text {
-    -fx-fill: #333333;
+    -fx-fill: -color-fg-default;
     -fx-font-family: "Segoe UI", sans-serif;
     -fx-font-weight: bold;
     -fx-font-size: 12px;
@@ -311,7 +334,7 @@
 }
 
 .questions-panel > .title > .text {
-    -fx-fill: #333333;
+    -fx-fill: -color-fg-default;
     -fx-font-family: "Segoe UI", sans-serif;
     -fx-font-weight: bold;
     -fx-font-size: 12px;
@@ -346,7 +369,7 @@
 
 .question-label {
     -fx-font-weight: bold;
-    -fx-text-fill: #333333;
+    -fx-text-fill: -color-fg-default;
     -fx-font-size: 13px;
 }
 
@@ -386,3 +409,39 @@
 /*******************************************************************************
    Default Components
 *******************************************************************************/
+
+.prompt-row .text-area {
+    -fx-border-color: transparent -color-border-default -color-border-default -color-border-default;
+}
+
+/*******************************************************************************
+   Radial mode selector
+*******************************************************************************/
+.radial-slot {
+    -fx-padding: 10px 0 0 10px;
+}
+
+.radial-menu {
+    -rm-label-font-size: 11px;
+    -rm-segment-bg: -color-bg-default;
+    -rm-segment-border: -color-border-default;
+    -rm-segment-bg-hover: -color-fg-default;
+    -rm-segment-border-hover: -color-bg-overlay;
+    -rm-label-fill: -color-fg-default;
+    -rm-label-fill-hover: -color-bg-default;
+    -rm-segment-bg-selected: -color-fg-default;
+    -rm-segment-border-selected: color-fg-default;
+    -rm-label-fill-selected: -color-bg-default;
+}
+
+.radial-hub {
+    -fx-text-fill: -color-fg-default;
+    -fx-font-size: 13px;
+    -fx-font-weight: normal;
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+}
+
+.radial-hub-error {
+    -fx-text-fill: red;
+}

@@ -103,6 +103,7 @@ class ChatPaneControllerTest extends ApplicationTest {
                 ScrollPane outer = new ScrollPane(outerContent);
                 outer.setPrefViewportHeight(150);
                 stage.setScene(new Scene(outer, 250, 180));
+                stage.sizeToScene();
                 layout(outer);
                 layout(fixture.root());
                 panes[0] = new ScrollPanes((ScrollPane) fixture.root(), outer);
@@ -140,6 +141,7 @@ class ChatPaneControllerTest extends ApplicationTest {
                 fixture.controller().addMessage(nested);
                 fixture.controller().addMessage(createTallContent());
                 stage.setScene(new Scene(fixture.root(), 250, 180));
+                stage.sizeToScene();
                 layout(fixture.root());
                 nested.layout();
                 result[0] = new ScrollPanes((ScrollPane) fixture.root(), nested);

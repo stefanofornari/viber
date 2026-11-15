@@ -201,6 +201,11 @@
             <version>0.0.1-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
+        <dependency>
+            <groupId>com.github.stefanofornari</groupId>
+            <artifactId>fx-radial-menu</artifactId>
+            <version>0.0.0-SNAPSHOT</version>
+        </dependency>
 
 
         <!--

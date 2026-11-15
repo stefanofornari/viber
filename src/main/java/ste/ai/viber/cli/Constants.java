@@ -22,7 +22,5 @@ package ste.ai.viber.cli;
  */
 public interface Constants {
 
-    public static final String LABEL_SCOPE_INDICATOR = "> Scope";
-    public static final String LABEL_STORY_INDICATOR = "> Story Generation";
-    public static final String LABEL_CODING_INDICATOR = "> Coding Phase";
+    public static final String LABEL_HUB_NEUTRAL = "";
 }
