@@ -77,18 +77,28 @@
     -color-button-bg-hover: -color-bg-inset;
 }
 
-/* Accented buttons (incl. default buttons): foreground follows the default foreground color */
+/*
+  Accented buttons (incl. default buttons): dark background (-color-fg-default)
+  with light text (-color-bg-default), same look idle or focused (no bluish
+  focus color). On hover the background is -color-bg-inset, so text turns dark.
+*/
 .button.accent,
 .button:default {
-    -color-button-fg: -color-fg-default;
-    -color-button-fg-hover: -color-fg-default;
-    -color-button-fg-focused: -color-fg-default;
-    -color-button-fg-pressed: -color-fg-default;
+    -color-button-bg: -color-fg-default;
+    -color-button-bg-focused: -color-fg-default;
+    -color-button-bg-pressed: -color-fg-muted;
 
-    /* Same background whether idle or focused (no bluish focus color) */
-    -color-button-bg: -color-bg-default;
-    -color-button-bg-focused: -color-bg-default;
-    -color-button-bg-pressed: -color-bg-subtle;
+    -color-button-fg: -color-bg-default;
+    -color-button-fg-focused: -color-bg-default;
+    -color-button-fg-pressed: -color-bg-default;
+    -color-button-fg-hover: -color-fg-default;
+}
+
+/* Focused and hovered at the same time: same as hover */
+.button.accent:focused:hover,
+.button:default:focused:hover {
+    -color-button-bg-focused: -color-bg-inset;
+    -color-button-fg-focused: -color-fg-default;
 }
 
 /*******************************************************************************
