@@ -69,6 +69,23 @@
 }
 
 /*******************************************************************************
+   AtlantaFX look & feel customizations
+*******************************************************************************/
+
+/* All buttons: hovered background (also overrides accent/success/danger/flat) */
+.button {
+    -color-button-bg-hover: -color-bg-inset;
+}
+
+/* Accented buttons: foreground follows the default foreground color */
+.button.accent {
+    -color-button-fg: -color-fg-default;
+    -color-button-fg-hover: -color-fg-default;
+    -color-button-fg-focused: -color-fg-default;
+    -color-button-fg-pressed: -color-fg-default;
+}
+
+/*******************************************************************************
    Menu bar
 *******************************************************************************/
 .menu-item {
@@ -251,7 +268,7 @@
 }
 
 .argument-chip .chip-copy-button:hover {
-    -fx-background-color: -color-bg-subtle;
+    -fx-background-color: -color-bg-inset;
 }
 
 .argument-chip .chip-copy-button:pressed {
@@ -321,6 +338,11 @@
     -fx-text-fill: -color-fg-default;
 }
 
+.tool-accept-button:hover,
+.tool-reject-button:hover {
+    -fx-background-color: -color-bg-inset;
+}
+
 
 /*******************************************************************************
    Questions Pane
@@ -388,7 +410,7 @@
 }
 
 .answer-button:hover {
-    -fx-background-color: derive(-fx-viber-color-accent-4, -10%);
+    -fx-background-color: -color-bg-inset;
 }
 
 .answer-button:disabled {
