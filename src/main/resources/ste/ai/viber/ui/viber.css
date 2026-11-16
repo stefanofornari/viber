@@ -69,6 +69,39 @@
 }
 
 /*******************************************************************************
+   AtlantaFX look & feel customizations
+*******************************************************************************/
+
+/* All buttons: hovered background (also overrides accent/success/danger/flat) */
+.button {
+    -color-button-bg-hover: -color-bg-inset;
+}
+
+/*
+  Accented buttons (incl. default buttons): dark background (-color-fg-default)
+  with light text (-color-bg-default), same look idle or focused (no bluish
+  focus color). On hover the background is -color-bg-inset, so text turns dark.
+*/
+.button.accent,
+.button:default {
+    -color-button-bg: -color-fg-default;
+    -color-button-bg-focused: -color-fg-default;
+    -color-button-bg-pressed: -color-fg-muted;
+
+    -color-button-fg: -color-bg-default;
+    -color-button-fg-focused: -color-bg-default;
+    -color-button-fg-pressed: -color-bg-default;
+    -color-button-fg-hover: -color-fg-default;
+}
+
+/* Focused and hovered at the same time: same as hover */
+.button.accent:focused:hover,
+.button:default:focused:hover {
+    -color-button-bg-focused: -color-bg-inset;
+    -color-button-fg-focused: -color-fg-default;
+}
+
+/*******************************************************************************
    Menu bar
 *******************************************************************************/
 .menu-item {
@@ -108,9 +141,19 @@
 }
 
 
-.action-bar-box {
-    -fx-border-color: transparent transparent -color-border-default transparent;
-    -fx-border-width: 0 0 1px 0;
+.tab .tab-label {
+    -fx-font-weight: bold;
+    -fx-graphic-text-gap: 8px;
+}
+
+.chat-tab-archive-button,
+.chat-tab-forget-button {
+    -fx-margin: 0 0 0 10px;
+}
+
+.chat-tab-archive-button .ikonli-font-icon,
+.chat-tab-forget-button .ikonli-font-icon {
+    -fx-icon-size: 12px;
 }
 
 /*******************************************************************************
@@ -251,7 +294,7 @@
 }
 
 .argument-chip .chip-copy-button:hover {
-    -fx-background-color: -color-bg-subtle;
+    -fx-background-color: -color-bg-inset;
 }
 
 .argument-chip .chip-copy-button:pressed {
@@ -321,6 +364,11 @@
     -fx-text-fill: -color-fg-default;
 }
 
+.tool-accept-button:hover,
+.tool-reject-button:hover {
+    -fx-background-color: -color-bg-inset;
+}
+
 
 /*******************************************************************************
    Questions Pane
@@ -388,7 +436,7 @@
 }
 
 .answer-button:hover {
-    -fx-background-color: derive(-fx-viber-color-accent-4, -10%);
+    -fx-background-color: -color-bg-inset;
 }
 
 .answer-button:disabled {

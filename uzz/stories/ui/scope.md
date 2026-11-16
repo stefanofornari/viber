@@ -1,12 +1,14 @@
-# Feature: Viber Chat UI — Scrolling and Radial Phase Selector
+# Feature: Viber Chat UI — Scrolling, Radial Phase Selector, and Chat Tab Lifecycle
 
 ## Overall Description
 
-Two related improvements to Viber's JavaFX chat interface.
+Improvements to Viber's JavaFX chat interface.
 
 **Scrolling** — enable scrolling in Viber's shared JavaFX chat renderer, used by both the standalone application and host applications embedding it. Mouse-wheel input scrolls content under the pointer first; when nested message content has reached its limit, a later wheel event can scroll the outer chat. Keyboard input scrolls the focused element.
 
-**Radial phase selector** — add a permanently visible radial control immediately to the left of the prompt input in the standalone ViberFX main window. The control exposes the workflow modes Scope, Story, Code, and Explore as radial wedges around a central hub, providing a direct alternative to selecting actors from the Actor menu. The radial is inline with the prompt `TextArea`, its overall diameter matches the input area height, and it occupies a fixed circular slot that never widens the input area. The central hub shows the active mode and a neutral indicator when a non-radial actor (Manual or LLM) is active. Selecting a wedge has exact behavioral parity with the corresponding menu action.
+**Radial phase selector** — the standalone ViberFX main window has a permanently visible radial control immediately to the left of the prompt input. The control exposes the workflow modes Scope, Story, Code, and Explore as radial wedges around a central hub, providing a direct alternative to selecting actors from the Actor menu. The radial is inline with the prompt `TextArea`, its overall diameter matches the input area height, and it occupies a fixed circular slot that never widens the input area. The central hub shows the active mode and a neutral indicator when a non-radial actor (Manual or LLM) is active. Selecting a wedge has exact behavioral parity with the corresponding menu action.
+
+**Chat tab lifecycle** — each chat tab title has separate small icon buttons for closing and archiving the conversation or closing and forgetting it. Archiving retains the complete conversation for future resumption. Forgetting requires confirmation and permanently discards the conversation. Finding and resuming archived conversations is outside this feature.
 
 ## In-Scope Capabilities
 
@@ -46,10 +48,18 @@ Two related improvements to Viber's JavaFX chat interface.
   - [ ] Preserve existing `scopePhaseIndicator` text and styling behavior after a radial selection.
   - [ ] Leave the existing Actor menu unchanged, including Manual, LLM, Scope, Story, and Coding entries.
 
+* **Chat Tab Lifecycle**:
+  - [ ] Each chat tab title contains separate small icon buttons for “Close and archive” and “Close and forget,” using the existing AtlantaFX framework and icon set.
+  - [ ] “Close and archive” closes the tab and retains the complete conversation in storage so it can be fully resumed by a future feature.
+  - [ ] “Close and forget” displays a confirmation warning that the conversation will be completely discarded.
+  - [ ] Declining or dismissing the confirmation leaves the tab and conversation unchanged.
+  - [ ] Confirming “Close and forget” closes the tab and discards an unarchived conversation from memory.
+  - [ ] Confirming “Close and forget” for a previously archived conversation closes the tab and discards it from storage.
+
 * **Integration**:
   - [ ] Add the `com.github.stefanofornari:fx-radial-menu:1.0-SNAPSHOT` Maven dependency.
   - [ ] Apply the radial menu AtlantaFX integration stylesheet as documented, after the application theme, if required for visual consistency.
-  - [ ] Keep UI construction separate from business logic according to `uzz/project/coding-standard.md`.
+  - [ ] Keep UI construction separate from business logic according to `uzz/project/coding_standard.md`.
 
 ## Out-of-Scope / Future Enhancements
 
@@ -66,14 +76,16 @@ Two related improvements to Viber's JavaFX chat interface.
 * Custom animations, tooltips, keyboard accelerators, or accessibility enhancements beyond `fx-radial-menu` defaults.
 * User-resizable radial size beyond tracking the input area height.
 * Persisting the active mode across application restarts.
+* Providing an interface to discover, browse, reopen, or resume archived conversations.
+* Restoring a conversation after it has been forgotten.
 
 ## Technical Context & Infrastructure
 
 * **Development Toolchain**: Java 21, JavaFX 23.0.2, CommonsFX, AtlantaFX, Maven, JUnit 5, TestFX, AssertJ, TDD-oriented workflow
-* **Target Systems/Platforms**: Standalone ViberFX desktop application (radial phase selector); shared JavaFX chat renderer including host applications embedding it (scrolling)
+* **Target Systems/Platforms**: Viber JavaFX desktop UI (chat tab lifecycle and radial phase selector); shared JavaFX chat renderer including host applications embedding it (scrolling)
 * **Project Reference Docs**:
-  - Coding Standard: `uzz/project/coding-standard.md`
-  - Development Framework: `uzz/project/development-framework.md`
+  - Coding Standard: `uzz/project/coding_standard.md`
+  - Development Framework: `uzz/project/development_framework.md`
   - Radial Menu Component: `uzz/library/fx-radial-menu.md`
 
 ### Keywords
@@ -87,4 +99,7 @@ Two related improvements to Viber's JavaFX chat interface.
 - scope-story-code
 - explore
 - actor-selection
+- chat-tabs
+- archive
+- forget
 - viberfx

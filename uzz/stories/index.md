@@ -27,9 +27,11 @@ This index lists the user stories derived from `stories/scope.md`.
 | [US-000021](ui/US-000021/US-000021.md) | Actor Selection Menu | DONE |
 | [US-000022](ui/US-000022/US-000022.md) | Actor Settings Configuration | TODO |
 | [US-000030](ui/US-000030/US-000030.md) | Tool Invocation and Execution Result Rendering | DONE |
-| [UI/US-000042](ui/US-000042/US-000042.md) | Scroll Chat Content with the Mouse Wheel | DONE |
-| [UI/US-000043](ui/US-000043/US-000043.md) | Scroll Focused Chat Content with the Keyboard | TODO |
+| [US-000042](ui/US-000042/US-000042.md) | Scroll Chat Content with the Mouse Wheel | DONE |
+| [US-000043](ui/US-000043/US-000043.md) | Scroll Focused Chat Content with the Keyboard | TODO |
 | [US-000060](ui/US-000060/US-000060.md) | Radial Workflow Mode Selector | DONE |
+| [US-000061](ui/US-000061/US-000061.md) | Close and Archive a Chat | WIP |
+| [US-000062](ui/US-000062/US-000062.md) | Confirm and Forget a Chat | WIP |
 
 ### actor
 
@@ -94,13 +96,13 @@ This index lists the user stories derived from `stories/scope.md`.
 ## Scope Reference
 
 - [Scope Overview](scope.md)
-- [Chat UI Feature Scope: Scrolling and Radial Phase Selector](ui/scope.md)
+- [Chat UI Feature Scope: Scrolling, Radial Phase Selector, and Chat Tab Lifecycle](ui/scope.md)
 - [Scope Phase Feature](scope/scope.md)
 - [Story Phase Feature](story/scope.md)
 - [Coding Phase Feature](code/scope.md)
 - [Scope Agent Integration](scope-agent-integration.md)
-- [Coding Standard](project/coding-standard.md)
-- [Development Framework](project/development-framework.md)
+- [Coding Standard](project/coding_standard.md)
+- [Development Framework](project/development_framework.md)
 
 ### Keywords
 - index

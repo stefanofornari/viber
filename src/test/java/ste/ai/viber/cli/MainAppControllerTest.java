@@ -4,10 +4,13 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.Parent;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.CheckMenuItem;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.DialogPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.SplitPane;
 import javafx.scene.input.MouseButton;
@@ -20,6 +23,7 @@ import javafx.scene.layout.VBox;
 import javafx.geometry.Bounds;
 import javafx.geometry.Pos;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -67,6 +71,70 @@ class MainAppControllerTest extends org.testfx.framework.junit5.ApplicationTest 
             .findFirst()
             .orElse(null);
         then(actorMenu).isNotNull();
+    }
+
+    @Test
+    void main_window_opens_with_an_empty_chat() {
+        MainAppController controller = loadController(null);
+        WaitForAsyncUtils.waitForFxEvents();
+
+        then(controller.conversation.getTabs()).hasSize(1);
+        HBox header = (HBox) controller.conversation.getTabs().get(0).getGraphic();
+        then(((Label) header.getChildren().get(0)).getText()).startsWith("Chat 1");
+        Button archive = tabButton(controller.conversation, 0, "chat-tab-archive-button");
+        Button forget = tabButton(controller.conversation, 0, "chat-tab-forget-button");
+        then(archive).isNotNull();
+        then(forget).isNotNull();
+        then(archive.isFocusTraversable()).isFalse();
+        then(forget.isFocusTraversable()).isFalse();
+    }
+
+    @Test
+    void archive_button_shows_persistence_not_yet_implemented_message() {
+        Conversation conversation = new Conversation().addChat(new Chat(new PromptMessage("Hello")));
+        MainAppController controller = loadController(conversation, null);
+        WaitForAsyncUtils.waitForFxEvents();
+
+        Button archiveButton = tabButton(controller.conversation, 0, "chat-tab-archive-button");
+        interact(archiveButton::fire);
+        WaitForAsyncUtils.waitForFxEvents();
+
+        AtomicReference<DialogPane> dialogPane = new AtomicReference<>();
+        interact(() -> dialogPane.set(dialogPaneWithContent("persistence not yet implemented")));
+
+        then(dialogPane.get()).isNotNull();
+        then(dialogPane.get().getContentText()).isEqualTo("persistence not yet implemented");
+
+        interact(() -> ((Button) dialogPane.get().lookupButton(ButtonType.OK)).fire());
+        WaitForAsyncUtils.waitForFxEvents();
+        then(controller.conversation.getTabs()).hasSize(1);
+    }
+
+    @Test
+    void confirmed_forget_shows_persistence_placeholder_without_closing_the_tab() {
+        Conversation conversation = new Conversation().addChat(new Chat(new PromptMessage("Hello")));
+        MainAppController controller = loadController(conversation, null);
+        WaitForAsyncUtils.waitForFxEvents();
+
+        Button forgetButton = tabButton(controller.conversation, 0, "chat-tab-forget-button");
+        interact(forgetButton::fire);
+        WaitForAsyncUtils.waitForFxEvents();
+
+        AtomicReference<DialogPane> confirmation = new AtomicReference<>();
+        interact(() -> confirmation.set(dialogPaneWithContent("completely discarded")));
+        then(confirmation.get()).isNotNull();
+        then(controller.conversation.getTabs()).hasSize(1);
+
+        interact(() -> dialogButton(confirmation.get(), "Forget").fire());
+        WaitForAsyncUtils.waitForFxEvents();
+
+        AtomicReference<DialogPane> unavailable = new AtomicReference<>();
+        interact(() -> unavailable.set(dialogPaneWithContent("persistence not yet implemented")));
+        then(unavailable.get()).isNotNull();
+        interact(() -> ((Button) unavailable.get().lookupButton(ButtonType.OK)).fire());
+        WaitForAsyncUtils.waitForFxEvents();
+
+        then(controller.conversation.getTabs()).hasSize(1);
     }
 
     @Test
@@ -542,6 +610,37 @@ class MainAppControllerTest extends org.testfx.framework.junit5.ApplicationTest 
             .findFirst()
             .orElseThrow();
         return actorMenu.getItems().get(index);
+    }
+
+    private Button tabButton(GUIRenderer renderer, int tabIndex, String styleClass) {
+        HBox actions = (HBox) renderer.getTabs().get(tabIndex).getGraphic();
+        return actions.getChildren().stream()
+            .filter(Button.class::isInstance)
+            .map(Button.class::cast)
+            .filter(button -> button.getStyleClass().contains(styleClass))
+            .findFirst()
+            .orElseThrow();
+    }
+
+    private DialogPane dialogPaneWithContent(String content) {
+        return Window.getWindows().stream()
+            .filter(Window::isShowing)
+            .filter(window -> window.getScene() != null)
+            .map(window -> window.getScene().getRoot().lookup(".dialog-pane"))
+            .filter(DialogPane.class::isInstance)
+            .map(DialogPane.class::cast)
+            .filter(dialog -> dialog.getContentText().contains(content))
+            .findFirst()
+            .orElseThrow();
+    }
+
+    private Button dialogButton(DialogPane dialogPane, String text) {
+        return dialogPane.getButtonTypes().stream()
+            .filter(buttonType -> buttonType.getText().equals(text))
+            .map(dialogPane::lookupButton)
+            .map(Button.class::cast)
+            .findFirst()
+            .orElseThrow();
     }
 
     private MainAppController loadController() {

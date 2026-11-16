@@ -35,13 +35,6 @@
                 <GUIRenderer fx:id="conversation" />
                 <VBox fx:id="inputArea">
                     <children>
-                        <HBox fx:id="interactionActionBar" alignment="CENTER" spacing="10.0" styleClass="action-bar-box">
-                            <children>
-                                <Button fx:id="doneAction" text="Done" styleClass="small" />
-                                <Button fx:id="discardAction" text="Trash" styleClass="small" />
-                                <Button fx:id="sendAction" text="Send" styleClass="small" defaultButton="true" />
-                            </children>
-                        </HBox>
                         <HBox fx:id="promptRow" spacing="10.0" styleClass="prompt-row" alignment="TOP_LEFT" VBox.vgrow="ALWAYS">
                             <children>
                                 <StackPane fx:id="radialSlot" styleClass="radial-slot" />

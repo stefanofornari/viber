@@ -4,6 +4,7 @@ import javafx.beans.binding.Bindings;
 
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
@@ -132,6 +133,8 @@ public class MainAppController implements Constants {
             }
         }
 
+        this.conversation.archiveHandler(this::persistenceNotImplemented);
+        this.conversation.forgetHandler(this::persistenceNotImplemented);
         this.conversation.render(conversation);
 
         updateActorMenuSelection();
@@ -165,6 +168,15 @@ public class MainAppController implements Constants {
                 e.consume();
             }
         });
+    }
+
+    private boolean persistenceNotImplemented(Chat chat) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Persistence unavailable");
+        alert.setHeaderText(null);
+        alert.setContentText("persistence not yet implemented");
+        alert.show();
+        return false;
     }
 
     public javafx.scene.Node getRoot() {

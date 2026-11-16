@@ -2,11 +2,11 @@ package ste.ai.viber.renderer;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.function.Predicate;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.TabPane;
-
 
 import ste.lazyjava.safe.Safe;
 import ste.llm.chat.model.Chat;
@@ -51,6 +51,30 @@ public class GUIRenderer extends TabPane implements Renderer, Safe {
         getStyleClass().add("root");
     }
 
+    /**
+     * Configures the archive hook used for chats rendered after this call.
+     * The handler should return {@code true} only after retaining the chat, which allows its tab
+     * to close; returning {@code false} leaves the tab open.
+     *
+     * @param archiveHandler handler that retains a chat and reports whether it succeeded
+     */
+    public void archiveHandler(Predicate<Chat> archiveHandler) {
+        requireNonNull(archiveHandler, "archiveHandler");
+        conversationPaneController.archiveHandler(archiveHandler);
+    }
+
+    /**
+     * Configures the forget hook used for chats rendered after this call.
+     * The handler should return {@code true} only after discarding the chat, which allows its tab
+     * to close; returning {@code false} leaves the tab open.
+     *
+     * @param forgetHandler handler that discards a chat and reports whether it succeeded
+     */
+    public void forgetHandler(Predicate<Chat> forgetHandler) {
+        requireNonNull(forgetHandler, "forgetHandler");
+        conversationPaneController.forgetHandler(forgetHandler);
+    }
+
     @Override
     public void render(Conversation conversation) {
         requireNonNull(conversation, "conversation");
@@ -62,6 +86,10 @@ public class GUIRenderer extends TabPane implements Renderer, Safe {
             for (Chat chat : conversation.chats()) {
                 renderChat(chat, index);
                 index++;
+            }
+
+            if (conversation.chats().isEmpty()) {
+                renderEmptyChat();
             }
 
             if (!conversation.chats().isEmpty()) {
@@ -99,17 +127,33 @@ public class GUIRenderer extends TabPane implements Renderer, Safe {
      */
     private void renderChat(Chat chat, int index) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("ChatPane.fxml"));
-            Parent chatNode = loader.load();
-            ChatPaneController chatController = loader.getController();
+            ChatPaneView chatPane = loadChatPane();
 
             on(chat.messages()).loop((message) -> {
-                chatController.appendMessage(message);
+                chatPane.controller().appendMessage(message);
             });
 
-            conversationPaneController.addChat(chatNode, "Chat " + index, chatController);
+            conversationPaneController.addChat(chatPane.node(), "Chat " + index, chat, chatPane.controller());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    private void renderEmptyChat() {
+        try {
+            ChatPaneView chatPane = loadChatPane();
+            conversationPaneController.addEmptyChat(chatPane.node(), "Chat 1", chatPane.controller());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    private ChatPaneView loadChatPane() throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("ChatPane.fxml"));
+        Parent chatNode = loader.load();
+        return new ChatPaneView(chatNode, loader.getController());
+    }
+
+    private record ChatPaneView(Parent node, ChatPaneController controller) {
     }
 }
