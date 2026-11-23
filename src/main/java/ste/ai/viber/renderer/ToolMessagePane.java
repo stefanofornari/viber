@@ -41,6 +41,7 @@ public class ToolMessagePane extends TitledPane implements Initializable {
             throw new UncheckedIOException(e);
         }
         getStyleClass().addAll("message", "message-tool");
+        setExpanded(false);
     }
 
     @Override
@@ -114,7 +115,6 @@ public class ToolMessagePane extends TitledPane implements Initializable {
         if (!title.endsWith(marker)) {
             setText(title + " " + marker);
         }
-        setExpanded(false);
     }
 
     String resultContent() {

@@ -59,9 +59,8 @@ public class MessagePane extends TitledPane implements Initializable {
 
         markdownPreview.setContent(content);
 
-        if ("TOOL_EXECUTION_RESPONSE".equals(type)) {
-            setExpanded(false);
-        }
+        // Only prompts and replies are shown expanded; everything else starts collapsed.
+        setExpanded("PROMPT".equals(type) || "REPLY".equals(type));
 
         WebEngine engine = webView.getEngine();
         if (documentListener != null) {
