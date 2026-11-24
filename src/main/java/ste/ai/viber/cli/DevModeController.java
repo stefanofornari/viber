@@ -62,18 +62,18 @@ public class DevModeController {
     MenuItem askConfirmationMenuItem;
 
     private FXActor fxActor;
-    private ChatSession chatSession;
+    private ConversationManager conversationManager;
     private GUIRenderer renderer;
     private List<Tool> tools;
     private Conversation conversation;
     private String selectedAskTool = null;
 
     public void initialize(FXActor fxActor, Conversation conversation, GUIRenderer renderer, List<Tool> tools) {
-        initialize(fxActor, conversation, renderer, tools, new ChatSession());
+        initialize(fxActor, conversation, renderer, tools, new ConversationManager());
     }
 
-    public void initialize(FXActor fxActor, Conversation conversation, GUIRenderer renderer, List<Tool> tools, ChatSession chatSession) {
-        this.chatSession = chatSession;
+    public void initialize(FXActor fxActor, Conversation conversation, GUIRenderer renderer, List<Tool> tools, ConversationManager conversationManager) {
+        this.conversationManager = conversationManager;
         this.fxActor = fxActor;
         this.conversation = conversation;
         this.renderer = renderer;
@@ -226,7 +226,7 @@ public class DevModeController {
         }
         // Same chat logic as the main flow: the prompt goes to the current chat
         // (a new one only if there is none yet), so no validation needed for AskTools JSON
-        fxActor.chat(chatSession.prompt(text).chat(), msg -> {
+        fxActor.chat(conversationManager.prompt(text).chat(), msg -> {
         });
     }
 

@@ -4,14 +4,15 @@ import ste.llm.chat.model.Chat;
 import ste.llm.chat.model.PromptMessage;
 
 /**
- * Keeps track of the chat the user is currently working on: every prompt goes
- * to the same chat until the session is {@link #reset() reset} (e.g. when the
- * chat is archived), after which the next prompt starts a new chat.
+ * Manages conversations and chats: it keeps track of the chat the user is
+ * currently working on, so that every prompt goes to the same chat until it is
+ * {@link #reset() reset} (e.g. when the chat is archived), after which the next
+ * prompt starts a new chat.
  *
  * <p>Shared by the main flow and the dev tool so that both follow the same
  * chat logic.</p>
  */
-public class ChatSession {
+public class ConversationManager {
 
     /**
      * The outcome of a prompt.
