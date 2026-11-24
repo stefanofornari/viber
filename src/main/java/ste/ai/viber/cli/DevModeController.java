@@ -226,8 +226,12 @@ public class DevModeController {
         }
         // Same chat logic as the main flow: the prompt goes to the current chat
         // (a new one only if there is none yet), so no validation needed for AskTools JSON
-        fxActor.chat(conversationManager.prompt(text).chat(), msg -> {
+        ConversationManager.Turn turn = conversationManager.prompt(text);
+        fxActor.chat(turn.chat(), msg -> {
         });
+        if (!turn.newChat()) {
+            fxActor.render(turn.prompt());
+        }
     }
 
     private void handleAddReply() {

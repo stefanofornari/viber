@@ -47,6 +47,39 @@ class FXActorTest {
     }
 
     @Test
+    void chat_does_not_render_conversation_again_for_a_known_chat() {
+        Conversation conversation = new Conversation();
+        RecordingRenderer renderer = new RecordingRenderer();
+        FXActor actor = new FXActor(conversation, renderer);
+
+        Chat chat = new Chat(new PromptMessage("hello"));
+        actor.chat(chat, msg -> {});
+        renderer.renderedConversations.clear();
+
+        chat.addMessage(new PromptMessage("again"));
+        actor.chat(chat, msg -> {});
+
+        then(conversation.chats()).containsExactly(chat);
+        then(renderer.renderedConversations).isEmpty();
+    }
+
+    @Test
+    void render_renders_the_message_without_adding_it_to_the_chat() {
+        Conversation conversation = new Conversation();
+        RecordingRenderer renderer = new RecordingRenderer();
+        FXActor actor = new FXActor(conversation, renderer);
+        Chat chat = new Chat(new PromptMessage("hello"));
+        actor.chat(chat, msg -> {});
+        PromptMessage followUp = new PromptMessage("again");
+        chat.addMessage(followUp);
+
+        actor.render(followUp);
+
+        then(renderer.renderedMessages).contains(followUp);
+        then(chat.messages()).containsExactly(chat.prompt(), followUp);
+    }
+
+    @Test
     void addReply_appends_reply_to_current_chat() {
         Conversation conversation = new Conversation();
         RecordingRenderer renderer = new RecordingRenderer();

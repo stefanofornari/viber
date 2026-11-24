@@ -52,11 +52,27 @@ public class FXActor implements Actor, Safe {
     public void chat(Chat chat, Consumer<ChatMessage> onMessage) {
         requireNonNull(chat, "chat");
         requireNonNull(onMessage, "onMessage");
-        if (!conversation.chats().contains(chat)) {
+        boolean known = conversation.chats().contains(chat);
+        if (!known) {
             conversation.addChat(chat);
         }
         currentChat = chat;
-        renderer.render(conversation);
+        if (!known) {
+            // a new chat: render it (with the rest of the conversation). A chat that
+            // is already rendered is not rebuilt, so its tab does not flicker.
+            renderer.render(conversation);
+        }
+    }
+
+    /**
+     * Renders a message that has already been added to the current chat, e.g. a
+     * follow-up prompt, without rebuilding the whole conversation.
+     *
+     * @param message the message to render
+     */
+    public void render(final ChatMessage message) {
+        requireNonNull(message, "message");
+        renderer.render(message);
     }
 
     @Override
