@@ -186,6 +186,10 @@ public class ConversationPaneController implements Initializable {
         }
     }
 
+    public boolean hasEmptyChat() {
+        return emptyChat != null;
+    }
+
     public void selectLast() {
         if (!chatsContainer.getTabs().isEmpty()) {
             chatsContainer.getSelectionModel().selectLast();

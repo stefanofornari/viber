@@ -11,9 +11,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.layout.StackPane;
 import ste.ai.viber.actor.FXActor;
 import ste.ai.viber.renderer.GUIRenderer;
-import ste.llm.chat.model.Chat;
 import ste.llm.chat.model.Conversation;
-import ste.llm.chat.model.PromptMessage;
 import ste.llm.tools.Tool;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -64,12 +62,18 @@ public class DevModeController {
     MenuItem askConfirmationMenuItem;
 
     private FXActor fxActor;
+    private ChatSession chatSession;
     private GUIRenderer renderer;
     private List<Tool> tools;
     private Conversation conversation;
     private String selectedAskTool = null;
 
     public void initialize(FXActor fxActor, Conversation conversation, GUIRenderer renderer, List<Tool> tools) {
+        initialize(fxActor, conversation, renderer, tools, new ChatSession());
+    }
+
+    public void initialize(FXActor fxActor, Conversation conversation, GUIRenderer renderer, List<Tool> tools, ChatSession chatSession) {
+        this.chatSession = chatSession;
         this.fxActor = fxActor;
         this.conversation = conversation;
         this.renderer = renderer;
@@ -220,8 +224,9 @@ public class DevModeController {
         if (text.isBlank()) {
             return;
         }
-        // Add Chat creates a new chat, so no validation needed for AskTools JSON
-        fxActor.chat(new Chat(new PromptMessage(text)), msg -> {
+        // Same chat logic as the main flow: the prompt goes to the current chat
+        // (a new one only if there is none yet), so no validation needed for AskTools JSON
+        fxActor.chat(chatSession.prompt(text).chat(), msg -> {
         });
     }
 

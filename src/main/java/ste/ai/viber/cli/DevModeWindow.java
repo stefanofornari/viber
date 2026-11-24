@@ -21,6 +21,10 @@ public class DevModeWindow {
     private final GUIRenderer renderer;
 
     public DevModeWindow(FXActor fxActor, Conversation conversation, Stage owner, List<Tool> tools) {
+        this(fxActor, conversation, owner, tools, new ChatSession());
+    }
+
+    public DevModeWindow(FXActor fxActor, Conversation conversation, Stage owner, List<Tool> tools, ChatSession chatSession) {
         this.fxActor = fxActor;
         this.conversation = conversation;
         this.stage = new Stage();
@@ -30,7 +34,7 @@ public class DevModeWindow {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("DevModeWindow.fxml"));
             Parent root = loader.load();
             DevModeController controller = loader.getController();
-            controller.initialize(fxActor, conversation, renderer, tools);
+            controller.initialize(fxActor, conversation, renderer, tools, chatSession);
             stage.setScene(new javafx.scene.Scene(root, 800, 600));
             stage.setTitle("Viber - Dev Mode");
         } catch (IOException e) {

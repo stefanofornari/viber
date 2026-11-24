@@ -84,7 +84,7 @@ public class MainAppController implements Constants {
     CheckMenuItem codingActorItem;
 
     private Conversation conversationModel;
-    private Chat currentChat;
+    private final ChatSession chatSession = new ChatSession();
     private Actor currentActor;
     private CLIOptions options;
     private String currentActorType = "FXActor";
@@ -126,7 +126,7 @@ public class MainAppController implements Constants {
                 listener[0] = (obs, oldVal, newVal) -> {
                     if (newVal && devModeWindow == null) {
                         owner.showingProperty().removeListener(listener[0]);
-                        devModeWindow = new DevModeWindow(fxActor, conversation, owner, defaultTools());
+                        devModeWindow = new DevModeWindow(fxActor, conversation, owner, defaultTools(), chatSession);
                         devModeWindow.show();
                     }
                 };
@@ -173,9 +173,10 @@ public class MainAppController implements Constants {
 
     private boolean archive(Chat chat) {
         boolean archived = persistenceNotImplemented(chat);
-        if (archived && chat == currentChat) {
-            // the next prompt starts a new chat (in the new tab)
-            currentChat = null;
+        if (chatSession.isCurrent(chat)) {
+            // the next prompt starts a new chat, in a new tab
+            chatSession.reset();
+            conversation.newChat();
         }
         return archived;
     }
@@ -336,7 +337,7 @@ public class MainAppController implements Constants {
 
     private void onMenuActorSwitch() {
         // a different actor owns a different conversation: next prompt starts a new chat
-        currentChat = null;
+        chatSession.reset();
         resetRadialHighlight();
         updateHub();
     }
@@ -409,7 +410,7 @@ public class MainAppController implements Constants {
             radialError = null;
 
             if (devModeWindow == null && owner != null && owner.isShowing()) {
-                devModeWindow = new DevModeWindow(fxActor, conversationModel, owner, defaultTools());
+                devModeWindow = new DevModeWindow(fxActor, conversationModel, owner, defaultTools(), chatSession);
                 devModeWindow.show();
             }
         } finally {
@@ -570,16 +571,12 @@ public class MainAppController implements Constants {
         }
 
         // Keep working on the same chat until it is archived
-        final Chat chat;
-        if (currentChat == null) {
-            chat = new Chat(new PromptMessage(text));
-            currentChat = chat;
+        final ChatSession.Turn turn = chatSession.prompt(text);
+        final Chat chat = turn.chat();
+        if (turn.newChat()) {
             conversation.render(chat);
         } else {
-            chat = currentChat;
-            PromptMessage followUp = new PromptMessage(text);
-            chat.addMessage(followUp);
-            conversation.render(followUp);
+            conversation.render(turn.prompt());
         }
         Thread chatThread = new Thread(() -> currentActor.chat(chat, msg -> conversation.render(msg)));
         chatThread.setDaemon(true);

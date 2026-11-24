@@ -60,16 +60,7 @@ public class GUIRenderer extends TabPane implements Renderer, Safe {
      */
     public void archiveHandler(Predicate<Chat> archiveHandler) {
         requireNonNull(archiveHandler, "archiveHandler");
-        conversationPaneController.archiveHandler(chat -> {
-            boolean archived = archiveHandler.test(chat);
-            if (archived) {
-                // the archived tab is closed right after this returns; open a
-                // new empty tab for the next chat and select it afterwards
-                renderEmptyChat();
-                Platform.runLater(conversationPaneController::selectLast);
-            }
-            return archived;
-        });
+        conversationPaneController.archiveHandler(archiveHandler);
     }
 
     /**
@@ -82,6 +73,19 @@ public class GUIRenderer extends TabPane implements Renderer, Safe {
     public void forgetHandler(Predicate<Chat> forgetHandler) {
         requireNonNull(forgetHandler, "forgetHandler");
         conversationPaneController.forgetHandler(forgetHandler);
+    }
+
+    /**
+     * Opens a new empty chat tab (unless one is already waiting) and selects it, so
+     * that the next chat goes there.
+     */
+    public void newChat() {
+        Platform.runLater(() -> {
+            if (!conversationPaneController.hasEmptyChat()) {
+                renderEmptyChat();
+            }
+            conversationPaneController.selectLast();
+        });
     }
 
     @Override
