@@ -27,7 +27,7 @@ Before writing any code, evaluate the user story against the **INVEST** principl
 - **Action:** If **YES**, halt implementation. Propose a breakdown into 2+ smaller, independent vertical user stories and ask the user for confirmation before proceeding. If **NO**, proceed to Step 2.
 
 ### Step 2: Mark In Progress, Then Gather Context & Rules
-- Update the story's row in `uzz/stories/index.md` to status `WIP`, so the backlog reflects that work has started before diving in.
+- Update the story's row in `uzz/stories/index.md` to status `WIP`, so the backlog reflects that work has started before diving into it.
 - Inspect the target codebase and existing domain specifications.
 - Read the coding-standard and development-framework docs to ensure design alignment.
 - Identify all affected files, modules, and dependencies.

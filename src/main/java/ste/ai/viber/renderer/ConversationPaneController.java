@@ -17,15 +17,19 @@ import javafx.scene.layout.HBox;
 import org.kordamp.ikonli.feather.Feather;
 import org.kordamp.ikonli.javafx.FontIcon;
 import ste.llm.chat.model.Chat;
+import ste.llm.chat.model.ChatMessage;
+import ste.llm.chat.model.ToolInvocationMessage;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.function.Predicate;
+import java.util.logging.Logger;
 import javafx.geometry.Orientation;
 import javafx.scene.control.Separator;
 
 public class ConversationPaneController implements Initializable {
 
+    private static final Logger LOG = Logger.getLogger(ConversationPaneController.class.getName());
     private static final ButtonType FORGET_BUTTON = new ButtonType("Forget", ButtonBar.ButtonData.OK_DONE);
 
     @FXML
@@ -90,11 +94,53 @@ public class ConversationPaneController implements Initializable {
     private Button archiveButton(Chat chat, Tab tab) {
         Button button = iconButton(Feather.MINUS, "chat-tab-archive-button", "Close and archive");
         button.setOnAction(event -> {
+            logChatMessages(chat, (ChatPaneController) tab.getUserData());
             if (chat == null || archiveHandler.test(chat)) {
                 closeTab(tab);
             }
         });
         return button;
+    }
+
+    private void logChatMessages(Chat chat, ChatPaneController chatPane) {
+        if (chat == null) {
+            return;
+        }
+
+        LOG.fine(() -> chatMessageDetails(chat, chatPane));
+    }
+
+    private String chatMessageDetails(Chat chat, ChatPaneController chatPane) {
+        StringBuilder details = new StringBuilder("Archived chat messages:");
+        int index = 1;
+        for (ChatMessage message : chat.messages()) {
+            details.append(System.lineSeparator())
+                .append("Message ").append(index++)
+                .append(System.lineSeparator())
+                .append("Type: ").append(MessagePane.messageTypeFor(message))
+                .append(System.lineSeparator())
+                .append("Title/name: ").append(messageName(message))
+                .append(System.lineSeparator())
+                .append("Pane state: ").append(messagePaneState(chatPane, message))
+                .append(System.lineSeparator())
+                .append("Content:").append(System.lineSeparator())
+                .append(message.content());
+        }
+
+        return details.toString();
+    }
+
+    private String messagePaneState(ChatPaneController chatPane, ChatMessage message) {
+        return chatPane.messagePaneExpanded(message)
+            .map(expanded -> expanded ? "unfolded" : "collapsed")
+            .orElse("unavailable");
+    }
+
+    private String messageName(ChatMessage message) {
+        return switch (message) {
+            case ToolInvocationMessage invocation -> invocation.invocation.name;
+            default -> message.role().name();
+        };
     }
 
     private Button forgetButton(Chat chat, Tab tab) {

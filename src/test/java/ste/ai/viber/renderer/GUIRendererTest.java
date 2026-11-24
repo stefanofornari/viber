@@ -4,8 +4,14 @@ import org.junit.jupiter.api.Test;
 import org.testfx.util.WaitForAsyncUtils;
 import ste.ai.viber.cli.ViberApplication;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
 
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.assertj.core.api.BDDAssertions.thenThrownBy;
@@ -155,6 +161,63 @@ class GUIRendererTest extends org.testfx.framework.junit5.ApplicationTest {
         then(archiveButton.getAccessibleText()).isEqualTo("Close and archive");
         then(handledChat.get()).isSameAs(archivedChat);
         then(renderer.getTabs()).containsExactly(remainingTab);
+    }
+
+    @Test
+    void archive_button_logs_each_message_with_type_name_and_multiline_content() throws Exception {
+        GUIRenderer renderer = new GUIRenderer();
+        Chat chat = new Chat(new PromptMessage("first line\nsecond line"));
+        chat.addMessage(new ToolInvocationMessage(
+            new InvocationJSONObject("search", new JSONObject("{\"query\":\"terms\"}"))
+        ));
+        renderer.archiveHandler(ignored -> false);
+
+        Logger logger = Logger.getLogger(ConversationPaneController.class.getName());
+        Level previousLevel = logger.getLevel();
+        List<LogRecord> records = new ArrayList<>();
+        Handler handler = new Handler() {
+            @Override
+            public void publish(LogRecord record) {
+                records.add(record);
+            }
+
+            @Override
+            public void flush() {
+            }
+
+            @Override
+            public void close() {
+            }
+        };
+        logger.setLevel(Level.ALL);
+        logger.addHandler(handler);
+
+        try {
+            interact(() -> renderer.render(new Conversation().addChat(chat)));
+            WaitForAsyncUtils.waitForFxEvents();
+
+            ChatPaneController chatPane = (ChatPaneController) renderer.getTabs().get(0).getUserData();
+            MessagePane promptPane = (MessagePane) chatPane.messagesContainerChildren().get(0);
+            ToolMessagePane toolPane = (ToolMessagePane) chatPane.messagesContainerChildren().get(1);
+            promptPane.setExpanded(false);
+            toolPane.setExpanded(true);
+
+            interact(() -> archiveButton(renderer.getTabs().get(0)).fire());
+
+            then(records).hasSize(1);
+            then(records.get(0).getLevel()).isEqualTo(Level.FINE);
+            then(records.get(0).getMessage())
+                .contains("Type: PROMPT")
+                .contains("Title/name: VIBER")
+                .contains("Content:\nfirst line\nsecond line")
+                .contains("Pane state: collapsed")
+                .contains("Type: TOOL_EXECUTION_REQUEST")
+                .contains("Title/name: search")
+                .contains("Pane state: unfolded");
+        } finally {
+            logger.removeHandler(handler);
+            logger.setLevel(previousLevel);
+        }
     }
 
     @Test

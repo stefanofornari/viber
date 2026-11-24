@@ -4,13 +4,17 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TitledPane;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.VBox;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import ste.llm.chat.model.ChatMessage;
 import ste.llm.chat.model.ErrorMessage;
 import ste.llm.chat.model.ToolExecutionMessage;
@@ -28,6 +32,7 @@ public class ChatPaneController {
     private String lastMessageType = null;
     private Node lastMessagePane = null;
     private final Deque<PendingToolResult> pendingToolResults = new ArrayDeque<>();
+    private final Map<ChatMessage, Node> messagePanes = new IdentityHashMap<>();
 
     @FXML
     private void initialize() {
@@ -136,6 +141,7 @@ public class ChatPaneController {
         pane.invocation(invocation);
         addMessage(pane);
         lastMessagePane = pane;
+        messagePanes.put(invocation, pane);
         lastMessageType = "TOOL_INVOCATION";
         pendingToolResults.addLast(new PendingToolResult(null, pane));
     }
@@ -144,10 +150,12 @@ public class ChatPaneController {
         PendingToolResult pending = pendingToolResults.pollFirst();
         if (pending != null && pending.isAskTool()) {
             handleAskToolResponse(pending.question(), execution);
+            messagePanes.put(execution, lastMessagePane);
             return;
         }
         if (pending != null && pending.pane() != null) {
             appendToolExecutionResult(pending.pane(), execution);
+            messagePanes.put(execution, pending.pane());
             return;
         }
         if ("TOOL_EXECUTION_RESPONSE".equals(lastMessageType)) {
@@ -156,11 +164,13 @@ public class ChatPaneController {
         }
         if (lastMessagePane instanceof ToolMessagePane toolPane) {
             appendToolExecutionResult(toolPane, execution);
+            messagePanes.put(execution, toolPane);
         } else {
             ToolMessagePane pane = new ToolMessagePane();
             appendToolExecutionResult(pane, execution);
             addMessage(pane);
             lastMessagePane = pane;
+            messagePanes.put(execution, pane);
             lastMessageType = "TOOL_EXECUTION";
         }
     }
@@ -178,6 +188,7 @@ public class ChatPaneController {
             ToolMessagePane failedPane = pending.pane();
             failedPane.appendResult(error.content());
             failedPane.executionFailed();
+            messagePanes.put(error, failedPane);
             return;
         }
         handleRegularMessage(error);
@@ -215,6 +226,7 @@ public class ChatPaneController {
         } else {
             ((MessagePane) lastMessagePane).appendMessage(message);
         }
+        messagePanes.put(message, lastMessagePane);
     }
 
     public void clear() {
@@ -222,10 +234,18 @@ public class ChatPaneController {
         lastMessageType = null;
         lastMessagePane = null;
         pendingToolResults.clear();
+        messagePanes.clear();
     }
 
     public List<Node> messagesContainerChildren() {
         return new ArrayList<>(messagesContainer.getChildren());
+    }
+
+    Optional<Boolean> messagePaneExpanded(ChatMessage message) {
+        Node pane = messagePanes.get(message);
+        return pane instanceof TitledPane titledPane
+            ? Optional.of(titledPane.isExpanded())
+            : Optional.empty();
     }
 
     private record PendingToolResult(String question, ToolMessagePane pane) {

@@ -31,12 +31,10 @@ home=$(dirname "$scriptdir")
 set_java
 set_classpath "$home/lib"
 
-cd "$home"
-
 #
 # Java options and command line arguments
 #
-JAVA_OPTS="-Djava.util.logging.config.file="$home/bin/logging.properties" --module-path lib/modules --add-modules=javafx.controls,javafx.fxml,javafx.web $JAVA_OPTS"
+JAVA_OPTS="-Djava.util.logging.config.file=$home/bin/logging.properties --module-path $home/lib/modules --add-modules=javafx.controls,javafx.fxml,javafx.web $JAVA_OPTS"
 #JAVA_OPTS="$JAVA_OPTS -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=1044"
 
 #
@@ -45,4 +43,4 @@ JAVA_OPTS="-Djava.util.logging.config.file="$home/bin/logging.properties" --modu
 load_config $scriptname
 
 exec 2>&1
-exec $uidcmd $javacmd $JAVA_OPTS ste.ai.viber.Main "$@"
+exec $uidcmd $javacmd $JAVA_OPTS -cp "$CLASSPATH" -Duser.dir="$(pwd)" ste.ai.viber.Main "$@"
