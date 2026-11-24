@@ -52,7 +52,9 @@ public class FXActor implements Actor, Safe {
     public void chat(Chat chat, Consumer<ChatMessage> onMessage) {
         requireNonNull(chat, "chat");
         requireNonNull(onMessage, "onMessage");
-        conversation.addChat(chat);
+        if (!conversation.chats().contains(chat)) {
+            conversation.addChat(chat);
+        }
         currentChat = chat;
         renderer.render(conversation);
     }
