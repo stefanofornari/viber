@@ -1,4 +1,4 @@
-# Feature: Viber Chat UI — Scrolling, Radial Phase Selector, and Chat Tab Lifecycle
+# Feature: Viber Chat UI — Scrolling, Radial Phase Selector, Chat Tab Lifecycle, and Status Line
 
 ## Overall Description
 
@@ -9,6 +9,8 @@ Improvements to Viber's JavaFX chat interface.
 **Radial phase selector** — the standalone ViberFX main window has a permanently visible radial control immediately to the left of the prompt input. The control exposes the workflow modes Scope, Story, Code, and Explore as radial wedges around a central hub, providing a direct alternative to selecting actors from the Actor menu. The radial is inline with the prompt `TextArea`, its overall diameter matches the input area height, and it occupies a fixed circular slot that never widens the input area. The central hub shows the active mode and a neutral indicator when a non-radial actor (Manual or LLM) is active. Selecting a wedge has exact behavioral parity with the corresponding menu action.
 
 **Chat tab lifecycle** — each chat tab title has separate small icon buttons for closing and archiving the conversation or closing and forgetting it. Archiving retains the complete conversation for future resumption. Forgetting requires confirmation and permanently discards the conversation. Finding and resuming archived conversations is outside this feature.
+
+**Status line** — the standalone ViberFX main window has a read-only status line at the bottom, below the conversation and prompt area, showing the project name and the project working directory. The project name is the first level-1 heading of `uzz/project/overview.md` (resolved against the working directory); when the file is missing, unreadable or has no such heading, the name of the working directory's folder is shown instead. The working directory is the JVM current working directory (`user.dir`), the same directory the actors' file tools are rooted at. The full absolute path is shown, truncated in the middle when it does not fit, with the full path in a tooltip. Both values are read once at startup.
 
 ## In-Scope Capabilities
 
@@ -56,6 +58,17 @@ Improvements to Viber's JavaFX chat interface.
   - [ ] Confirming “Close and forget” closes the tab and discards an unarchived conversation from memory.
   - [ ] Confirming “Close and forget” for a previously archived conversation closes the tab and discards it from storage.
 
+* **Status Line**:
+  - [ ] Render a read-only status line at the bottom of the standalone ViberFX main window (`MainAppWindow`), below the conversation/input `SplitPane`, spanning the window width.
+  - [ ] Show the project name and the working directory in the status line.
+  - [ ] Take the project name from the first level-1 heading (`# `) of `uzz/project/overview.md`, resolved against the working directory.
+  - [ ] Fall back to the name of the working directory's folder when `uzz/project/overview.md` is missing, unreadable, or has no non-blank level-1 heading.
+  - [ ] Use the JVM current working directory (`user.dir`) as the working directory, consistent with the directory used by the actors' file tools.
+  - [ ] Show the full absolute path of the working directory, truncated in the middle when it does not fit the available width, with the full path in a tooltip.
+  - [ ] Read both values once at startup; the status line does not refresh while the application is running.
+  - [ ] A missing or unreadable `overview.md` is not an error: no dialog, no exception, and the main window still opens.
+  - [ ] Leave the layout of the `SplitPane`, prompt row, radial slot and `scopePhaseIndicator` unchanged.
+
 * **Integration**:
   - [ ] Add the `com.github.stefanofornari:fx-radial-menu:1.0-SNAPSHOT` Maven dependency.
   - [ ] Apply the radial menu AtlantaFX integration stylesheet as documented, after the application theme, if required for visual consistency.
@@ -78,6 +91,13 @@ Improvements to Viber's JavaFX chat interface.
 * Persisting the active mode across application restarts.
 * Providing an interface to discover, browse, reopen, or resume archived conversations.
 * Restoring a conversation after it has been forgotten.
+* Adding the status line to the embeddable JavaFX component, the Dev Mode window, `ViberNB`, or `ViberCLI`.
+* Creating, seeding or editing `uzz/project/overview.md` (neither by the application nor from the status line).
+* Refreshing or watching the status line while the application is running (project or file changes, changing directory).
+* Making the project name or working directory selectable, clickable or editable (copy path, open folder, switch project).
+* Showing further information in the status line (version, Git branch, active actor or model, connection state).
+* Reading any other `overview.md` field (version, group/artifact ID) or other formats (front matter, non-`#` first lines).
+* Changing how the actors resolve their working directory, or introducing a configurable working directory.
 
 ## Technical Context & Infrastructure
 
@@ -103,3 +123,7 @@ Improvements to Viber's JavaFX chat interface.
 - archive
 - forget
 - viberfx
+- status-line
+- project-name
+- working-directory
+- overview
