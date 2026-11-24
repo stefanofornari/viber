@@ -92,7 +92,7 @@ public class LangChain4jActor implements Actor, Safe {
             conversation.addChat(chat);
         }
 
-        PromptMessage prompt = chat.prompt();
+        PromptMessage prompt = Prompts.latest(chat);
 
         CountDownLatch latch = new CountDownLatch(1);
         AtomicReference<Throwable> error = new AtomicReference<>();

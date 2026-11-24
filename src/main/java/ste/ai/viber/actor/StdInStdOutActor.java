@@ -16,7 +16,7 @@ public class StdInStdOutActor implements Actor {
 
     @Override
     public void chat(Chat chat, Consumer<ChatMessage> onMessage) {
-        PromptMessage prompt = chat.prompt();
+        PromptMessage prompt = Prompts.latest(chat);
         String reply = "Echo: " + prompt.content();
         ReplyMessage replyMessage = new ReplyMessage(reply);
         chat.addMessage(replyMessage);

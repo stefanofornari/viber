@@ -48,7 +48,7 @@ public abstract class AgentActorBase implements Actor, Safe {
             conversation.addChat(chat);
         }
 
-        PromptMessage prompt = chat.prompt();
+        PromptMessage prompt = Prompts.latest(chat);
         TokenStream tokenStream = createTokenStream(prompt.content());
         handleTokenStream(tokenStream, chat, onMessage);
     }

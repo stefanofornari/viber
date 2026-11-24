@@ -84,6 +84,7 @@ public class MainAppController implements Constants {
     CheckMenuItem codingActorItem;
 
     private Conversation conversationModel;
+    private Chat currentChat;
     private Actor currentActor;
     private CLIOptions options;
     private String currentActorType = "FXActor";
@@ -133,7 +134,7 @@ public class MainAppController implements Constants {
             }
         }
 
-        this.conversation.archiveHandler(this::persistenceNotImplemented);
+        this.conversation.archiveHandler(this::archive);
         this.conversation.forgetHandler(this::persistenceNotImplemented);
         this.conversation.render(conversation);
 
@@ -168,6 +169,15 @@ public class MainAppController implements Constants {
                 e.consume();
             }
         });
+    }
+
+    private boolean archive(Chat chat) {
+        boolean archived = persistenceNotImplemented(chat);
+        if (archived && chat == currentChat) {
+            // the next prompt starts a new chat (in the new tab)
+            currentChat = null;
+        }
+        return archived;
     }
 
     private boolean persistenceNotImplemented(Chat chat) {
@@ -325,6 +335,8 @@ public class MainAppController implements Constants {
     }
 
     private void onMenuActorSwitch() {
+        // a different actor owns a different conversation: next prompt starts a new chat
+        currentChat = null;
         resetRadialHighlight();
         updateHub();
     }
@@ -557,8 +569,18 @@ public class MainAppController implements Constants {
             return;
         }
 
-        Chat chat = new Chat(new PromptMessage(text));
-        conversation.render(chat);
+        // Keep working on the same chat until it is archived
+        final Chat chat;
+        if (currentChat == null) {
+            chat = new Chat(new PromptMessage(text));
+            currentChat = chat;
+            conversation.render(chat);
+        } else {
+            chat = currentChat;
+            PromptMessage followUp = new PromptMessage(text);
+            chat.addMessage(followUp);
+            conversation.render(followUp);
+        }
         Thread chatThread = new Thread(() -> currentActor.chat(chat, msg -> conversation.render(msg)));
         chatThread.setDaemon(true);
         chatThread.start();

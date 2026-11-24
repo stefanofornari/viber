@@ -60,7 +60,16 @@ public class GUIRenderer extends TabPane implements Renderer, Safe {
      */
     public void archiveHandler(Predicate<Chat> archiveHandler) {
         requireNonNull(archiveHandler, "archiveHandler");
-        conversationPaneController.archiveHandler(archiveHandler);
+        conversationPaneController.archiveHandler(chat -> {
+            boolean archived = archiveHandler.test(chat);
+            if (archived) {
+                // the archived tab is closed right after this returns; open a
+                // new empty tab for the next chat and select it afterwards
+                renderEmptyChat();
+                Platform.runLater(conversationPaneController::selectLast);
+            }
+            return archived;
+        });
     }
 
     /**
