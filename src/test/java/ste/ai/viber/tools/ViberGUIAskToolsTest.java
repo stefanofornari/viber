@@ -19,6 +19,7 @@ import org.testfx.framework.junit5.ApplicationTest;
 import org.testfx.util.WaitForAsyncUtils;
 import ste.uzzo.agent.tools.NoAnswerException;
 
+@org.junit.jupiter.api.extension.ExtendWith(ste.ai.viber.cli.TestNameLogger.class)
 class ViberGUIAskToolsTest extends ApplicationTest {
 
     private VBox root = null;
@@ -29,16 +30,20 @@ class ViberGUIAskToolsTest extends ApplicationTest {
 
     private final ViberGUIAskTools TOOLS = new ViberGUIAskTools(ADD_QUESTION);
 
+    private Stage stage = null;
+
     @Override
     public void start(Stage stage) {
+        this.stage = stage;
         root = new VBox();
 
-        stage.setScene(new Scene(root, 400, 200));
+        stage.setScene(ste.ai.viber.test.FXTestSupport.styled(new Scene(root, 400, 200)));
         stage.show();
     }
 
     @BeforeEach
     void before(TestInfo testInfo) {
+        ste.ai.viber.test.FXTestSupport.focus(stage);
         final String name = testInfo.getTestMethod().get().getName();
         System.out.println('\n' + name + '\n' + "-".repeat(name.length()));
     }

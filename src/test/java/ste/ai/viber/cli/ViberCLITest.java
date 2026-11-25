@@ -16,6 +16,7 @@ import ste.llm.chat.model.ErrorMessage;
 import ste.llm.chat.model.PromptMessage;
 import ste.llm.chat.model.ReplyMessage;
 
+@org.junit.jupiter.api.extension.ExtendWith(TestNameLogger.class)
 class ViberCLITest {
 
     @Test

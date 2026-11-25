@@ -8,6 +8,7 @@ import static com.github.stefanbirkner.systemlambda.SystemLambda.withTextFromSys
 import static org.assertj.core.api.BDDAssertions.then;
 import ste.xtest.llm.DummyStreamingChatModel;
 
+@org.junit.jupiter.api.extension.ExtendWith(ste.ai.viber.cli.TestNameLogger.class)
 class HelloWorldViberTest {
 
     @Test

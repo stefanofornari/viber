@@ -19,6 +19,7 @@ import ste.llm.chat.model.ToolExecutionMessage;
 import ste.llm.chat.model.ToolInvocationMessage;
 import ste.xtest.json.api.JSONAssertions;
 
+@org.junit.jupiter.api.extension.ExtendWith(ste.ai.viber.cli.TestNameLogger.class)
 class FXActorTest {
 
     @Test

@@ -28,6 +28,7 @@ import java.util.List;
 
 import static org.assertj.core.api.BDDAssertions.then;
 
+@org.junit.jupiter.api.extension.ExtendWith(TestNameLogger.class)
 class DevModeControllerTest extends org.testfx.framework.junit5.ApplicationTest {
 
     private Stage stage;
@@ -541,7 +542,7 @@ class DevModeControllerTest extends org.testfx.framework.junit5.ApplicationTest 
             controller.conversationContainer.getChildren().add(node);
         });
 
-        interact(() -> stage.setScene(new Scene(new VBox(mainRenderer, root))));
+        interact(() -> stage.setScene(ste.ai.viber.test.FXTestSupport.styled(new Scene(new VBox(mainRenderer, root)))));
         WaitForAsyncUtils.waitForFxEvents();
 
         Chat[] chat = new Chat[1];

@@ -39,12 +39,13 @@ import ste.llm.chat.model.ToolExecutionMessage;
 import ste.llm.chat.model.ToolInvocationMessage;
 import ste.llm.tools.InvocationJSONObject;
 
+@org.junit.jupiter.api.extension.ExtendWith(ste.ai.viber.cli.TestNameLogger.class)
 class GUIRendererTest extends org.testfx.framework.junit5.ApplicationTest {
 
     @Override
     public void start(Stage stage) {
         ViberApplication.HOST = new javafx.application.HostServices();
-        stage.setScene(new Scene(new StackPane()));
+        stage.setScene(ste.ai.viber.test.FXTestSupport.styled(new Scene(new StackPane())));
         stage.show();
     }
 

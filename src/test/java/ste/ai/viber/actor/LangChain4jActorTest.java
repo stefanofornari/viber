@@ -39,6 +39,7 @@ import ste.llm.tools.FileSystemTools;
 import ste.llm.tools.InputTool;
 import ste.xtest.llm.DummyStreamingChatModel;
 
+@org.junit.jupiter.api.extension.ExtendWith(ste.ai.viber.cli.TestNameLogger.class)
 class LangChain4jActorTest {
 
     @Test

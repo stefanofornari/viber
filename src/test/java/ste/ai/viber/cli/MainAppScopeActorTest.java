@@ -16,6 +16,7 @@ import picocli.CommandLine;
 import ste.ai.viber.actor.ScopeActor;
 import ste.ai.viber.cli.command.CLIOptions;
 
+@org.junit.jupiter.api.extension.ExtendWith(TestNameLogger.class)
 class MainAppScopeActorTest extends ApplicationTest {
 
     private MainAppController controller;
@@ -25,7 +26,7 @@ class MainAppScopeActorTest extends ApplicationTest {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("MainAppWindow.fxml"));
         Parent root = loader.load();
         controller = loader.getController();
-        stage.setScene(new Scene(root));
+        stage.setScene(ste.ai.viber.test.FXTestSupport.styled(new Scene(root)));
         stage.show();
     }
 

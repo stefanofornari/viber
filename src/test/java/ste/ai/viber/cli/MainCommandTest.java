@@ -6,6 +6,7 @@ import ste.ai.viber.cli.command.CLIOptions;
 
 import static org.assertj.core.api.BDDAssertions.then;
 
+@org.junit.jupiter.api.extension.ExtendWith(TestNameLogger.class)
 class MainCommandTest {
 
     @Test

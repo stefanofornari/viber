@@ -590,8 +590,7 @@ class MainAppControllerTest extends org.testfx.framework.junit5.ApplicationTest 
     private void layoutNow(MainAppController controller, double width, double height) {
         Parent root = (Parent) controller.getRoot();
         if (root.getScene() == null) {
-            Scene scene = new Scene(root, width, height);
-            scene.getStylesheets().add("/ste/ai/viber/ui/viber.css");
+            Scene scene = ste.ai.viber.test.FXTestSupport.styled(new Scene(root, width, height));
             stage.setScene(scene);
             stage.show();
         } else {
@@ -710,7 +709,7 @@ class MainAppControllerTest extends org.testfx.framework.junit5.ApplicationTest 
 
         interact(() -> {
             controller.human(pane);
-            stage.setScene(new Scene(root, 700, 800));
+            stage.setScene(ste.ai.viber.test.FXTestSupport.styled(new Scene(root, 700, 800)));
             root.applyCss();
             root.layout();
         });
@@ -736,10 +735,12 @@ class MainAppControllerTest extends org.testfx.framework.junit5.ApplicationTest 
 
         interact(() -> {
             controller.human(pane);
-            stage.setScene(new Scene(root, 700, 900));
+            stage.setScene(ste.ai.viber.test.FXTestSupport.styled(new Scene(root, 700, 900)));
             stage.show();
             root.applyCss();
             root.resize(700, 900);
+            root.layout();
+            splitPane.setDividerPositions(0.75);
             root.layout();
             paneHeights[0] = pane.getHeight();
 

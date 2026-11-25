@@ -20,6 +20,7 @@ import static org.assertj.core.api.BDDAssertions.then;
 import static org.assertj.core.api.BDDAssertions.thenThrownBy;
 import ste.xtest.llm.DummyStreamingChatModel;
 
+@org.junit.jupiter.api.extension.ExtendWith(ste.ai.viber.cli.TestNameLogger.class)
 class ScopeActorTest {
 
     @Test

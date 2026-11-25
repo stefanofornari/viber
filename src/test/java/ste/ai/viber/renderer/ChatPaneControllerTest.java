@@ -26,6 +26,7 @@ import ste.llm.tools.InvocationJSONObject;
 import org.json.JSONObject;
 import static ste.uzzo.agent.tools.AskTools.ASK_QUESTION;
 
+@org.junit.jupiter.api.extension.ExtendWith(ste.ai.viber.cli.TestNameLogger.class)
 class ChatPaneControllerTest extends ApplicationTest {
 
     private Stage stage;
@@ -102,7 +103,7 @@ class ChatPaneControllerTest extends ApplicationTest {
                 VBox outerContent = new VBox(fixture.root(), createTallContent());
                 ScrollPane outer = new ScrollPane(outerContent);
                 outer.setPrefViewportHeight(150);
-                stage.setScene(new Scene(outer, 250, 180));
+                stage.setScene(ste.ai.viber.test.FXTestSupport.styled(new Scene(outer, 250, 180)));
                 stage.sizeToScene();
                 layout(outer);
                 layout(fixture.root());
@@ -140,7 +141,7 @@ class ChatPaneControllerTest extends ApplicationTest {
                 nested.setPrefSize(170, 120);
                 fixture.controller().addMessage(nested);
                 fixture.controller().addMessage(createTallContent());
-                stage.setScene(new Scene(fixture.root(), 250, 180));
+                stage.setScene(ste.ai.viber.test.FXTestSupport.styled(new Scene(fixture.root(), 250, 180)));
                 stage.sizeToScene();
                 layout(fixture.root());
                 nested.layout();
@@ -285,7 +286,7 @@ class ChatPaneControllerTest extends ApplicationTest {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("ChatPane.fxml"));
         Parent root = loader.load();
         ChatPaneController controller = loader.getController();
-        interact(() -> stage.setScene(new Scene(root)));
+        interact(() -> stage.setScene(ste.ai.viber.test.FXTestSupport.styled(new Scene(root))));
         WaitForAsyncUtils.waitForFxEvents();
         ToolInvocationMessage invocation = new ToolInvocationMessage(
             new InvocationJSONObject("SomeOtherTool", new JSONObject().put("param", "value"))

@@ -16,6 +16,7 @@ import org.json.JSONObject;
 import ste.llm.chat.model.ToolInvocationMessage;
 import ste.llm.tools.InvocationJSONObject;
 
+@org.junit.jupiter.api.extension.ExtendWith(ste.ai.viber.cli.TestNameLogger.class)
 class QuestionsPanelTest extends ApplicationTest {
 
     private Stage stage;
@@ -109,7 +110,7 @@ class QuestionsPanelTest extends ApplicationTest {
             for (int i = 0; i < 10; i++) {
                 panel.questions.add(question("Question " + i + "?", "AskMultipleChoice"));
             }
-            stage.setScene(new Scene(new VBox(panel), 500, 700));
+            stage.setScene(ste.ai.viber.test.FXTestSupport.styled(new Scene(new VBox(panel), 500, 700)));
             stage.getScene().getRoot().applyCss();
             stage.getScene().getRoot().layout();
             scrollPane[0] = (ScrollPane) panel.lookup(".questions-scroll-pane");
@@ -126,7 +127,7 @@ class QuestionsPanelTest extends ApplicationTest {
 
         interact(() -> {
             panel.questions.add(question("A short question?", "AskMultipleChoice"));
-            stage.setScene(new Scene(new VBox(panel), 500, 700));
+            stage.setScene(ste.ai.viber.test.FXTestSupport.styled(new Scene(new VBox(panel), 500, 700)));
             stage.getScene().getRoot().applyCss();
             stage.getScene().getRoot().layout();
         });
@@ -142,7 +143,7 @@ class QuestionsPanelTest extends ApplicationTest {
 
         interact(() -> {
             panel.questions.add(CONFIRMATION);
-            stage.setScene(new Scene(new VBox(panel), 500, 700));
+            stage.setScene(ste.ai.viber.test.FXTestSupport.styled(new Scene(new VBox(panel), 500, 700)));
             stage.getScene().getRoot().applyCss();
             stage.getScene().getRoot().layout();
             scrollPane[0] = (ScrollPane) panel.lookup(".questions-scroll-pane");
