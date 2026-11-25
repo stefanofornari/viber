@@ -32,7 +32,7 @@ This index lists the user stories derived from `stories/scope.md`.
 | [US-000060](ui/US-000060/US-000060.md) | Radial Workflow Mode Selector | DONE |
 | [US-000061](ui/US-000061/US-000061.md) | Close and Archive a Chat | WIP |
 | [US-000062](ui/US-000062/US-000062.md) | Confirm and Forget a Chat | WIP |
-| [US-000063](ui/US-000063/US-000063.md) | Status Line with Project Name and Working Directory | TODO |
+| [US-000063](ui/US-000063/US-000063.md) | Status Line with Project Name and Working Directory | WIP |
 
 ### actor
 

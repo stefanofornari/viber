@@ -27,6 +27,7 @@ import javafx.stage.Window;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.testfx.util.WaitForAsyncUtils;
 import ste.ai.viber.cli.command.CLIOptions;
 import ste.ai.viber.renderer.GUIRenderer;
@@ -39,6 +40,8 @@ import ste.llm.chat.model.PromptMessage;
 import ste.llm.chat.model.ToolInvocationMessage;
 import ste.llm.tools.InvocationJSONObject;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
@@ -50,6 +53,9 @@ import static org.assertj.core.api.BDDAssertions.then;
 class MainAppControllerTest extends org.testfx.framework.junit5.ApplicationTest {
 
     private Stage stage;
+
+    @TempDir
+    Path tmp;
 
     @Override
     public void start(Stage stage) {
@@ -640,6 +646,84 @@ class MainAppControllerTest extends org.testfx.framework.junit5.ApplicationTest 
             .map(Button.class::cast)
             .findFirst()
             .orElseThrow();
+    }
+
+    @Test
+    void status_line_is_at_the_bottom_of_the_window_below_the_split_pane() {
+        MainAppController controller = loadController(null);
+        VBox root = (VBox) controller.getRoot();
+        HBox statusLine = (HBox) root.lookup("#statusLine");
+
+        interact(() -> {
+            stage.setScene(new Scene(root, 700, 500));
+            stage.show();
+            root.applyCss();
+            root.layout();
+        });
+
+        then(root.getChildren().get(1)).isInstanceOf(SplitPane.class);
+        then(root.getChildren().getLast()).isSameAs(statusLine);
+        then(statusLine.getBoundsInParent().getMinY()).isGreaterThanOrEqualTo(root.getChildren().get(1).getBoundsInParent().getMaxY());
+        then(statusLine.getBoundsInParent().getMaxY()).isCloseTo(root.getHeight(), within(1.0));
+        then(statusLine.getWidth()).isCloseTo(root.getWidth(), within(1.0));
+    }
+
+    @Test
+    void status_line_shows_project_name_and_working_directory() throws Exception {
+        MainAppController controller = loadController(null);
+        Path dir = Files.createDirectories(tmp.resolve("work/acme"));
+        Files.createDirectories(dir.resolve("uzz/project"));
+        Files.writeString(dir.resolve("uzz/project/overview.md"), "# Viber\n");
+
+        interact(() -> controller.statusLine(new ProjectInfo(dir)));
+
+        Label name = (Label) controller.getRoot().lookup("#projectName");
+        Label path = (Label) controller.getRoot().lookup("#workingDirectory");
+        then(name.getText()).isEqualTo("Viber");
+        then(path.getText()).isEqualTo(dir.toAbsolutePath().toString());
+    }
+
+    @Test
+    void status_line_shows_the_folder_name_when_overview_is_missing() throws Exception {
+        MainAppController controller = loadController(null);
+        Path dir = Files.createDirectories(tmp.resolve("work/acme"));
+
+        interact(() -> controller.statusLine(new ProjectInfo(dir)));
+
+        Label name = (Label) controller.getRoot().lookup("#projectName");
+        then(name.getText()).isEqualTo("acme");
+    }
+
+    @Test
+    void status_line_is_filled_from_the_current_working_directory_at_startup() {
+        MainAppController controller = loadController(null);
+        ProjectInfo expected = new ProjectInfo(Path.of(System.getProperty("user.dir")));
+
+        Label name = (Label) controller.getRoot().lookup("#projectName");
+        Label path = (Label) controller.getRoot().lookup("#workingDirectory");
+        then(name.getText()).isEqualTo(expected.name());
+        then(path.getText()).isEqualTo(expected.workingDirectory().toString());
+    }
+
+    @Test
+    void long_path_is_truncated_in_the_middle_with_the_full_path_in_a_tooltip() throws Exception {
+        MainAppController controller = loadController(null);
+        VBox root = (VBox) controller.getRoot();
+        Path dir = Path.of("/very/long/working/directory/path/that/will/not/fit/in/the/status/line/of/the/window/project-acme");
+
+        interact(() -> {
+            controller.statusLine(new ProjectInfo(dir));
+            stage.setScene(new Scene(root, 300, 400));
+            stage.show();
+            root.applyCss();
+            root.layout();
+        });
+
+        Label path = (Label) root.lookup("#workingDirectory");
+        javafx.scene.text.Text shown = (javafx.scene.text.Text) path.lookup(".text");
+        then(shown.getText()).startsWith("/very").endsWith("project-acme").contains("...");
+        then(shown.getText().length()).isLessThan(dir.toString().length());
+        then(path.getTooltip().getText()).isEqualTo(dir.toString());
     }
 
     private MainAppController loadController() {

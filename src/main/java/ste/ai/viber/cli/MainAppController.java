@@ -33,6 +33,7 @@ import ste.llm.chat.model.Conversation;
 import ste.llm.chat.model.PromptMessage;
 import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
+import java.nio.file.Path;
 import java.util.List;
 import ste.uzzo.agent.tools.AskTools;
 import ste.ai.viber.tools.ViberGUIAskTools;
@@ -67,6 +68,15 @@ public class MainAppController implements Constants {
 
     @FXML
     VBox inputArea;
+
+    @FXML
+    HBox statusLine;
+
+    @FXML
+    Label projectName;
+
+    @FXML
+    Label workingDirectory;
 
     @FXML
     CheckMenuItem fxActorItem;
@@ -142,6 +152,8 @@ public class MainAppController implements Constants {
 
         initializeRadialSelector();
 
+        statusLine(new ProjectInfo(Path.of(System.getProperty("user.dir"))));
+
         fxActorItem.setOnAction(e -> {
             switchToFXActor();
             onMenuActorSwitch();
@@ -192,6 +204,21 @@ public class MainAppController implements Constants {
 
     public javafx.scene.Node getRoot() {
         return root;
+    }
+
+    /**
+     * Shows the given project in the status line: its name and the full
+     * absolute path of its working directory (the path is also available as a
+     * tooltip, as it may be truncated in the middle to fit the window).
+     *
+     * @param project the project to show
+     */
+    void statusLine(final ProjectInfo project) {
+        final String path = project.workingDirectory().toString();
+
+        projectName.setText(project.name());
+        workingDirectory.setText(path);
+        workingDirectory.setTooltip(new Tooltip(path));
     }
 
     Label radialHub() {
