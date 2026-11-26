@@ -1,10 +1,16 @@
 package ste.ai.viber.cli;
 
+import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.function.Supplier;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.stage.FileChooser;
+import ste.ai.viber.storyeditor.UserStoryEditor;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
@@ -21,6 +27,42 @@ import java.util.Map;
 import static ste.lloop.Loop.on;
 
 public class DevModeController {
+
+    private static final String SAMPLE_STORY = """
+        ## US-000999 — Sample story proposed by an LLM
+
+        ### User Story
+
+        ```
+        AS A User
+        I WANT to review a story proposed by an LLM
+        SO THAT I can adjust it before saving
+        ```
+
+        #### Status
+        TODO
+
+        #### Dependencies
+        - None
+
+        #### Technical Context & Constraints
+        * **Target System**: JavaFX desktop application
+
+        #### Notes
+        1. Sample content for trying out the story editor.
+
+        ### Acceptance Criteria
+
+        ```gherkin
+        Scenario: Proposal is shown
+          Given an LLM proposed a story
+          When it is loaded in the editor
+          Then the user can edit every field
+        ```
+
+        ### Keywords
+        - sample
+        """;
 
     @FXML
     StackPane conversationContainer;
@@ -61,6 +103,29 @@ public class DevModeController {
     @FXML
     MenuItem askConfirmationMenuItem;
 
+    @FXML
+    UserStoryEditor storyEditor;
+
+    @FXML
+    Button openStoryButton;
+
+    @FXML
+    Button saveStoryButton;
+
+    @FXML
+    Button sampleStoryButton;
+
+    @FXML
+    Label storyErrorLabel;
+
+    /** Chooses the story file to open; {@code null} means cancelled. Replaceable for tests. */
+    Supplier<Path> storyFileOpener = this::chooseStoryFileToOpen;
+
+    /** Chooses the file to save a story to; {@code null} means cancelled. Replaceable for tests. */
+    Supplier<Path> storyFileSaver = this::chooseStoryFileToSave;
+
+    private Path storyFile;
+
     private FXActor fxActor;
     private ConversationManager conversationManager;
     private GUIRenderer renderer;
@@ -99,6 +164,53 @@ public class DevModeController {
 
         inputText.textProperty().addListener((obs, old, text) -> updateButtonStates());
         updateButtonStates();
+        initializeStoryEditor();
+    }
+
+    private void initializeStoryEditor() {
+        openStoryButton.setOnAction(e -> openStory());
+        saveStoryButton.setOnAction(e -> saveStory());
+        sampleStoryButton.setOnAction(e -> {
+            storyFile = null;
+            storyEditor.load(SAMPLE_STORY);
+        });
+        storyEditor.errorProperty().addListener((obs, old, error) ->
+            storyErrorLabel.setText(error == null ? "" : String.valueOf(error.getMessage())));
+    }
+
+    private void openStory() {
+        final Path file = storyFileOpener.get();
+        if (file == null) {
+            return;
+        }
+        storyEditor.load(file);
+        if (storyEditor.error() == null) {
+            storyFile = file;
+        }
+    }
+
+    private void saveStory() {
+        Path file = storyFile;
+        if (file == null) {
+            file = storyFileSaver.get();
+            if (file == null) {
+                return;
+            }
+        }
+        storyEditor.save(file);
+        if (storyEditor.error() == null) {
+            storyFile = file;
+        }
+    }
+
+    private Path chooseStoryFileToOpen() {
+        final File file = new FileChooser().showOpenDialog(storyEditor.getScene().getWindow());
+        return file == null ? null : file.toPath();
+    }
+
+    private Path chooseStoryFileToSave() {
+        final File file = new FileChooser().showSaveDialog(storyEditor.getScene().getWindow());
+        return file == null ? null : file.toPath();
     }
 
     private void updateButtonStates() {

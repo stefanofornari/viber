@@ -1,0 +1,12 @@
+.user-story-editor .scenario-pane > .title {
+    -fx-font-size: 1em;
+}
+
+.user-story-editor .scenario-pane > .title > .text {
+    -fx-font-size: 1em;
+    -fx-font-weight: normal;
+}
+
+.user-story-editor .scenario-text {
+    -fx-font-family: monospace;
+}

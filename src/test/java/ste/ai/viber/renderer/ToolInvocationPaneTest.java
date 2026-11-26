@@ -5,6 +5,7 @@ import org.testfx.framework.junit5.ApplicationTest;
 
 import static org.assertj.core.api.BDDAssertions.then;
 
+@org.junit.jupiter.api.extension.ExtendWith(ste.ai.viber.cli.TestNameLogger.class)
 class ToolInvocationPaneTest extends ApplicationTest {
 
     @Test

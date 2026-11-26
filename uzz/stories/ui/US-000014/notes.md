@@ -12,6 +12,8 @@
 - **Testability**: `createConversationNode(Chat, int)` and `createMessageNode(ChatMessage)` are package-private to allow direct unit testing without showing stages. Tests use TestFX `interact()` to run FX-dependent code on the FX thread.
 - **AtlantaFX styles**: CSS uses AtlantaFX-inspired visual language (muted backgrounds, colored left borders) while staying compatible with standard JavaFX CSS.
 
+- **Follow latest content**: `ChatPaneController` keeps the chat `ScrollPane` at the bottom when `messagesContainer` grows. Following is suspended when the user scrolls up and resumes when they return to the bottom (or when nothing overflows the viewport).
+
 ## Trade-offs
 
 - `WebView` adds weight but enables future markdown/HTML rendering. For plain text, a `Label` or `TextArea` would be lighter.

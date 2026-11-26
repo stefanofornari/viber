@@ -11,6 +11,7 @@ import static ste.ai.viber.log.HTTPLogParser.KEY_TYPE;
 /**
  * Tests for HTTPLogParser
  */
+@org.junit.jupiter.api.extension.ExtendWith(ste.ai.viber.cli.TestNameLogger.class)
 public class HTTPLogParserTest {
 
     private final String LOG1 =

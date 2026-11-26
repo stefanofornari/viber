@@ -12,6 +12,7 @@ import org.testfx.framework.junit5.Start;
 import static org.assertj.core.api.BDDAssertions.then;
 
 @ExtendWith(ApplicationExtension.class)
+@org.junit.jupiter.api.extension.ExtendWith(ste.ai.viber.cli.TestNameLogger.class)
 class LogViewerTest {
 
     private LogViewer logViewer;

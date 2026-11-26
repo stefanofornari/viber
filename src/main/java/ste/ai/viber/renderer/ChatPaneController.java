@@ -29,6 +29,8 @@ public class ChatPaneController {
     @FXML
     private VBox messagesContainer;
 
+    private boolean followLatest = true;
+    private double knownContentHeight = 0;
     private String lastMessageType = null;
     private Node lastMessagePane = null;
     private final Deque<PendingToolResult> pendingToolResults = new ArrayDeque<>();
@@ -37,6 +39,25 @@ public class ChatPaneController {
     @FXML
     private void initialize() {
         root.addEventFilter(ScrollEvent.SCROLL, this::handleScroll);
+        root.vvalueProperty().addListener((o, was, now) -> {
+            // ScrollPane resets the value on its own when the content starts overflowing:
+            // only changes with a stable content height are made by the user
+            if (messagesContainer.getLayoutBounds().getHeight() == knownContentHeight) {
+                followLatest = isAtBottom();
+            }
+        });
+        messagesContainer.heightProperty().addListener((o, was, now) -> {
+            knownContentHeight = now.doubleValue();
+            if (followLatest) {
+                Platform.runLater(() -> root.setVvalue(root.getVmax()));
+            }
+        });
+    }
+
+    // Without overflow there is nothing to scroll, so new content must be followed
+    private boolean isAtBottom() {
+        return messagesContainer.getLayoutBounds().getHeight() <= root.getViewportBounds().getHeight()
+            || root.getVvalue() >= root.getVmax() - 0.001;
     }
 
     private void handleScroll(ScrollEvent event) {

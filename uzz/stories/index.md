@@ -94,6 +94,23 @@ This index lists the user stories derived from `stories/scope.md`.
 | [US-000058](code/US-000058/US-000058.md) | CLI Coding Phase Indication | TODO |
 | [US-000059](code/US-000059/US-000059.md) | Conversation History Maintenance in Coding Phase | TODO |
 
+### storyeditor
+
+| ID | Title | Status |
+|----|-------|--------|
+| [US-000064](storyeditor/US-000064/US-000064.md) | UserStory JavaFX Model with Markdown Round-Trip | DONE |
+| [US-000065](storyeditor/US-000065/US-000065.md) | UserStoryEditor Control with Header Fields | DONE |
+| [US-000066](storyeditor/US-000066/US-000066.md) | Edit Story Dependencies | DONE |
+| [US-000067](storyeditor/US-000067/US-000067.md) | Edit Gherkin Acceptance Scenarios | DONE |
+| [US-000068](storyeditor/US-000068/US-000068.md) | Edit Technical Context and Notes | DONE |
+| [US-000069](storyeditor/US-000069/US-000069.md) | Load and Save Story Files | DONE |
+| [US-000070](storyeditor/US-000070/US-000070.md) | Raw Markdown Tab Synchronized with Structured View | TODO |
+| [US-000071](storyeditor/US-000071/US-000071.md) | Markdown Preview Button | TODO |
+| [US-000072](storyeditor/US-000072/US-000072.md) | Unsaved-Changes Indication | TODO |
+| [US-000073](storyeditor/US-000073/US-000073.md) | Read-Only Mode | TODO |
+| [US-000075](storyeditor/US-000075/US-000075.md) | UserStoryEditor in the Manual Actor Dev Mode Window | DONE |
+| [US-000076](storyeditor/US-000076/US-000076.md) | Constrain Dependencies to Existing User Stories (deferred) | TODO |
+
 ## Scope Reference
 
 - [Scope Overview](scope.md)
@@ -101,6 +118,7 @@ This index lists the user stories derived from `stories/scope.md`.
 - [Scope Phase Feature](scope/scope.md)
 - [Story Phase Feature](story/scope.md)
 - [Coding Phase Feature](code/scope.md)
+- [UserStoryEditor Control Feature](storyeditor/scope.md)
 - [Scope Agent Integration](scope-agent-integration.md)
 - [Coding Standard](project/coding_standard.md)
 - [Development Framework](project/development_framework.md)

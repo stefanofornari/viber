@@ -35,7 +35,9 @@ public class DevModeWindow {
             Parent root = loader.load();
             DevModeController controller = loader.getController();
             controller.initialize(fxActor, conversation, renderer, tools, conversationManager);
-            stage.setScene(new javafx.scene.Scene(root, 800, 600));
+            final javafx.scene.Scene scene = new javafx.scene.Scene(root, 800, 600);
+            scene.getStylesheets().add(getClass().getResource("/ste/ai/viber/ui/viber.css").toExternalForm());
+            stage.setScene(scene);
             stage.setTitle("Viber - Dev Mode");
         } catch (IOException e) {
             throw new UncheckedIOException(e);

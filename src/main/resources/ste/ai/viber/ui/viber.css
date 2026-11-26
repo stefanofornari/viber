@@ -493,3 +493,7 @@
 .radial-hub-error {
     -fx-text-fill: red;
 }
+.status-line {
+    -fx-border-color: -color-border-muted transparent transparent transparent;
+    -fx-border-width: 1 0 0 0;
+}

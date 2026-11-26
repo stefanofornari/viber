@@ -123,6 +123,13 @@ class ChatPaneControllerTest extends ApplicationTest {
         then(outer.getVvalue()).isGreaterThan(outer.getVmin());
     }
 
+    private Region createContent(double height) {
+        Region content = new Region();
+        content.setMinSize(150, height);
+        content.setPrefSize(150, height);
+        return content;
+    }
+
     private Region createTallContent() {
         Region content = new Region();
         content.setMinSize(150, 600);
@@ -150,6 +157,8 @@ class ChatPaneControllerTest extends ApplicationTest {
                 throw new RuntimeException(e);
             }
         });
+        WaitForAsyncUtils.waitForFxEvents();
+        interact(() -> result[0].chat().setVvalue(result[0].chat().getVmin()));
         return result[0];
     }
 
@@ -322,5 +331,45 @@ class ChatPaneControllerTest extends ApplicationTest {
         WaitForAsyncUtils.waitForFxEvents();
 
         then(controller.messagesContainerChildren()).isEmpty();
+    }
+
+    @Test
+    void chat_scrolls_to_the_latest_message_when_content_overflows_the_viewport() throws Exception {
+        ChatPaneFixture[] fixture = new ChatPaneFixture[1];
+        interact(() -> {
+            try {
+                fixture[0] = loadChatPane();
+                stage.setScene(ste.ai.viber.test.FXTestSupport.styled(new Scene(fixture[0].root(), 250, 180)));
+                stage.sizeToScene();
+                layout(fixture[0].root());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+        ScrollPane chat = (ScrollPane) fixture[0].root();
+
+        // one message at a time, so that the content grows from fitting to overflowing the viewport
+        for (int i = 0; i < 6; i++) {
+            interact(() -> fixture[0].controller().addMessage(createContent(60)));
+            WaitForAsyncUtils.waitForFxEvents();
+        }
+
+        then(chat.getContent().getLayoutBounds().getHeight()).isGreaterThan(chat.getViewportBounds().getHeight());
+        then(chat.getVvalue()).isEqualTo(chat.getVmax());
+    }
+
+    @Test
+    void chat_does_not_scroll_to_new_messages_when_the_user_scrolled_up() throws Exception {
+        ScrollPanes panes = createChatWithNestedContent(100, 80);
+        ScrollPane chat = panes.chat();
+        interact(() -> chat.setVvalue(chat.getVmin()));
+        WaitForAsyncUtils.waitForFxEvents();
+
+        interact(() -> {
+            ((VBox) chat.getContent()).getChildren().add(createTallContent());
+        });
+        WaitForAsyncUtils.waitForFxEvents();
+
+        then(chat.getVvalue()).isEqualTo(chat.getVmin());
     }
 }

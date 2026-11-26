@@ -14,6 +14,7 @@ import javafx.application.Platform;
 import static org.assertj.core.api.BDDAssertions.then;
 
 @ExtendWith(ApplicationExtension.class)
+@org.junit.jupiter.api.extension.ExtendWith(ste.ai.viber.cli.TestNameLogger.class)
 class LogViewerHandlerTest {
 
     private final String LOG1 = "HTTP response:\n- status code: 200\n- headers: [content-type: application/json]\n- body: {\"id\":\"b19c37da-e5ae-44de-b463-d8d01ca7aacb\"}";

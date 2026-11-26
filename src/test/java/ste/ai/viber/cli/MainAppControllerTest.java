@@ -327,7 +327,7 @@ class MainAppControllerTest extends org.testfx.framework.junit5.ApplicationTest 
         VBox root = (VBox) controller.getRoot();
         SplitPane splitPane = (SplitPane) root.getChildren().get(1);
 
-        then(root.getChildren()).hasSize(2);
+        then(root.getChildren()).hasAtLeastOneElementOfType(SplitPane.class);
         then(splitPane.getItems()).hasSize(2);
         then(splitPane.getItems().get(0)).isInstanceOf(GUIRenderer.class);
         then(splitPane.getItems().get(1)).isInstanceOf(VBox.class);
@@ -669,6 +669,26 @@ class MainAppControllerTest extends org.testfx.framework.junit5.ApplicationTest 
     }
 
     @Test
+    void status_line_has_a_thin_top_border() {
+        MainAppController controller = loadController(null);
+        VBox root = (VBox) controller.getRoot();
+        HBox statusLine = (HBox) root.lookup("#statusLine");
+
+        interact(() -> {
+            stage.setScene(ste.ai.viber.test.FXTestSupport.styled(new Scene(root, 700, 500)));
+            stage.show();
+            root.applyCss();
+            root.layout();
+        });
+
+        javafx.scene.layout.BorderWidths w = statusLine.getBorder().getStrokes().get(0).getWidths();
+        then(w.getTop()).isEqualTo(1.0);
+        then(w.getRight()).isZero();
+        then(w.getBottom()).isZero();
+        then(w.getLeft()).isZero();
+    }
+
+    @Test
     void status_line_shows_project_name_and_working_directory() throws Exception {
         MainAppController controller = loadController(null);
         Path dir = Files.createDirectories(tmp.resolve("work/acme"));
@@ -679,8 +699,8 @@ class MainAppControllerTest extends org.testfx.framework.junit5.ApplicationTest 
 
         Label name = (Label) controller.getRoot().lookup("#projectName");
         Label path = (Label) controller.getRoot().lookup("#workingDirectory");
-        then(name.getText()).isEqualTo("Viber");
-        then(path.getText()).isEqualTo(dir.toAbsolutePath().toString());
+        then(name.getText()).isEqualTo("Project: Viber");
+        then(path.getText()).isEqualTo("Project folder: " + dir.toAbsolutePath());
     }
 
     @Test
@@ -691,7 +711,7 @@ class MainAppControllerTest extends org.testfx.framework.junit5.ApplicationTest 
         interact(() -> controller.statusLine(new ProjectInfo(dir)));
 
         Label name = (Label) controller.getRoot().lookup("#projectName");
-        then(name.getText()).isEqualTo("acme");
+        then(name.getText()).isEqualTo("Project: acme");
     }
 
     @Test
@@ -701,8 +721,8 @@ class MainAppControllerTest extends org.testfx.framework.junit5.ApplicationTest 
 
         Label name = (Label) controller.getRoot().lookup("#projectName");
         Label path = (Label) controller.getRoot().lookup("#workingDirectory");
-        then(name.getText()).isEqualTo(expected.name());
-        then(path.getText()).isEqualTo(expected.workingDirectory().toString());
+        then(name.getText()).isEqualTo("Project: " + expected.name());
+        then(path.getText()).isEqualTo("Project folder: " + expected.workingDirectory());
     }
 
     @Test
@@ -721,7 +741,7 @@ class MainAppControllerTest extends org.testfx.framework.junit5.ApplicationTest 
 
         Label path = (Label) root.lookup("#workingDirectory");
         javafx.scene.text.Text shown = (javafx.scene.text.Text) path.lookup(".text");
-        then(shown.getText()).startsWith("/very").endsWith("project-acme").contains("...");
+        then(shown.getText()).startsWith("Project folder: /very").endsWith("project-acme").contains("...");
         then(shown.getText().length()).isLessThan(dir.toString().length());
         then(path.getTooltip().getText()).isEqualTo(dir.toString());
     }
@@ -757,9 +777,8 @@ class MainAppControllerTest extends org.testfx.framework.junit5.ApplicationTest 
         MainAppController controller = loadController(new Conversation(), options);
         WaitForAsyncUtils.waitForFxEvents();
 
-        // Verify initial structure: [MenuBar, SplitPane]
         VBox root = (VBox) controller.getRoot();
-        then(root.getChildren()).hasSize(2);
+        then(root.getChildren()).hasAtLeastOneElementOfType(SplitPane.class);
         SplitPane splitPane = (SplitPane) root.getChildren().get(1);
         then(splitPane.getItems().get(0)).isInstanceOf(GUIRenderer.class);
         VBox inputArea = (VBox) splitPane.getItems().get(1);

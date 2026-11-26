@@ -216,8 +216,8 @@ public class MainAppController implements Constants {
     void statusLine(final ProjectInfo project) {
         final String path = project.workingDirectory().toString();
 
-        projectName.setText(project.name());
-        workingDirectory.setText(path);
+        projectName.setText("Project: " + project.name());
+        workingDirectory.setText("Project folder: " + path);
         workingDirectory.setTooltip(new Tooltip(path));
     }
 
