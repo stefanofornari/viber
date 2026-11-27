@@ -10,12 +10,12 @@ import javafx.scene.Scene;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import ste.ai.viber.actor.Actor;
+import ste.ai.viber.actor.ChatModels;
 import ste.ai.viber.actor.LangChain4jActor;
 import ste.ai.viber.actor.StdInStdOutActor;
 import ste.ai.viber.cli.command.CLIOptions;
 import atlantafx.base.theme.NordLight;
 import dev.langchain4j.model.chat.StreamingChatModel;
-import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
 import picocli.CommandLine;
 
 import java.io.InputStreamReader;
@@ -35,7 +35,6 @@ public class ViberApplication extends Application {
     public void start(Stage primaryStage) {
         Application.setUserAgentStylesheet(new NordLight().getUserAgentStylesheet());
 
-        System.out.println("parameters: " + getParameters().getRaw());
         String[] args = getParameters().getRaw().toArray(new String[0]);
         CLIOptions options = new CLIOptions();
         CommandLine cmd = new CommandLine(options);
@@ -112,14 +111,7 @@ public class ViberApplication extends Application {
             return new StdInStdOutActor();
         }
 
-        StreamingChatModel chatModel = OpenAiStreamingChatModel.builder()
-            .baseUrl(options.endpoint())
-            .apiKey(options.key())
-            .modelName(options.model())
-            .returnThinking(true)
-            .logRequests(true)
-            .logResponses(true)
-            .build();
+        StreamingChatModel chatModel = ChatModels.openAi(options.endpoint(), options.key(), options.model());
 
         try {
             return new LangChain4jActor(

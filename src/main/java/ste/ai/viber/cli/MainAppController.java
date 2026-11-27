@@ -18,6 +18,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import ste.ai.viber.actor.Actor;
+import ste.ai.viber.actor.ChatModels;
 import ste.ai.viber.actor.CodingActor;
 import ste.ai.viber.actor.FXActor;
 import ste.ai.viber.actor.LangChain4jActor;
@@ -32,10 +33,9 @@ import ste.llm.chat.model.Chat;
 import ste.llm.chat.model.Conversation;
 import ste.llm.chat.model.PromptMessage;
 import dev.langchain4j.model.chat.StreamingChatModel;
-import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
+import java.util.function.Supplier;
 import java.nio.file.Path;
 import java.util.List;
-import ste.uzzo.agent.tools.AskTools;
 import ste.ai.viber.tools.ViberGUIAskTools;
 import ste.llm.tools.FileSystemTools;
 import ste.llm.tools.Tool;
@@ -97,7 +97,7 @@ public class MainAppController implements Constants {
     private final ConversationManager conversationManager = new ConversationManager();
     private Actor currentActor;
     private CLIOptions options;
-    private String currentActorType = "FXActor";
+    private ActorType currentActorType = ActorType.FX;
     private boolean switching = false;
     private DevModeWindow devModeWindow;
     private Stage owner;
@@ -111,20 +111,14 @@ public class MainAppController implements Constants {
         this.options = options;
         inputArea.getChildren().addListener((ListChangeListener<Node>) change -> updateAskToolLayout());
 
-        if (options == null || options.key() == null || options.key().isBlank()) {
+        if (!hasApiKey()) {
             FXActor fxActor = new FXActor(conversationModel, this.conversation);
             fxActor.askToolConsumer(this::human);
             this.currentActor = fxActor;
-            this.currentActorType = "FXActor";
+            this.currentActorType = ActorType.FX;
         } else {
-            this.currentActor = new LangChain4jActor(
-                options.endpoint(),
-                options.key(),
-                options.model(),
-                options.systemPrompt(),
-                defaultTools()
-            );
-            this.currentActorType = "LangChain4jActor";
+            this.currentActor = createLangChain4jActor();
+            this.currentActorType = ActorType.LANGCHAIN4J;
         }
 
         this.owner = owner;
@@ -226,37 +220,22 @@ public class MainAppController implements Constants {
     }
 
     public boolean isScopePhaseActive() {
-        return "ScopeActor".equals(currentActorType);
+        return currentActorType == ActorType.SCOPE;
     }
 
     public String getCurrentActorType() {
-        return currentActorType;
+        return currentActorType.label();
     }
 
     public ScopeActor createScopeActor() {
-        if (options == null || options.key() == null || options.key().isBlank()) {
+        if (!hasApiKey()) {
             return null;
         }
+        return new ScopeActor(chatModel(), new ViberGUIAskTools(this::human), fileSystemTools());
+    }
 
-        StreamingChatModel chatModel = OpenAiStreamingChatModel.builder()
-            .baseUrl(options.endpoint())
-            .apiKey(options.key())
-            .modelName(options.model())
-            .returnThinking(true)
-            .logRequests(true)
-            .logResponses(true)
-            .build();
-
-        AskTools askTools = new ViberGUIAskTools(this::human);
-
-        FileSystemTools fileSystemTools;
-        try {
-            fileSystemTools = new FileSystemTools(".");
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to initialize FileSystemTools", e);
-        }
-
-        return new ScopeActor(chatModel, askTools, fileSystemTools);
+    private StoryActor createStoryActor() {
+        return new StoryActor(chatModel(), new ViberGUIAskTools(this::human), fileSystemTools());
     }
 
     /**
@@ -266,36 +245,34 @@ public class MainAppController implements Constants {
      * @throws IllegalStateException if no API key is configured
      */
     public CodingActor createCodingActor() {
-        if (options == null || options.key() == null || options.key().isBlank()) {
+        if (!hasApiKey()) {
             throw new IllegalStateException("An API key is required to initialize CodingActor");
         }
+        return new CodingActor(chatModel(), fileSystemTools());
+    }
 
-        StreamingChatModel chatModel = OpenAiStreamingChatModel.builder()
-            .baseUrl(options.endpoint())
-            .apiKey(options.key())
-            .modelName(options.model())
-            .returnThinking(true)
-            .logRequests(true)
-            .logResponses(true)
-            .build();
+    private LangChain4jActor createLangChain4jActor() {
+        return new LangChain4jActor(chatModel(), defaultTools(), options.systemPrompt());
+    }
 
-        FileSystemTools fileSystemTools;
+    private boolean hasApiKey() {
+        return options != null && options.key() != null && !options.key().isBlank();
+    }
+
+    private StreamingChatModel chatModel() {
+        return ChatModels.openAi(options.endpoint(), options.key(), options.model());
+    }
+
+    private static FileSystemTools fileSystemTools() {
         try {
-            fileSystemTools = new FileSystemTools(".");
+            return new FileSystemTools(".");
         } catch (Exception e) {
             throw new RuntimeException("Failed to initialize FileSystemTools", e);
         }
-
-        return new CodingActor(chatModel, fileSystemTools);
     }
 
-
     public static java.util.List<Tool> defaultTools() {
-        try {
-            return List.of(new FileSystemTools("."));
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to initialize default tools", e);
-        }
+        return List.of(fileSystemTools());
     }
 
     // --------------------------------------------------------- private methods
@@ -345,6 +322,8 @@ public class MainAppController implements Constants {
 
     private void handleRadialSelection(RadialMode mode) {
         radialMode = mode;
+        // a different actor owns a different conversation: next prompt starts a new chat
+        conversationManager.reset();
         switch (mode) {
             case SCOPE -> switchToScopeActor();
             case STORY -> switchToStoryActor();
@@ -402,20 +381,15 @@ public class MainAppController implements Constants {
     }
 
     private boolean matchesActiveActor(RadialMode mode) {
-        return switch (mode) {
-            case SCOPE -> "ScopeActor".equals(currentActorType);
-            case STORY -> "StoryActor".equals(currentActorType);
-            case CODE -> "CodingActor".equals(currentActorType);
-            case EXPLORE -> "LangChain4jActor".equals(currentActorType);
-        };
+        return mode.actorType == currentActorType;
     }
 
     private void updateActorMenuSelection() {
-        boolean isFX = "FXActor".equals(currentActorType);
-        boolean isLangChain4j = "LangChain4jActor".equals(currentActorType);
-        boolean isScope = "ScopeActor".equals(currentActorType);
-        boolean isStory = "StoryActor".equals(currentActorType);
-        boolean isCoding = "CodingActor".equals(currentActorType);
+        boolean isFX = currentActorType == ActorType.FX;
+        boolean isLangChain4j = currentActorType == ActorType.LANGCHAIN4J;
+        boolean isScope = currentActorType == ActorType.SCOPE;
+        boolean isStory = currentActorType == ActorType.STORY;
+        boolean isCoding = currentActorType == ActorType.CODING;
 
         fxActorItem.setSelected(isFX);
         langChain4jActorItem.setSelected(isLangChain4j);
@@ -431,7 +405,7 @@ public class MainAppController implements Constants {
             FXActor fxActor = new FXActor(conversationModel, conversation);
             fxActor.askToolConsumer(this::human);
             this.currentActor = fxActor;
-            this.currentActorType = "FXActor";
+            this.currentActorType = ActorType.FX;
             updateActorMenuSelection();
             conversation.render(conversationModel);
             radialError = null;
@@ -445,121 +419,37 @@ public class MainAppController implements Constants {
         }
     }
 
-    private void switchToLangChain4jActor() {
-        if (options == null || options.key() == null || options.key().isBlank()) {
+    /** Switches to an LLM-backed actor, falling back to the manual actor when no key is configured. */
+    private void switchTo(ActorType type, Supplier<? extends Actor> factory) {
+        if (!hasApiKey()) {
             switchToFXActor();
             return;
         }
-
         if (switching) return;
         switching = true;
         try {
-            LangChain4jActor actor = new LangChain4jActor(
-                options.endpoint(),
-                options.key(),
-                options.model(),
-                options.systemPrompt(),
-                defaultTools()
-            );
+            final Actor actor = factory.get();
             this.currentActor = actor;
-            this.currentActorType = "LangChain4jActor";
+            this.currentActorType = type;
             updateActorMenuSelection();
             conversation.render(actor.conversation());
             radialError = null;
-
-            if (devModeWindow != null) {
-                devModeWindow.hide();
-                devModeWindow = null;
-            }
+            closeDevModeWindow();
         } finally {
             switching = false;
         }
+    }
+
+    private void switchToLangChain4jActor() {
+        switchTo(ActorType.LANGCHAIN4J, this::createLangChain4jActor);
     }
 
     private void switchToScopeActor() {
-        if (switching) return;
-        switching = true;
-        try {
-            if (options == null || options.key() == null || options.key().isBlank()) {
-                switchToFXActor();
-                return;
-            }
-
-            StreamingChatModel chatModel = OpenAiStreamingChatModel.builder()
-                .baseUrl(options.endpoint())
-                .apiKey(options.key())
-                .modelName(options.model())
-                .returnThinking(true)
-                .logRequests(true)
-                .logResponses(true)
-                .build();
-
-            AskTools askTools = new ViberGUIAskTools(this::human);
-
-            FileSystemTools fileSystemTools;
-            try {
-                fileSystemTools = new FileSystemTools(".");
-            } catch (Exception e) {
-                throw new RuntimeException("Failed to initialize FileSystemTools", e);
-            }
-
-            ScopeActor actor = new ScopeActor(chatModel, askTools, fileSystemTools);
-            this.currentActor = actor;
-            this.currentActorType = "ScopeActor";
-            updateActorMenuSelection();
-            conversation.render(actor.conversation());
-            radialError = null;
-
-            if (devModeWindow != null) {
-                devModeWindow.hide();
-                devModeWindow = null;
-            }
-        } finally {
-            switching = false;
-        }
+        switchTo(ActorType.SCOPE, this::createScopeActor);
     }
 
     private void switchToStoryActor() {
-        if (switching) return;
-        switching = true;
-        try {
-            if (options == null || options.key() == null || options.key().isBlank()) {
-                switchToFXActor();
-                return;
-            }
-
-            StreamingChatModel chatModel = OpenAiStreamingChatModel.builder()
-                .baseUrl(options.endpoint())
-                .apiKey(options.key())
-                .modelName(options.model())
-                .returnThinking(true)
-                .logRequests(true)
-                .logResponses(true)
-                .build();
-
-            AskTools askTools = new ViberGUIAskTools(this::human);
-
-            FileSystemTools fileSystemTools;
-            try {
-                fileSystemTools = new FileSystemTools(".");
-            } catch (Exception e) {
-                throw new RuntimeException("Failed to initialize FileSystemTools", e);
-            }
-
-            StoryActor actor = new StoryActor(chatModel, askTools, fileSystemTools);
-            this.currentActor = actor;
-            this.currentActorType = "StoryActor";
-            updateActorMenuSelection();
-            conversation.render(actor.conversation());
-            radialError = null;
-
-            if (devModeWindow != null) {
-                devModeWindow.hide();
-                devModeWindow = null;
-            }
-        } finally {
-            switching = false;
-        }
+        switchTo(ActorType.STORY, this::createStoryActor);
     }
 
     private void switchToCodingActor() {
@@ -578,16 +468,19 @@ public class MainAppController implements Constants {
             }
 
             this.currentActor = actor;
-            this.currentActorType = "CodingActor";
+            this.currentActorType = ActorType.CODING;
             radialError = null;
             updateActorMenuSelection();
-
-            if (devModeWindow != null) {
-                devModeWindow.hide();
-                devModeWindow = null;
-            }
+            closeDevModeWindow();
         } finally {
             switching = false;
+        }
+    }
+
+    private void closeDevModeWindow() {
+        if (devModeWindow != null) {
+            devModeWindow.hide();
+            devModeWindow = null;
         }
     }
 
@@ -605,7 +498,21 @@ public class MainAppController implements Constants {
         } else {
             conversation.render(turn.prompt());
         }
-        Thread chatThread = new Thread(() -> currentActor.chat(chat, msg -> conversation.render(msg)));
+        conversation.communicating(chat, true);
+        final Thread chatThread;
+        if (currentActor instanceof FXActor fxActor) {
+            // the manual actor answers later, from the dev mode window
+            fxActor.communicationEndHandler(c -> conversation.communicating(c, false));
+            chatThread = new Thread(() -> fxActor.chat(chat, msg -> conversation.render(msg)));
+        } else {
+            chatThread = new Thread(() -> {
+                try {
+                    currentActor.chat(chat, msg -> conversation.render(msg));
+                } finally {
+                    conversation.communicating(chat, false);
+                }
+            });
+        }
         chatThread.setDaemon(true);
         chatThread.start();
         prompt.clear();
@@ -613,7 +520,7 @@ public class MainAppController implements Constants {
     }
 
     public boolean isStoryPhaseActive() {
-        return "StoryActor".equals(currentActorType);
+        return currentActorType == ActorType.STORY;
     }
 
     /**
@@ -622,7 +529,7 @@ public class MainAppController implements Constants {
      * @return true when the coding phase is active
      */
     public boolean isCodingPhaseActive() {
-        return "CodingActor".equals(currentActorType);
+        return currentActorType == ActorType.CODING;
     }
 
     void human(final Node node) {  // TODO refactor into a component in pace of a Node
@@ -657,15 +564,17 @@ public class MainAppController implements Constants {
     }
 
     private enum RadialMode {
-        SCOPE("Scope"),
-        STORY("Story"),
-        CODE("Code"),
-        EXPLORE("Explore");
+        SCOPE("Scope", ActorType.SCOPE),
+        STORY("Story", ActorType.STORY),
+        CODE("Code", ActorType.CODING),
+        EXPLORE("Explore", ActorType.LANGCHAIN4J);
 
         private final String label;
+        private final ActorType actorType;
 
-        RadialMode(String label) {
+        RadialMode(String label, ActorType actorType) {
             this.label = label;
+            this.actorType = actorType;
         }
     }
 }

@@ -1,15 +1,18 @@
 package ste.ai.viber.renderer;
 
+import atlantafx.base.controls.RingProgressIndicator;
 import atlantafx.base.theme.Styles;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.Tooltip;
@@ -21,6 +24,9 @@ import ste.llm.chat.model.ChatMessage;
 import ste.llm.chat.model.ToolInvocationMessage;
 
 import java.net.URL;
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.Set;
 import java.util.ResourceBundle;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
@@ -32,12 +38,18 @@ public class ConversationPaneController implements Initializable {
     private static final Logger LOG = Logger.getLogger(ConversationPaneController.class.getName());
     private static final ButtonType FORGET_BUTTON = new ButtonType("Forget", ButtonBar.ButtonData.OK_DONE);
 
+    private static final String CHAT_KEY = "chat";
+    private static final String INDICATOR_KEY = "activityIndicator";
+    private static final double INDICATOR_SIZE = 16;
+    private static final double INDICATOR_GAP = 6;
+
     @FXML
     private TabPane chatsContainer;
 
     private Predicate<Chat> archiveHandler;
     private Predicate<Chat> forgetHandler;
     private Tab emptyChat;
+    private final Set<Chat> communicating = Collections.newSetFromMap(new IdentityHashMap<>());
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -68,6 +80,12 @@ public class ConversationPaneController implements Initializable {
     }
 
     private void setTabActions(Tab tab, String title, Chat chat) {
+        final RingProgressIndicator ring = activityIndicator();
+        ring.setVisible(chat != null && communicating.contains(chat));
+        ring.setManaged(ring.isVisible());
+        tab.getProperties().put(CHAT_KEY, chat);
+        tab.getProperties().put(INDICATOR_KEY, ring);
+
         HBox header = new HBox(1);
         if (archiveHandler != null) {
             header.getChildren().add(archiveButton(chat, tab));
@@ -75,11 +93,47 @@ public class ConversationPaneController implements Initializable {
         if (forgetHandler != null) {
             header.getChildren().add(forgetButton(chat, tab));
         }
-        if (!header.getChildren().isEmpty()) {
-            header.getChildren().addFirst(new Separator(Orientation.VERTICAL));
-            header.getChildren().addFirst(new Label(title));
-            tab.setText(null);
-            tab.setGraphic(header);
+        if (header.getChildren().isEmpty()) {
+            tab.setGraphic(ring);
+            return;
+        }
+        header.getChildren().addFirst(new Separator(Orientation.VERTICAL));
+        header.getChildren().addFirst(new Label(title));
+        header.getChildren().addFirst(ring);
+        HBox.setMargin(ring, new Insets(0, INDICATOR_GAP, 0, 0));
+        header.setAlignment(Pos.CENTER_LEFT);
+        tab.setText(null);
+        tab.setGraphic(header);
+    }
+
+    private RingProgressIndicator activityIndicator() {
+        final RingProgressIndicator ring = new RingProgressIndicator(0, false);
+        ring.setMinSize(INDICATOR_SIZE, INDICATOR_SIZE);
+        ring.setPrefSize(INDICATOR_SIZE, INDICATOR_SIZE);
+        ring.setMaxSize(INDICATOR_SIZE, INDICATOR_SIZE);
+        ring.setProgress(ProgressIndicator.INDETERMINATE_PROGRESS);
+        return ring;
+    }
+
+    /**
+     * Shows or hides the activity ring in the tab of the given chat. The state is
+     * remembered, so that it is kept if the tabs are rebuilt.
+     *
+     * @param chat the chat whose communication state changed
+     * @param active true while a communication is ongoing
+     */
+    void communicating(Chat chat, boolean active) {
+        if (active) {
+            communicating.add(chat);
+        } else {
+            communicating.remove(chat);
+        }
+        for (Tab tab : chatsContainer.getTabs()) {
+            if (tab.getProperties().get(CHAT_KEY) == chat) {
+                final Node ring = (Node) tab.getProperties().get(INDICATOR_KEY);
+                ring.setVisible(active);
+                ring.setManaged(active);
+            }
         }
     }
 

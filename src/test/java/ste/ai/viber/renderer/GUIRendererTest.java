@@ -16,6 +16,8 @@ import java.util.logging.Logger;
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.assertj.core.api.BDDAssertions.thenThrownBy;
 
+import atlantafx.base.controls.RingProgressIndicator;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -252,13 +254,86 @@ class GUIRendererTest extends org.testfx.framework.junit5.ApplicationTest {
         Button forget = forgetButton(tab);
 
         then(tab.getText()).isNull();
-        then(header.getChildren().get(0)).isInstanceOf(Label.class);
-        then(((Label) header.getChildren().get(0)).getText()).isEqualTo("Chat 1");
-        then(header.getChildren().get(1)).isInstanceOf(Separator.class);
-        then(header.getChildren().get(2)).isSameAs(archive);
-        then(header.getChildren().get(3)).isSameAs(forget);
+        then(header.getChildren().get(0)).isInstanceOf(RingProgressIndicator.class);
+        then(header.getChildren().get(1)).isInstanceOf(Label.class);
+        then(((Label) header.getChildren().get(1)).getText()).isEqualTo("Chat 1");
+        then(header.getChildren().get(2)).isInstanceOf(Separator.class);
+        then(header.getChildren().get(3)).isSameAs(archive);
+        then(header.getChildren().get(4)).isSameAs(forget);
         then(archive.getPrefWidth()).isEqualTo(18);
         then(forget.getPrefWidth()).isEqualTo(18);
+    }
+
+    @Test
+    void idle_chat_tab_shows_no_activity_indicator() throws Exception {
+        GUIRenderer renderer = new GUIRenderer();
+        renderer.archiveHandler(ignored -> false);
+
+        interact(() -> renderer.render(new Conversation().addChat(new Chat(new PromptMessage("A")))));
+        WaitForAsyncUtils.waitForFxEvents();
+
+        then(indicator(renderer.getTabs().get(0)).isVisible()).isFalse();
+        then(indicator(renderer.getTabs().get(0)).isManaged()).isFalse();
+    }
+
+    @Test
+    void ring_is_shown_only_while_its_chat_communicates() throws Exception {
+        GUIRenderer renderer = new GUIRenderer();
+        renderer.archiveHandler(ignored -> false);
+        Chat first = new Chat(new PromptMessage("A"));
+        Chat second = new Chat(new PromptMessage("B"));
+        interact(() -> ((StackPane) window(0).getScene().getRoot()).getChildren().add(renderer));
+        interact(() -> renderer.render(new Conversation().addChat(first).addChat(second)));
+        WaitForAsyncUtils.waitForFxEvents();
+
+        interact(() -> renderer.communicating(first, true));
+        WaitForAsyncUtils.waitForFxEvents();
+
+        RingProgressIndicator ring = indicator(renderer.getTabs().get(0));
+        then(ring.isVisible()).isTrue();
+        then(ring.getWidth()).isEqualTo(16);
+        then(ring.getProgress()).isEqualTo(ProgressIndicator.INDETERMINATE_PROGRESS);
+        then(indicator(renderer.getTabs().get(1)).isVisible()).isFalse();
+
+        interact(() -> renderer.communicating(first, false));
+        WaitForAsyncUtils.waitForFxEvents();
+
+        then(ring.isVisible()).isFalse();
+    }
+
+    @Test
+    void ring_survives_a_rebuild_of_the_conversation() throws Exception {
+        GUIRenderer renderer = new GUIRenderer();
+        renderer.archiveHandler(ignored -> false);
+        Chat chat = new Chat(new PromptMessage("A"));
+        Conversation conversation = new Conversation().addChat(chat);
+        interact(() -> renderer.render(conversation));
+        interact(() -> renderer.communicating(chat, true));
+
+        interact(() -> renderer.render(conversation));
+        WaitForAsyncUtils.waitForFxEvents();
+
+        then(indicator(renderer.getTabs().get(0)).isVisible()).isTrue();
+    }
+
+    @Test
+    void ring_precedes_the_label_when_the_tab_has_no_buttons() throws Exception {
+        GUIRenderer renderer = new GUIRenderer();
+        Chat chat = new Chat(new PromptMessage("A"));
+        interact(() -> renderer.render(new Conversation().addChat(chat)));
+        interact(() -> renderer.communicating(chat, true));
+        WaitForAsyncUtils.waitForFxEvents();
+
+        Tab tab = renderer.getTabs().get(0);
+        then(tab.getText()).isEqualTo("Chat 1");
+        then(tab.getGraphic()).isInstanceOf(RingProgressIndicator.class);
+        then(tab.getGraphic().isVisible()).isTrue();
+    }
+
+    private RingProgressIndicator indicator(Tab tab) {
+        return tab.getGraphic() instanceof HBox header
+            ? (RingProgressIndicator) header.getChildren().get(0)
+            : (RingProgressIndicator) tab.getGraphic();
     }
 
     @Test

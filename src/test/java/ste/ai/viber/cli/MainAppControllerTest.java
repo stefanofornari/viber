@@ -86,7 +86,7 @@ class MainAppControllerTest extends org.testfx.framework.junit5.ApplicationTest 
 
         then(controller.conversation.getTabs()).hasSize(1);
         HBox header = (HBox) controller.conversation.getTabs().get(0).getGraphic();
-        then(((Label) header.getChildren().get(0)).getText()).startsWith("Chat 1");
+        then(((Label) header.getChildren().get(1)).getText()).startsWith("Chat 1");
         Button archive = tabButton(controller.conversation, 0, "chat-tab-archive-button");
         Button forget = tabButton(controller.conversation, 0, "chat-tab-forget-button");
         then(archive).isNotNull();
@@ -744,6 +744,58 @@ class MainAppControllerTest extends org.testfx.framework.junit5.ApplicationTest 
         then(shown.getText()).startsWith("Project folder: /very").endsWith("project-acme").contains("...");
         then(shown.getText().length()).isLessThan(dir.toString().length());
         then(path.getTooltip().getText()).isEqualTo(dir.toString());
+    }
+
+    @Test
+    void chat_tab_shows_the_ring_during_every_communication_with_the_actor() throws Exception {
+        MainAppController controller = loadController(null);
+        java.util.concurrent.atomic.AtomicReference<java.util.concurrent.CountDownLatch> gate =
+            new java.util.concurrent.atomic.AtomicReference<>();
+        ste.ai.viber.actor.Actor blocking = new ste.ai.viber.actor.Actor() {
+            @Override
+            public Conversation conversation() {
+                return new Conversation();
+            }
+
+            @Override
+            public void chat(Chat chat, java.util.function.Consumer<ste.llm.chat.model.ChatMessage> onMessage) {
+                try {
+                    gate.get().await();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        };
+        java.lang.reflect.Field actorField = MainAppController.class.getDeclaredField("currentActor");
+        actorField.setAccessible(true);
+        actorField.set(controller, blocking);
+        java.lang.reflect.Method send = MainAppController.class.getDeclaredMethod("handleSend");
+        send.setAccessible(true);
+
+        for (int round = 0; round < 3; round++) {
+            gate.set(new java.util.concurrent.CountDownLatch(1));
+            final int n = round;
+            interact(() -> {
+                controller.prompt.setText("question " + n);
+                try {
+                    send.invoke(controller);
+                } catch (ReflectiveOperationException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            WaitForAsyncUtils.waitForFxEvents();
+            then(ring(controller).isVisible()).as("round " + round).isTrue();
+
+            gate.get().countDown();
+            Thread.sleep(200);
+            WaitForAsyncUtils.waitForFxEvents();
+            then(ring(controller).isVisible()).as("round " + round + " done").isFalse();
+        }
+    }
+
+    private javafx.scene.Node ring(MainAppController controller) {
+        HBox header = (HBox) controller.conversation.getTabs().get(0).getGraphic();
+        return header.getChildren().get(0);
     }
 
     private MainAppController loadController() {

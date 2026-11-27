@@ -59,14 +59,14 @@ class MainAppScopeActorTest extends ApplicationTest {
 
     @Test
     void is_scope_phase_active_returns_true_when_scope_actor_selected() throws Exception {
-        setField(controller, "currentActorType", "ScopeActor");
+        setField(controller, "currentActorType", ActorType.SCOPE);
 
         then(controller.isScopePhaseActive()).isTrue();
     }
 
     @Test
     void get_current_actor_type_returns_scope_actor_type() throws Exception {
-        setField(controller, "currentActorType", "ScopeActor");
+        setField(controller, "currentActorType", ActorType.SCOPE);
 
         then(controller.getCurrentActorType()).isEqualTo("ScopeActor");
     }

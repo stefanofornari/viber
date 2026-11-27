@@ -4,39 +4,18 @@ import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.service.AiServices;
 import dev.langchain4j.service.TokenStream;
 import dev.langchain4j.service.UserMessage;
-import dev.langchain4j.agent.tool.ToolExecutionRequest;
-import dev.langchain4j.exception.ToolExecutionException;
-import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
-
 
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
-import org.json.JSONObject;
-import ste.lazyjava.safe.Safe;
 import ste.lazyjava.annotation.NonBlank;
-import ste.llm.chat.model.Chat;
-import ste.llm.chat.model.ChatMessage;
-import ste.llm.chat.model.Conversation;
-import ste.llm.chat.model.ErrorMessage;
-import ste.llm.chat.model.PromptMessage;
-import ste.llm.chat.model.ReplyMessage;
 import ste.llm.chat.model.SystemMessage;
-import ste.llm.chat.model.ThoughtMessage;
-import ste.llm.chat.model.ToolExecutionMessage;
-import ste.llm.chat.model.ToolInvocationMessage;
-import ste.llm.tools.InvocationJSONObject;
 import ste.llm.tools.Tool;
 
-public class LangChain4jActor implements Actor, Safe {
+public class LangChain4jActor extends AgentActorBase {
     public interface ActorService {
         TokenStream chat(@UserMessage String userMessage);
     }
 
     private final ActorService service;
-    private final Conversation conversation;
 
     public LangChain4jActor(
         StreamingChatModel streamingChatModel,
@@ -45,8 +24,6 @@ public class LangChain4jActor implements Actor, Safe {
     ) {
         requireNonNull(streamingChatModel, "streamingChatModel");
         requireFullyNonNull(tools, "tools");
-
-        this.conversation = new Conversation();
 
         conversation.systemMessage(new SystemMessage(systemPrompt));
 
@@ -57,160 +34,8 @@ public class LangChain4jActor implements Actor, Safe {
             .build();
     }
 
-    public LangChain4jActor(
-        String endpoint,
-        String apiKey,
-        String model,
-        String systemPrompt,
-        List<Tool> tools
-    ) {
-        this(
-            OpenAiStreamingChatModel.builder()
-                .baseUrl(endpoint)
-                .apiKey(apiKey)
-                .modelName(model)
-                .returnThinking(true)
-                .logRequests(true)
-                .logResponses(true)
-                .build(),
-            tools,
-            systemPrompt
-        );
-    }
-
     @Override
-    public Conversation conversation() {
-        return conversation;
-    }
-
-    @Override
-    public void chat(Chat chat, Consumer<ChatMessage> onMessage) {
-        requireNonNull(chat, "chat");
-        requireNonNull(onMessage, "onMessage");
-
-        if (!conversation.chats().contains(chat)) {
-            conversation.addChat(chat);
-        }
-
-        PromptMessage prompt = Prompts.latest(chat);
-
-        CountDownLatch latch = new CountDownLatch(1);
-        AtomicReference<Throwable> error = new AtomicReference<>();
-        AtomicBoolean partialReceived = new AtomicBoolean(false);
-        StringBuilder replyBuffer = new StringBuilder();
-        StringBuilder thinkingBuffer = new StringBuilder();
-
-        TokenStream tokenStream = service.chat(prompt.content());
-        tokenStream
-            .onPartialResponse(text -> {
-                partialReceived.set(true);
-                replyBuffer.append(text);
-
-                int newlineIndex;
-                while ((newlineIndex = replyBuffer.indexOf("\n")) >= 0) {
-                    String line = replyBuffer.substring(0, newlineIndex).trim();
-                    if (!line.isEmpty()) {
-                        ReplyMessage reply = new ReplyMessage(line);
-                        chat.addMessage(reply);
-                        onMessage.accept(reply);
-                    }
-                    replyBuffer.delete(0, newlineIndex + 1);
-                }
-            })
-            .onPartialThinking(thinking -> {
-                thinkingBuffer.append(thinking.text());
-
-                int newlineIndex;
-                while ((newlineIndex = thinkingBuffer.indexOf("\n")) >= 0) {
-                    String line = thinkingBuffer.substring(0, newlineIndex).trim();
-                    if (!line.isEmpty()) {
-                        ThoughtMessage thought = new ThoughtMessage(line);
-                        chat.addMessage(thought);
-                        onMessage.accept(thought);
-                    }
-                    thinkingBuffer.delete(0, newlineIndex + 1);
-                }
-            })
-            .onIntermediateResponse(response -> {
-                if (response.aiMessage().hasToolExecutionRequests()) {
-                    for (ToolExecutionRequest request : response.aiMessage().toolExecutionRequests()) {
-                        ToolInvocationMessage toolMsg = new ToolInvocationMessage(
-                            new InvocationJSONObject(request.name(), new JSONObject(request.arguments())));
-                        chat.addMessage(toolMsg);
-                        onMessage.accept(toolMsg);
-                    }
-                }
-            })
-            .onToolExecuted(execution -> {
-                String toolResult = execution.result();
-                if (execution.hasFailed()) {
-                    ErrorMessage errorMessage = new ErrorMessage(toolResult, null);
-                    chat.addMessage(errorMessage);
-                    onMessage.accept(errorMessage);
-                } else {
-                    ToolExecutionMessage toolResponse = new ToolExecutionMessage(toolResult);
-                    chat.addMessage(toolResponse);
-                    onMessage.accept(toolResponse);
-                }
-            })
-            .onCompleteResponse(response -> {
-                String remainingThinking = thinkingBuffer.toString().trim();
-                if (!remainingThinking.isEmpty()) {
-                    ThoughtMessage thought = new ThoughtMessage(remainingThinking);
-                    chat.addMessage(thought);
-                    onMessage.accept(thought);
-                }
-
-                if (!partialReceived.get()) {
-                    safe(response.aiMessage().text(), finalReply -> {
-                        if (!finalReply.isBlank()) {
-                            ReplyMessage reply = new ReplyMessage(finalReply);
-                            chat.addMessage(reply);
-                            onMessage.accept(reply);
-                        }
-                    });
-                } else {
-                    String remaining = replyBuffer.toString().trim();
-                    if (!remaining.isEmpty()) {
-                        ReplyMessage reply = new ReplyMessage(remaining);
-                        chat.addMessage(reply);
-                        onMessage.accept(reply);
-                    }
-                }
-
-                safe(response.metadata().tokenUsage(), (usage) -> chat.tokenUsage(usage));
-
-                latch.countDown();
-            })
-            .onError(err -> {
-                error.set(err);
-                if (causedByToolExecutionException(err)) {
-                    ErrorMessage errorMessage = new ErrorMessage(err.getMessage(), err);
-                    chat.addMessage(errorMessage);
-                    onMessage.accept(errorMessage);
-                }
-                latch.countDown();
-            })
-            .start();
-
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new RuntimeException("Interrupted while streaming chat", e);
-        }
-
-        ifNotNull(error.get(), () -> {
-            throw new RuntimeException("Streaming chat failed", error.get());
-        });
-    }
-
-    private static boolean causedByToolExecutionException(Throwable error) {
-        for (Throwable cause = error; cause != null; cause = cause.getCause()) {
-            if (cause instanceof ToolExecutionException) {
-                return true;
-            }
-        }
-        return false;
+    protected TokenStream createTokenStream(String userMessage) {
+        return service.chat(userMessage);
     }
 }

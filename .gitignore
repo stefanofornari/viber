@@ -15,3 +15,6 @@ Thumbs.db
 dependency-reduced-pom.xml
 
 __*
+
+# machine-specific classpath dump
+cp.txt

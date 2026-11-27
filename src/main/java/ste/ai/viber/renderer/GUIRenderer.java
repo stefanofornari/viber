@@ -76,6 +76,18 @@ public class GUIRenderer extends TabPane implements Renderer, Safe {
     }
 
     /**
+     * Shows or hides the activity ring in the tab of a chat, to tell the user whether a
+     * communication is ongoing in it.
+     *
+     * @param chat the chat
+     * @param active true while a communication is ongoing, false when idle
+     */
+    public void communicating(Chat chat, boolean active) {
+        requireNonNull(chat, "chat");
+        Platform.runLater(() -> conversationPaneController.communicating(chat, active));
+    }
+
+    /**
      * Opens a new empty chat tab (unless one is already waiting) and selects it, so
      * that the next chat goes there.
      */

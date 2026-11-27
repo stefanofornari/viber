@@ -97,6 +97,24 @@ class FXActorTest {
     }
 
     @Test
+    void reply_and_error_end_the_communication_but_thought_does_not() {
+        FXActor actor = new FXActor(new Conversation(), new RecordingRenderer());
+        List<Chat> ended = new ArrayList<>();
+        actor.communicationEndHandler(ended::add);
+        Chat chat = new Chat(new PromptMessage("hello"));
+        actor.chat(chat, msg -> {});
+
+        actor.addThought("thinking");
+        then(ended).isEmpty();
+
+        actor.addReply("done");
+        then(ended).containsExactly(chat);
+
+        actor.addError("oops");
+        then(ended).containsExactly(chat, chat);
+    }
+
+    @Test
     void addThought_appends_thought_to_current_chat() {
         Conversation conversation = new Conversation();
         RecordingRenderer renderer = new RecordingRenderer();

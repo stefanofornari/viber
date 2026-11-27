@@ -32,6 +32,7 @@ public class FXActor implements Actor, Safe {
     private Renderer renderer;
     private Chat currentChat;
     private Consumer<Node> askToolConsumer;
+    private Consumer<Chat> communicationEndHandler = chat -> {};
 
     public FXActor(Conversation conversation, Renderer renderer) {
         requireNonNull(conversation, "conversation");
@@ -42,6 +43,17 @@ public class FXActor implements Actor, Safe {
     public void renderer(Renderer renderer) {
         requireNonNull(renderer, "renderer");
         this.renderer = renderer;
+    }
+
+    /**
+     * Sets the handler notified when the actor answers a chat with a reply or an
+     * error, which ends the communication started by the user's prompt.
+     *
+     * @param handler receives the chat whose communication ended
+     */
+    public void communicationEndHandler(Consumer<Chat> handler) {
+        requireNonNull(handler, "handler");
+        this.communicationEndHandler = handler;
     }
 
     public void askToolConsumer(Consumer<Node> consumer) {
@@ -177,5 +189,8 @@ public class FXActor implements Actor, Safe {
         }
         currentChat.addMessage(message);
         renderer.render(message);
+        if (message instanceof ReplyMessage || message instanceof ErrorMessage) {
+            communicationEndHandler.accept(currentChat);
+        }
     }
 }

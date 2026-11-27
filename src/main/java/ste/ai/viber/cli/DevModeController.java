@@ -389,24 +389,19 @@ public class DevModeController {
             
             // Otherwise execute as a regular tool via reflection
             fxActor.addToolInvocation(text);
-            System.out.println("executing " + text);
             JSONObject argumentsJson = json.getJSONObject("arguments");
             // Convert JSONObject to Map<String, Object> for the tool execution
             Map<String, Object> arguments = argumentsJson.toMap();
             // Find the tool by name using reflection
             for (final Tool t : tools) {
-                System.out.println("checking class " + t);
                 for(final Method m: t.getClass().getMethods()) {
-                    System.out.println("  checking method " + m);
                     for(final Annotation a: m.getDeclaredAnnotations()) {
                         if (a instanceof dev.langchain4j.agent.tool.Tool toolAnnotation) {
                             if (toolName.equals(toolAnnotation.name())) {
-                                System.out.println("    found " + m);
                                 final List values = new ArrayList();
                                 on(m.getParameters()).loop((p) -> {
                                     values.add(arguments.get(p.getName()));
                                 });
-                                System.out.println("    values: " + values);
                                 Object result =  m.invoke(t, values.toArray());
                                 String resultString = result == null ? "" : result.toString();
                                 fxActor.addToolReply(resultString);

@@ -1,10 +1,10 @@
 package ste.ai.viber.cli;
 
 import dev.langchain4j.model.chat.StreamingChatModel;
-import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
 import picocli.CommandLine;
 import ste.ai.viber.actor.LangChain4jActor;
 import ste.ai.viber.actor.Actor;
+import ste.ai.viber.actor.ChatModels;
 import ste.ai.viber.actor.StdInStdOutActor;
 import ste.ai.viber.cli.command.CLIOptions;
 
@@ -85,14 +85,7 @@ public class MainCommand implements Callable<Integer> {
             return new StdInStdOutActor();
         }
 
-        StreamingChatModel chatModel = OpenAiStreamingChatModel.builder()
-            .baseUrl(options.endpoint())
-            .apiKey(options.key())
-            .modelName(options.model())
-            .returnThinking(true)
-            .logRequests(true)
-            .logResponses(true)
-            .build();
+        StreamingChatModel chatModel = ChatModels.openAi(options.endpoint(), options.key(), options.model());
 
         try {
             return new LangChain4jActor(
